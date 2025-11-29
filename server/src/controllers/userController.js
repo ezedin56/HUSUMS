@@ -93,7 +93,56 @@ const updateProfile = async (req, res) => {
     }
 };
 
+// @desc    Get dashboard stats
+// @route   GET /api/users/stats
+// @access  Private
+const getDashboardStats = async (req, res) => {
+    try {
+        const { User, Event, Election, Vote, Attendance } = require('../models');
+        
+        // Count members
+        const memberCount = await User.countDocuments({ role: 'member' });
+        
+        // Count events
+        const eventCount = await Event.countDocuments();
+        
+        // Count active elections
+        const activeElectionCount = await Election.countDocuments({ status: 'active' });
+        
+        // Count votes cast by current user (if member)
+        let votesCast = 0;
+        if (req.user.role === 'member') {
+            votesCast = await Vote.countDocuments({ userId: req.user._id });
+        }
+        
+        // Get user's attendance stats (if member)
+        let attendanceStats = null;
+        if (req.user.role === 'member') {
+            const attendanceRecords = await Attendance.find({ userId: req.user._id });
+            const totalPresent = attendanceRecords.filter(a => a.status === 'present' || a.status === 'late').length;
+            const totalRecords = attendanceRecords.length;
+            const attendanceRate = totalRecords > 0 ? Math.round((totalPresent / totalRecords) * 100) : 0;
+            
+            attendanceStats = {
+                totalCheckIns: totalPresent,
+                attendanceRate
+            };
+        }
+        
+        res.json({
+            members: memberCount,
+            events: eventCount,
+            elections: activeElectionCount,
+            votescast: votesCast,
+            attendance: attendanceStats
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getProfile,
-    updateProfile
+    updateProfile,
+    getDashboardStats
 };

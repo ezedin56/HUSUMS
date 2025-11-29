@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { api } from '../../../utils/api';
+import { MessageSquare, AlertTriangle, Inbox, Send, Clock, CheckCircle, AlertCircle, User } from 'lucide-react';
+import '../memberDashboard.css';
 
 const Support = () => {
     const [reports, setReports] = useState([]);
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('reports'); // 'reports' or 'inbox'
+    const [activeTab, setActiveTab] = useState('reports');
+    const [submitting, setSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         category: 'academic',
         subject: '',
@@ -14,16 +17,13 @@ const Support = () => {
 
     const fetchData = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const headers = { Authorization: `Bearer ${token}` };
-
             const [resReports, resMessages] = await Promise.all([
-                axios.get('http://localhost:5000/api/communication/my-reports', { headers }),
-                axios.get('http://localhost:5000/api/communication/inbox', { headers })
+                api.get('/communication/my-reports'),
+                api.get('/communication/inbox')
             ]);
 
-            setReports(resReports.data);
-            setMessages(resMessages.data);
+            setReports(resReports);
+            setMessages(resMessages);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -37,112 +37,193 @@ const Support = () => {
 
     const handleSubmitReport = async (e) => {
         e.preventDefault();
+        setSubmitting(true);
         try {
-            const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/communication/report', formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.post('/communication/report', formData);
 
             alert('Report submitted successfully');
             setFormData({ category: 'academic', subject: '', description: '' });
-            fetchData(); // Refresh reports
+            fetchData();
         } catch (error) {
             alert('Error submitting report');
             console.error(error);
+        } finally {
+            setSubmitting(false);
         }
     };
 
-    if (loading) return <div>Loading...</div>;
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case 'resolved': return <CheckCircle size={14} />;
+            case 'in-progress': return <Clock size={14} />;
+            default: return <AlertCircle size={14} />;
+        }
+    };
+
+    const getCategoryIcon = (category) => {
+        switch (category) {
+            case 'academic': return '📚';
+            case 'facility': return '🏢';
+            case 'administrative': return '📋';
+            default: return '📝';
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="member-page">
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <p className="loading-text">Loading Communication Center...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="card animate-fade-up">
-            <h2 style={{ marginBottom: '2rem' }}>Communication Center</h2>
+        <div className="member-page">
+            {/* Page Header */}
+            <div className="page-header">
+                <h1 className="page-title">
+                    <MessageSquare className="title-icon" />
+                    Communication Center
+                </h1>
+                <p className="page-subtitle">Submit reports and view your inbox</p>
+            </div>
 
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--border-color)' }}>
+            {/* Tab Navigation */}
+            <div className="support-tabs">
                 <button
-                    className={`btn ${activeTab === 'reports' ? 'btn-primary' : 'btn-secondary'}`}
+                    className={`support-tab ${activeTab === 'reports' ? 'active' : ''}`}
                     onClick={() => setActiveTab('reports')}
                 >
-                    Problem Reports
+                    <AlertTriangle size={18} />
+                    <span>Problem Reports</span>
+                    <span className="tab-count">{reports.length}</span>
                 </button>
                 <button
-                    className={`btn ${activeTab === 'inbox' ? 'btn-primary' : 'btn-secondary'}`}
+                    className={`support-tab ${activeTab === 'inbox' ? 'active' : ''}`}
                     onClick={() => setActiveTab('inbox')}
                 >
-                    Inbox ({messages.length})
+                    <Inbox size={18} />
+                    <span>Inbox</span>
+                    <span className="tab-count">{messages.length}</span>
                 </button>
             </div>
 
             {activeTab === 'reports' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                <div className="support-grid">
                     {/* Report Form */}
-                    <div>
-                        <h3>Submit a Report</h3>
-                        <form onSubmit={handleSubmitReport} style={{ marginTop: '1rem' }}>
-                            <div className="form-group">
-                                <label>Category</label>
-                                <select
-                                    className="input"
-                                    value={formData.category}
-                                    onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                >
-                                    <option value="academic">Academic</option>
-                                    <option value="facility">Facility</option>
-                                    <option value="administrative">Administrative</option>
-                                    <option value="other">Other</option>
-                                </select>
+                    <div className="page-card support-form-card">
+                        <div className="card-header">
+                            <h3 className="card-title">
+                                <Send size={20} />
+                                Submit a Report
+                            </h3>
+                        </div>
+                        <form onSubmit={handleSubmitReport} className="support-form">
+                            <div className="holo-fieldset">
+                                <label className="field-label">Category</label>
+                                <div className="select-wrapper">
+                                    <select
+                                        className="holo-select"
+                                        value={formData.category}
+                                        onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                    >
+                                        <option value="academic">📚 Academic</option>
+                                        <option value="facility">🏢 Facility</option>
+                                        <option value="administrative">📋 Administrative</option>
+                                        <option value="other">📝 Other</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div className="form-group">
-                                <label>Subject</label>
+                            <div className="holo-fieldset">
+                                <label className="field-label">Subject</label>
                                 <input
                                     type="text"
-                                    className="input"
+                                    className="holo-input"
+                                    placeholder="Enter the subject of your report"
                                     value={formData.subject}
                                     onChange={e => setFormData({ ...formData, subject: e.target.value })}
                                     required
                                 />
                             </div>
-                            <div className="form-group">
-                                <label>Description</label>
+                            <div className="holo-fieldset">
+                                <label className="field-label">Description</label>
                                 <textarea
-                                    className="input"
-                                    rows="4"
+                                    className="holo-textarea"
+                                    rows="5"
+                                    placeholder="Describe your issue in detail..."
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                                     required
                                 ></textarea>
                             </div>
-                            <button type="submit" className="btn btn-primary">Submit Report</button>
+                            <button 
+                                type="submit" 
+                                className="submit-report-btn"
+                                disabled={submitting}
+                            >
+                                {submitting ? (
+                                    <>
+                                        <div className="btn-spinner"></div>
+                                        Submitting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send size={18} />
+                                        Submit Report
+                                    </>
+                                )}
+                            </button>
                         </form>
                     </div>
 
-                    {/* My Reports */}
-                    <div>
-                        <h3>My Reports</h3>
+                    {/* My Reports List */}
+                    <div className="page-card">
+                        <div className="card-header">
+                            <h3 className="card-title">
+                                <AlertTriangle size={20} />
+                                My Reports
+                            </h3>
+                            <span className="report-count">{reports.length} total</span>
+                        </div>
+                        
                         {reports.length === 0 ? (
-                            <p>No reports submitted.</p>
+                            <div className="empty-state">
+                                <AlertTriangle size={48} className="empty-icon" />
+                                <p>No reports submitted yet</p>
+                                <span className="empty-hint">Use the form to submit your first report</span>
+                            </div>
                         ) : (
-                            <div style={{ marginTop: '1rem', display: 'grid', gap: '1rem' }}>
+                            <div className="reports-list">
                                 {reports.map(report => (
-                                    <div key={report.id} style={{
-                                        border: '1px solid var(--border-color)',
-                                        padding: '1rem',
-                                        borderRadius: '0.5rem',
-                                        backgroundColor: 'var(--bg-body)'
-                                    }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                            <strong>{report.subject}</strong>
-                                            <span className={`badge badge-${report.status === 'resolved' ? 'success' : 'warning'}`}>
+                                    <div key={report.id} className="report-card">
+                                        <div className="report-header">
+                                            <div className="report-category">
+                                                <span className="category-icon">{getCategoryIcon(report.category)}</span>
+                                                <span className="category-name">{report.category}</span>
+                                            </div>
+                                            <span className={`status-badge status-${report.status}`}>
+                                                {getStatusIcon(report.status)}
                                                 {report.status}
                                             </span>
                                         </div>
-                                        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                            Category: {report.category} | {new Date(report.createdAt).toLocaleDateString()}
-                                        </p>
-                                        <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>{report.description}</p>
+                                        <h4 className="report-subject">{report.subject}</h4>
+                                        <p className="report-description">{report.description}</p>
+                                        <div className="report-footer">
+                                            <span className="report-date">
+                                                <Clock size={14} />
+                                                {new Date(report.createdAt).toLocaleDateString()}
+                                            </span>
+                                        </div>
                                         {report.response && (
-                                            <div style={{ marginTop: '0.5rem', padding: '0.5rem', backgroundColor: 'rgba(0,255,0,0.1)', borderRadius: '0.25rem' }}>
-                                                <strong>Response:</strong> {report.response}
+                                            <div className="report-response">
+                                                <div className="response-header">
+                                                    <CheckCircle size={16} />
+                                                    <span>Official Response</span>
+                                                </div>
+                                                <p>{report.response}</p>
                                             </div>
                                         )}
                                     </div>
@@ -154,29 +235,44 @@ const Support = () => {
             )}
 
             {activeTab === 'inbox' && (
-                <div>
-                    <h3>Inbox</h3>
+                <div className="page-card inbox-card">
+                    <div className="card-header">
+                        <h3 className="card-title">
+                            <Inbox size={20} />
+                            Messages
+                        </h3>
+                        <span className="message-count">{messages.length} messages</span>
+                    </div>
+                    
                     {messages.length === 0 ? (
-                        <p>No messages received.</p>
+                        <div className="empty-state">
+                            <Inbox size={48} className="empty-icon" />
+                            <p>Your inbox is empty</p>
+                            <span className="empty-hint">Messages from leadership will appear here</span>
+                        </div>
                     ) : (
-                        <div style={{ marginTop: '1rem', display: 'grid', gap: '1rem' }}>
+                        <div className="messages-list">
                             {messages.map(msg => (
-                                <div key={msg.id} style={{
-                                    border: '1px solid var(--border-color)',
-                                    padding: '1rem',
-                                    borderRadius: '0.5rem',
-                                    backgroundColor: 'var(--bg-body)'
-                                }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                        <strong>{msg.subject}</strong>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                <div key={msg.id} className="message-card">
+                                    <div className="message-header">
+                                        <div className="sender-info">
+                                            <div className="sender-avatar">
+                                                <User size={20} />
+                                            </div>
+                                            <div className="sender-details">
+                                                <span className="sender-name">
+                                                    {msg.sender?.firstName} {msg.sender?.lastName}
+                                                </span>
+                                                <span className="sender-role">{msg.sender?.role}</span>
+                                            </div>
+                                        </div>
+                                        <span className="message-date">
+                                            <Clock size={14} />
                                             {new Date(msg.createdAt).toLocaleDateString()}
                                         </span>
                                     </div>
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
-                                        From: {msg.sender?.firstName} {msg.sender?.lastName} ({msg.sender?.role})
-                                    </p>
-                                    <p>{msg.content}</p>
+                                    <h4 className="message-subject">{msg.subject}</h4>
+                                    <p className="message-content">{msg.content}</p>
                                 </div>
                             ))}
                         </div>

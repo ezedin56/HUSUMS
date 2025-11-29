@@ -30,7 +30,7 @@ const Members = () => {
             setFormData({ firstName: '', lastName: '', studentId: '', email: '', password: '', role: 'member' });
             fetchMembers();
         } catch (error) {
-            alert(error.response?.data?.message || 'Registration failed');
+            alert(error?.data?.message || error.message || 'Registration failed');
         } finally {
             setLoading(false);
         }

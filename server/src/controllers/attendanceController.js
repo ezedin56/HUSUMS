@@ -10,9 +10,9 @@ const checkIn = async (req, res) => {
         const now = new Date();
         const currentHour = now.getHours();
 
-        // R5.1: Digital Attendance - Time Window Check (6:00 AM - 9:00 AM)
-        if (currentHour < 6 || currentHour >= 9) {
-            return res.status(400).json({ message: 'Check-in is only allowed between 6:00 AM and 9:00 AM.' });
+        // R5.1: Digital Attendance - Time Window Check (6:00 AM - 9:00 PM)
+        if (currentHour < 6 || currentHour >= 21) {
+            return res.status(400).json({ message: 'Check-in is only allowed between 6:00 AM and 9:00 PM.' });
         }
 
         // Check if already checked in
@@ -46,6 +46,75 @@ const getMyAttendance = async (req, res) => {
         const attendance = await Attendance.find({ userId: req.user._id })
             .sort({ date: -1 });
         res.json(attendance);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Mark attendance (Secretary only)
+// @route   POST /api/attendance/mark
+// @access  Private (Secretary)
+const markAttendance = async (req, res) => {
+    const { userId, status, date } = req.body;
+    
+    try {
+        const attendanceDate = date ? new Date(date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        
+        let attendance = await Attendance.findOne({
+            userId,
+            date: attendanceDate
+        });
+
+        if (attendance) {
+            attendance.status = status;
+            attendance.checkInTime = status === 'present' || status === 'late' ? new Date().toLocaleTimeString('en-US', { hour12: false }) : null;
+            attendance.markedBy = req.user._id;
+            await attendance.save();
+        } else {
+            attendance = await Attendance.create({
+                userId,
+                date: attendanceDate,
+                status,
+                checkInTime: status === 'present' || status === 'late' ? new Date().toLocaleTimeString('en-US', { hour12: false }) : null,
+                markedBy: req.user._id
+            });
+        }
+
+        res.json(attendance);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get daily attendance for all members
+// @route   GET /api/attendance/daily
+// @access  Private (Secretary)
+const getDailyAttendance = async (req, res) => {
+    try {
+        const date = req.query.date ? new Date(req.query.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        
+        // Get all members
+        const members = await User.find({ role: 'member' }).select('firstName lastName studentId department');
+        
+        // Get attendance for the date
+        const attendanceRecords = await Attendance.find({ date });
+        
+        // Merge data
+        const dailyReport = members.map(member => {
+            const record = attendanceRecords.find(a => a.userId.toString() === member._id.toString());
+            return {
+                _id: member._id,
+                firstName: member.firstName,
+                lastName: member.lastName,
+                studentId: member.studentId,
+                department: member.department,
+                status: record ? record.status : 'not_marked',
+                checkInTime: record ? record.checkInTime : null,
+                attendanceId: record ? record._id : null
+            };
+        });
+
+        res.json(dailyReport);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -111,5 +180,7 @@ module.exports = {
     checkIn,
     getMyAttendance,
     getAllAttendance,
-    getAttendanceWarnings
+    getAttendanceWarnings,
+    markAttendance,
+    getDailyAttendance
 };
