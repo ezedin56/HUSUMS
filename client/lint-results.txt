@@ -1,0 +1,214 @@
+﻿
+> client@0.0.0 lint
+> eslint .
+
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\context\ThemeContext.jsx
+  41:10  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\DashboardLayout.jsx
+  36:18  error  'setUser' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\DashboardOverview.jsx
+  42:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  40 |
+  41 |     useEffect(() => {
+> 42 |         fetchStats();
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  43 |     }, []);
+  44 |
+  45 |     return (  react-hooks/set-state-in-effect
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\member\DepartmentSelection.jsx
+  36:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  34 |
+  35 |     useEffect(() => {
+> 36 |         fetchDepartments();
+     |         ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  37 |         // Ideally we should also fetch current user profile to see if they already have a department
+  38 |         // But for now, let's assume the user object in localStorage might need updating or we fetch profile.
+  39 |         // Let's fetch profile to be sure  react-hooks/set-state-in-effect
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\member\Events.jsx
+  37:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  35 |
+  36 |     useEffect(() => {
+> 37 |         fetchEventsAndRsvps();
+     |         ^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  38 |     }, []);
+  39 |
+  40 |     const handleRsvp = async (eventId, status) => {  react-hooks/set-state-in-effect
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\member\Profile.jsx
+  53:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  51 |
+  52 |     useEffect(() => {
+> 53 |         fetchProfile();
+     |         ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  54 |     }, []);
+  55 |
+  56 |     const handleChange = (e) => {  react-hooks/set-state-in-effect
+  83:13  error  'setUser' is not defined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 no-undef
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\member\Resources.jsx
+  36:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  34 |
+  35 |     useEffect(() => {
+> 36 |         fetchData();
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  37 |     }, []);
+  38 |
+  39 |     const handleSubmit = async (e) => {  react-hooks/set-state-in-effect
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\member\Support.jsx
+  35:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  33 |
+  34 |     useEffect(() => {
+> 35 |         fetchData();
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  36 |     }, []);
+  37 |
+  38 |     const handleSubmitReport = async (e) => {  react-hooks/set-state-in-effect
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\member\Tasks.jsx
+  25:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  23 |
+  24 |     useEffect(() => {
+> 25 |         fetchTasks();
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  26 |     }, []);
+  27 |
+  28 |     const handleFileUpload = async (e) => {  react-hooks/set-state-in-effect
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\president\Elections.jsx
+  13:10  error  'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\president\Events.jsx
+  22:9  error  Error: Cannot access variable before it is declared
+
+`fetchEvents` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  20 |
+  21 |     useEffect(() => {
+> 22 |         fetchEvents();
+     |         ^^^^^^^^^^^ `fetchEvents` accessed before it is declared
+  23 |     }, []);
+  24 |
+  25 |     const fetchEvents = async () => {
+
+  23 |     }, []);
+  24 |
+> 25 |     const fetchEvents = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 26 |         try {
+     | ^^^^^^^^^^^^^
+> 27 |             const res = await api.get('/president/events');
+     | ^^^^^^^^^^^^^
+> 28 |             setEvents(res.data);
+     | ^^^^^^^^^^^^^
+> 29 |         } catch (error) {
+     | ^^^^^^^^^^^^^
+> 30 |             console.error('Error fetching events:', error);
+     | ^^^^^^^^^^^^^
+> 31 |         }
+     | ^^^^^^^^^^^^^
+> 32 |     };
+     | ^^^^^^^ `fetchEvents` is declared here
+  33 |
+  34 |     const handleSubmit = async (e) => {
+  35 |         e.preventDefault();  react-hooks/immutability
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\president\MemberManagement.jsx
+  13:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  36:9   error    Error: Cannot access variable before it is declared
+
+`fetchData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+  34 |
+  35 |     useEffect(() => {
+> 36 |         fetchData();
+     |         ^^^^^^^^^ `fetchData` accessed before it is declared
+  37 |     }, [filter]);
+  38 |
+  39 |     const fetchData = async () => {
+
+  37 |     }, [filter]);
+  38 |
+> 39 |     const fetchData = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 40 |         try {
+     | ^^^^^^^^^^^^^
+> 41 |             const token = localStorage.getItem('token');
+     ΓÇª
+     | ^^^^^^^^^^^^^
+> 60 |         }
+     | ^^^^^^^^^^^^^
+> 61 |     };
+     | ^^^^^^^ `fetchData` is declared here
+  62 |
+  63 |     const handleStatusUpdate = async (id, status) => {
+  64 |         try {  react-hooks/immutability
+  37:8   warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/exhaustive-deps
+  70:18  error    'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              no-unused-vars
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\president\PresidentInbox.jsx
+  12:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                     no-unused-vars
+  22:8   warning  React Hook useEffect has a missing dependency: 'fetchProblems'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  44:18  error    'error' is defined but never used                                                                                 no-unused-vars
+
+C:\Users\ezadin\.gemini\antigravity\playground\ethereal-flare\client\src\pages\dashboard\president\SystemAdmin.jsx
+  13:10  error    'motion' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                     no-unused-vars
+  33:8   warning  React Hook useEffect has a missing dependency: 'fetchArchives'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  74:18  error    'error' is defined but never used                                                                                 no-unused-vars
+
+Γ£û 22 problems (19 errors, 3 warnings)
+
