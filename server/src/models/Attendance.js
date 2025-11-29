@@ -12,12 +12,16 @@ const attendanceSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['present', 'absent', 'late'],
+        enum: ['present', 'absent', 'late', 'permission'],
         required: true
     },
     checkInTime: {
-        type: Date,
+        type: String,
         default: null
+    },
+    markedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }
 }, {
     timestamps: true

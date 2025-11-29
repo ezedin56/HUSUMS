@@ -11,6 +11,10 @@ const voteSchema = new mongoose.Schema({
         ref: 'Candidate',
         required: true
     },
+    position: {
+        type: String,
+        required: true
+    },
     voterId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -24,7 +28,7 @@ const voteSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Ensure a user can only vote once per election
-voteSchema.index({ electionId: 1, voterId: 1 }, { unique: true });
+// Ensure a user can only vote once per position within an election
+voteSchema.index({ electionId: 1, voterId: 1, position: 1 }, { unique: true });
 
 module.exports = mongoose.model('Vote', voteSchema);

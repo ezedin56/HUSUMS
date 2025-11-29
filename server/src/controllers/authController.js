@@ -58,10 +58,12 @@ const registerUser = async (req, res) => {
     const { studentId, email, role, firstName, lastName } = req.body;
 
     try {
-        const userExists = await User.findOne({ studentId });
+        const userExists = await User.findOne({
+            $or: [{ studentId }, { email }]
+        });
 
         if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(400).json({ message: 'Student ID or email already exists' });
         }
 
         // Generate a temporary password (e.g., studentId + 123) if not provided
@@ -73,7 +75,7 @@ const registerUser = async (req, res) => {
             studentId,
             email,
             password: hashedPassword,
-            role: role || 'student',
+            role: role || 'member',
             firstName,
             lastName
         });
@@ -92,6 +94,9 @@ const registerUser = async (req, res) => {
             res.status(400).json({ message: 'Invalid user data' });
         }
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'Student ID or email already exists' });
+        }
         res.status(500).json({ message: error.message });
     }
 };

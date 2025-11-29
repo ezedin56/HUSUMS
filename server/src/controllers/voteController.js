@@ -13,7 +13,12 @@ const getActiveElections = async (req, res) => {
         const electionsWithCandidates = await Promise.all(
             elections.map(async (election) => {
                 const candidates = await Candidate.find({ electionId: election._id })
-                    .populate('userId', 'firstName lastName');
+                    .populate('userId', 'firstName lastName department bio profilePicture');
+
+                const positionSummary = candidates.reduce((acc, candidate) => {
+                    acc[candidate.position] = (acc[candidate.position] || 0) + 1;
+                    return acc;
+                }, {});
 
                 return {
                     ...election.toObject(),
@@ -25,10 +30,21 @@ const getActiveElections = async (req, res) => {
                         manifesto: c.manifesto,
                         description: c.description,
                         photo: c.photo, // Changed from photoUrl to photo
+                        user: c.userId ? {
+                            firstName: c.userId.firstName,
+                            lastName: c.userId.lastName,
+                            department: c.userId.department,
+                            bio: c.userId.bio,
+                            profilePicture: c.userId.profilePicture
+                        } : null,
                         User: c.userId ? {
                             firstName: c.userId.firstName,
                             lastName: c.userId.lastName
                         } : { firstName: 'Unknown', lastName: 'User' }
+                    })),
+                    positionSummary: Object.entries(positionSummary).map(([position, candidateCount]) => ({
+                        position,
+                        candidateCount
                     }))
                 };
             })
@@ -48,7 +64,7 @@ const getCandidatesByElection = async (req, res) => {
 
     try {
         const candidates = await Candidate.find({ electionId })
-            .populate('userId', 'firstName lastName profilePicture')
+            .populate('userId', 'firstName lastName profilePicture department bio')
             .sort({ position: 1, voteCount: -1 });
         res.json(candidates);
     } catch (error) {
@@ -75,13 +91,9 @@ const submitVote = async (req, res) => {
         }
 
         // 2. Check if user has already voted in this election
-        const existingVote = await Vote.findOne({ electionId, voterId });
-        if (existingVote) {
-            return res.status(400).json({ message: 'You have already voted in this election' });
-        }
-
-        // 3. Verify candidate exists and belongs to this election
-        const candidate = await Candidate.findById(candidateId);
+        // Candidate details (includes position)
+        const candidate = await Candidate.findById(candidateId)
+            .populate('userId', 'firstName lastName department');
         if (!candidate) {
             return res.status(404).json({ message: 'Candidate not found' });
         }
@@ -89,15 +101,24 @@ const submitVote = async (req, res) => {
             return res.status(400).json({ message: 'Candidate does not belong to this election' });
         }
 
-        // 4. Create vote record
+        const position = candidate.position;
+
+        // 2. Check if user has already voted for this position in this election
+        const existingVote = await Vote.findOne({ electionId, voterId, position });
+        if (existingVote) {
+            return res.status(400).json({ message: `You have already voted for the ${position} position` });
+        }
+
+        // 3. Create vote record
         const vote = await Vote.create({
             electionId,
             candidateId,
             voterId,
+            position,
             ipAddress
         });
 
-        // 5. Increment candidate vote count
+        // 4. Increment candidate vote count
         candidate.voteCount += 1;
         await candidate.save();
 
@@ -106,7 +127,13 @@ const submitVote = async (req, res) => {
             vote: {
                 electionId: vote.electionId,
                 candidateId: vote.candidateId,
+                position,
                 timestamp: vote.createdAt
+            },
+            candidate: {
+                id: candidate._id,
+                name: `${candidate.userId.firstName} ${candidate.userId.lastName}`,
+                position
             }
         });
     } catch (error) {
@@ -122,28 +149,32 @@ const getVoteStatus = async (req, res) => {
     const voterId = req.user._id;
 
     try {
-        const vote = await Vote.findOne({ electionId, voterId })
+        const votes = await Vote.find({ electionId, voterId })
             .populate('candidateId', 'position userId')
             .populate({
                 path: 'candidateId',
                 populate: {
                     path: 'userId',
-                    select: 'firstName lastName'
+                    select: 'firstName lastName studentId'
                 }
-            });
+            })
+            .sort({ createdAt: 1 });
 
-        if (vote) {
+        if (votes.length > 0) {
+            const formattedVotes = votes.map(vote => ({
+                candidateId: vote.candidateId?._id,
+                candidateName: vote.candidateId?.userId ? `${vote.candidateId.userId.firstName} ${vote.candidateId.userId.lastName}` : 'Unknown Candidate',
+                position: vote.candidateId?.position,
+                timestamp: vote.createdAt
+            }));
+
             res.json({
                 hasVoted: true,
-                vote: {
-                    candidateId: vote.candidateId._id,
-                    candidateName: `${vote.candidateId.userId.firstName} ${vote.candidateId.userId.lastName}`,
-                    position: vote.candidateId.position,
-                    timestamp: vote.createdAt
-                }
+                votes: formattedVotes,
+                votedPositions: formattedVotes.map(v => v.position)
             });
         } else {
-            res.json({ hasVoted: false });
+            res.json({ hasVoted: false, votes: [], votedPositions: [] });
         }
     } catch (error) {
         res.status(500).json({ message: error.message });
