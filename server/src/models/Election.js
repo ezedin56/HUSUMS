@@ -30,6 +30,10 @@ const electionSchema = new mongoose.Schema({
         enum: ['upcoming', 'ongoing', 'completed'],
         default: 'upcoming'
     },
+    resultsAnnounced: {
+        type: Boolean,
+        default: false
+    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

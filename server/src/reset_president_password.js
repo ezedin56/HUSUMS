@@ -1,24 +1,26 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const connectDB = require('./config/database');
-const { User } = require('./models');
+const User = require('./models/User');
 
 const resetPassword = async () => {
     try {
-        await connectDB();
+        await mongoose.connect('mongodb://localhost:27017/husums');
+        console.log('Connected to DB');
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash('password123', salt);
+        const hashedPassword = await bcrypt.hash('123456', salt);
 
-        const president = await User.findOne({ studentId: 'PRES001' });
-        if (president) {
-            president.password = hashedPassword;
-            await president.save();
-            console.log('Password for PRES001 reset to password123');
+        const user = await User.findOneAndUpdate(
+            { studentId: 'PRES001' },
+            { password: hashedPassword },
+            { new: true }
+        );
+
+        if (user) {
+            console.log('✅ Password reset successfully for PRES001');
         } else {
-            console.log('President PRES001 not found');
+            console.log('❌ User PRES001 not found');
         }
-
         process.exit(0);
     } catch (error) {
         console.error('Error:', error);

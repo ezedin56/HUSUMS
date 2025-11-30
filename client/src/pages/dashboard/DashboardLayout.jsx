@@ -14,17 +14,14 @@ import {
     BookOpen,
     HelpCircle,
     Settings,
-    Bell,
-    Sun,
-    Moon
+    Bell
 } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
 import './memberDashboard.css';
+import Footer from '../../components/Footer';
 
 const DashboardLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { theme, toggleTheme, isDark } = useTheme();
     const [user, setUser] = useState(() => {
         const storedUser = localStorage.getItem('user');
         return storedUser ? JSON.parse(storedUser) : null;
@@ -92,7 +89,7 @@ const DashboardLayout = () => {
     return (
         <div className="dashboard-shell">
             <div className="dashboard-stars" />
-            
+
             {/* Sidebar */}
             <aside className={`dashboard-sidebar ${isSidebarOpen ? 'expanded' : 'collapsed'}`}>
                 {/* Logo Header */}
@@ -103,7 +100,7 @@ const DashboardLayout = () => {
                             <span className="logo-text">HUSUMS</span>
                         </div>
                     )}
-                    <button 
+                    <button
                         className="sidebar-toggle"
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     >
@@ -135,7 +132,7 @@ const DashboardLayout = () => {
                 {/* Navigation */}
                 <nav className="sidebar-nav">
                     {currentNavItems.map((item, index) => {
-                        const isActive = location.pathname === item.path || 
+                        const isActive = location.pathname === item.path ||
                             (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
                         return (
                             <Link
@@ -168,7 +165,7 @@ const DashboardLayout = () => {
                 {/* Top Bar */}
                 <header className="dashboard-topbar">
                     <div className="topbar-left">
-                        <button 
+                        <button
                             className="mobile-menu-btn"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         >
@@ -180,8 +177,8 @@ const DashboardLayout = () => {
                             <span className="breadcrumb-role">{user.role}</span>
                             <span className="breadcrumb-separator">/</span>
                             <span className="breadcrumb-page">
-                                {currentNavItems.find(item => 
-                                    item.path === location.pathname || 
+                                {currentNavItems.find(item =>
+                                    item.path === location.pathname ||
                                     (item.path !== '/dashboard' && location.pathname.startsWith(item.path))
                                 )?.label || 'Dashboard'}
                             </span>
@@ -202,6 +199,7 @@ const DashboardLayout = () => {
                 <div className="dashboard-content">
                     <Outlet />
                 </div>
+                <Footer />
             </main>
 
             {/* Mobile Menu Overlay */}

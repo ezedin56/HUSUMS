@@ -1,0 +1,248 @@
+import React, { useState, useEffect } from 'react';
+import { api } from '../../utils/api';
+import {
+    Plus,
+    Calendar,
+    CheckCircle,
+    XCircle,
+    AlertTriangle,
+    Megaphone,
+    Eye,
+    EyeOff
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const ElectionManager = () => {
+    const [elections, setElections] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [formData, setFormData] = useState({
+        title: '',
+        description: '',
+        positions: '',
+        startDate: '',
+        endDate: ''
+    });
+
+    useEffect(() => {
+        fetchElections();
+    }, []);
+
+    const fetchElections = async () => {
+        try {
+            const data = await api.get('/president/elections');
+            setElections(data);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching elections:', error);
+            setLoading(false);
+        }
+    };
+
+    const handleCreate = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await api.post('/president/elections', {
+                ...formData,
+                positions: formData.positions.split(',').map(p => p.trim()).filter(p => p)
+            });
+            alert('Election created successfully');
+            setElections([res.data, ...elections]);
+            setShowCreateModal(false);
+            setFormData({ title: '', description: '', positions: '', startDate: '', endDate: '' });
+            fetchElections(); // Refresh to get full data
+        } catch (error) {
+            alert('Error creating election: ' + error.message);
+        }
+    };
+
+    const toggleStatus = async (election) => {
+        const action = election.isOpen ? 'close' : 'open';
+        if (!window.confirm(`Are you sure you want to ${action} this election?`)) return;
+
+        try {
+            await api.patch(`/president/elections/${election.id}/${action}`);
+            fetchElections();
+        } catch (error) {
+            alert(`Error ${action}ing election: ` + error.message);
+        }
+    };
+
+    const toggleAnnounce = async (election) => {
+        try {
+            await api.patch(`/president/elections/${election.id}/announce`);
+            fetchElections();
+        } catch (error) {
+            alert('Error toggling announcement: ' + error.message);
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold">Election Management</h1>
+                <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="btn btn-primary flex items-center gap-2"
+                >
+                    <Plus size={20} /> Create Election
+                </button>
+            </div>
+
+            {loading ? (
+                <p>Loading elections...</p>
+            ) : (
+                <div className="grid gap-6">
+                    {elections.map(election => (
+                        <motion.div
+                            key={election.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="card bg-white/5 border border-white/10 p-6 rounded-xl"
+                        >
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h2 className="text-xl font-bold">{election.title}</h2>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${election.status === 'ongoing' ? 'bg-green-500/20 text-green-400' :
+                                                election.status === 'completed' ? 'bg-blue-500/20 text-blue-400' :
+                                                    'bg-yellow-500/20 text-yellow-400'
+                                            }`}>
+                                            {election.status.toUpperCase()}
+                                        </span>
+                                        {election.resultsAnnounced && (
+                                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-400 flex items-center gap-1">
+                                                <Megaphone size={12} /> RESULTS PUBLIC
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-gray-400 mb-4">{election.description}</p>
+                                    <div className="flex gap-6 text-sm text-gray-500">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar size={16} />
+                                            <span>
+                                                {new Date(election.startDate).toLocaleDateString()} - {new Date(election.endDate).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            {election.positions.length} Positions
+                                        </div>
+                                        <div>
+                                            {election.Candidates?.length || 0} Candidates
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    {election.status !== 'completed' && (
+                                        <button
+                                            onClick={() => toggleStatus(election)}
+                                            className={`btn btn-sm ${election.isOpen ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'}`}
+                                        >
+                                            {election.isOpen ? 'Close Election' : 'Open Election'}
+                                        </button>
+                                    )}
+
+                                    <button
+                                        onClick={() => toggleAnnounce(election)}
+                                        className={`btn btn-sm flex items-center justify-center gap-2 ${election.resultsAnnounced
+                                                ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
+                                                : 'bg-gray-700 hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        {election.resultsAnnounced ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        {election.resultsAnnounced ? 'Hide Results' : 'Announce Results'}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
+
+            {/* Create Modal */}
+            <AnimatePresence>
+                {showCreateModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-[#1e293b] p-6 rounded-xl w-full max-w-lg border border-white/10"
+                        >
+                            <h2 className="text-xl font-bold mb-4">Create New Election</h2>
+                            <form onSubmit={handleCreate} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Title</label>
+                                    <input
+                                        type="text"
+                                        className="input w-full bg-black/20 border-white/10"
+                                        value={formData.title}
+                                        onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Description</label>
+                                    <textarea
+                                        className="input w-full bg-black/20 border-white/10"
+                                        value={formData.description}
+                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Positions (comma separated)</label>
+                                    <input
+                                        type="text"
+                                        className="input w-full bg-black/20 border-white/10"
+                                        value={formData.positions}
+                                        onChange={e => setFormData({ ...formData, positions: e.target.value })}
+                                        placeholder="President, Vice President, Secretary"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Start Date</label>
+                                        <input
+                                            type="date"
+                                            className="input w-full bg-black/20 border-white/10"
+                                            value={formData.startDate}
+                                            onChange={e => setFormData({ ...formData, startDate: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">End Date</label>
+                                        <input
+                                            type="date"
+                                            className="input w-full bg-black/20 border-white/10"
+                                            value={formData.endDate}
+                                            onChange={e => setFormData({ ...formData, endDate: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex justify-end gap-3 mt-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCreateModal(false)}
+                                        className="btn bg-white/10 hover:bg-white/20"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="btn btn-primary">
+                                        Create Election
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+export default ElectionManager;

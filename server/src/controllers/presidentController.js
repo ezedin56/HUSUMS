@@ -963,6 +963,30 @@ const getVoterAnalytics = async (req, res) => {
     }
 };
 
+// @desc    Toggle election results announcement
+// @route   PATCH /api/president/elections/:id/announce
+// @access  Private (President)
+const announceResults = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const election = await Election.findById(id);
+        if (!election) {
+            return res.status(404).json({ message: 'Election not found' });
+        }
+
+        // Toggle the status
+        election.resultsAnnounced = !election.resultsAnnounced;
+        await election.save();
+
+        res.json({
+            message: `Results ${election.resultsAnnounced ? 'announced' : 'hidden'} successfully`,
+            election
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     sendBroadcast,
     createEvent,
@@ -996,5 +1020,6 @@ module.exports = {
     closeElection,
     getLiveResults,
     getWinner,
-    getVoterAnalytics
+    getVoterAnalytics,
+    announceResults
 };
