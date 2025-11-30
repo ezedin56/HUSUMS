@@ -9,19 +9,19 @@
   --accent: #dc2626;
   /* Red 600 */
 
-  --bg-body: #ffffff;
-  /* White */
-  --bg-card: #f8fafc;
-  /* Slate 50 */
-  --text-main: #000000;
-  /* Black */
-  --text-muted: #475569;
-  /* Slate 600 */
+  --bg-body: rgba(255, 255, 255, 0.05);
+  /* Transparent White */
+  --bg-card: rgba(255, 255, 255, 0.1);
+  /* Glass White */
+  --text-main: #ffffff;
+  /* White text for better contrast on dark bg */
+  --text-muted: #cbd5e1;
+  /* Slate 300 */
   --text-light: #ffffff;
   /* White */
 
-  --border-color: #e2e8f0;
-  /* Slate 200 */
+  --border-color: rgba(255, 255, 255, 0.1);
+  /* Transparent Border */
 
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -46,24 +46,25 @@
   --accent: #dc2626;
   /* Red */
 
-  /* Theme Variables (Default Light) */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --text-primary: #000000;
-  --text-secondary: #4b5563;
-  --card-bg: #ffffff;
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --border-color: #e5e7eb;
+  /* Theme Variables (Default Light -> Now Glass) */
+  --bg-primary: rgba(255, 255, 255, 0.05);
+  --bg-secondary: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --card-bg: rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  --border-color: rgba(255, 255, 255, 0.18);
+  --backdrop-blur: blur(8px);
 }
 
 [data-theme='dark'] {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
+  --bg-primary: rgba(15, 23, 42, 0.3);
+  --bg-secondary: rgba(30, 41, 59, 0.4);
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --card-bg: #1e293b;
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --border-color: #334155;
+  --card-bg: rgba(30, 41, 59, 0.4);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --border-color: rgba(255, 255, 255, 0.1);
   --primary: #22c55e;
   --primary-dark: #16a34a;
 }
@@ -130,11 +131,28 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.6;
-  overflow-x: hidden;
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: transparent;
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 /* Typography */
@@ -192,6 +210,8 @@ h3 {
 
 .card {
   background-color: var(--card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: var(--card-shadow);

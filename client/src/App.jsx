@@ -1,10 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import SystemStatus from './components/SystemStatus';
+import AnimatedNetworkBackground from './components/AnimatedNetworkBackground';
 import Home from './pages/public/Home';
 import About from './pages/public/About';
 import Contact from './pages/public/Contact';
 import Login from './pages/auth/Login';
+import PublicVote from './pages/PublicVote';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import DashboardOverview from './pages/dashboard/DashboardOverview';
 import Broadcast from './pages/dashboard/president/Broadcast';
@@ -51,12 +53,14 @@ const Layout = () => {
 
   return (
     <>
+      <AnimatedNetworkBackground color="#16a34a" opacity={0.3} />
       {!isHome && !isDashboard && <Navbar />}
       <main className={!isHome && !isDashboard ? 'container' : ''} style={!isHome && !isDashboard ? { padding: '2rem 0' } : {}}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/vote" element={<PublicVote />} />
           <Route path="/login" element={<Login />} />
 
           <Route path="/dashboard" element={<DashboardLayout />}>

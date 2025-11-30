@@ -22,6 +22,7 @@ app.use('/api/secretary', require('./routes/secretaryRoutes'));
 app.use('/api/departments', require('./routes/departmentRoutes'));
 app.use('/api/attendance', require('./routes/attendanceRoutes'));
 app.use('/api/public', require('./routes/publicRoutes'));
+app.use('/api/public', require('./routes/publicVoteRoutes')); // Public voting routes
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
 app.use('/api/rsvp', require('./routes/rsvpRoutes'));

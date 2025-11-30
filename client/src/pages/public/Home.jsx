@@ -117,7 +117,19 @@ const Home = () => {
                     <p className="animate-fade-up delay-200" style={{ fontSize: '1.5rem', marginBottom: '2rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
                         Empowering Haramaya University students through unity, leadership, and service.
                     </p>
-                    <div className="animate-fade-up delay-400" style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                    <div className="animate-fade-up delay-400" style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <Link to="/vote" className="btn" style={{
+                            padding: '1rem 2.5rem',
+                            fontSize: '1.2rem',
+                            fontWeight: 'bold',
+                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                            color: 'white',
+                            border: 'none',
+                            boxShadow: '0 10px 30px rgba(16, 185, 129, 0.4)',
+                            animation: 'pulse 2s infinite'
+                        }}>
+                            🗳️ Vote Now
+                        </Link>
                         <Link to="/login" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
                             Get Started
                         </Link>
@@ -393,7 +405,7 @@ const Home = () => {
             </section>
 
             {/* 13. Enhanced Footer */}
-            <footer id="contact" style={{ backgroundColor: '#111', color: 'white', padding: '4rem 0 2rem' }}>
+            <footer id="contact" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', color: 'white', padding: '4rem 0 2rem' }}>
                 <div className="container">
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', marginBottom: '3rem' }}>
                         <div>

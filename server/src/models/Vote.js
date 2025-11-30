@@ -18,17 +18,31 @@ const voteSchema = new mongoose.Schema({
     voterId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false // Made optional for public voting
+    },
+    studentId: {
+        type: String,
+        required: true // Required for both authenticated and public voting
+    },
+    voterName: {
+        type: String,
+        required: false // Store full name for public votes
     },
     ipAddress: {
         type: String,
-        required: true
+        required: false
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
     }
 }, {
     timestamps: true
 });
 
-// Ensure a user can only vote once per position within an election
-voteSchema.index({ electionId: 1, voterId: 1, position: 1 }, { unique: true });
+
+// Ensure a student can only vote once per election (using studentId instead of voterId)
+voteSchema.index({ electionId: 1, studentId: 1 }, { unique: true });
+
 
 module.exports = mongoose.model('Vote', voteSchema);
