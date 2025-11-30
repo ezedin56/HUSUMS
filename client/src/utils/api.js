@@ -1,4 +1,4 @@
-export const API_URL = '/api';
+export const API_URL = 'http://localhost:5000/api';
 
 const getHeaders = () => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -80,7 +80,7 @@ export const api = {
             'Authorization': user && user.token ? `Bearer ${user.token}` : ''
         };
         // Don't set Content-Type for FormData, browser will set it with boundary
-        
+
         const response = await fetch(`${API_URL}${endpoint}`, {
             method,
             headers,

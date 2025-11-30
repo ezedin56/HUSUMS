@@ -31,7 +31,8 @@ const {
     closeElection,
     getLiveResults,
     getWinner,
-    getVoterAnalytics
+    getVoterAnalytics,
+    announceResults
 } = require('../controllers/presidentController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const multer = require('multer');
@@ -70,15 +71,17 @@ router.post('/events', protect, authorize('president', 'vp'), createEvent);
 router.get('/events', protect, authorize('president', 'vp', 'member', 'secretary'), getEvents);
 router.put('/events/:id/status', protect, authorize('president', 'vp'), updateEventStatus);
 
-router.post('/elections', protect, authorize('president', 'vp'), createElection);
-router.get('/elections/live', protect, authorize('president', 'vp'), getLiveElectionResults);
-router.post('/elections/:id/candidates', protect, authorize('president', 'vp'), upload.single('photo'), addCandidate);
-router.get('/elections', protect, authorize('president', 'vp', 'member', 'secretary'), getElections);
-router.patch('/elections/:id/open', protect, authorize('president', 'vp'), openElection);
-router.patch('/elections/:id/close', protect, authorize('president', 'vp'), closeElection);
-router.get('/results/:electionId', protect, authorize('president', 'vp'), getLiveResults);
-router.get('/winner/:electionId', protect, authorize('president', 'vp'), getWinner);
-router.get('/analytics/:electionId', protect, authorize('president', 'vp'), getVoterAnalytics);
+// Election routes with publicvote_admin access
+router.post('/elections', protect, authorize('president', 'vp', 'publicvote_admin'), createElection);
+router.get('/elections/live', protect, authorize('president', 'vp', 'publicvote_admin'), getLiveElectionResults);
+router.post('/elections/:id/candidates', protect, authorize('president', 'vp', 'publicvote_admin'), upload.single('photo'), addCandidate);
+router.get('/elections', protect, authorize('president', 'vp', 'member', 'secretary', 'publicvote_admin'), getElections);
+router.patch('/elections/:id/open', protect, authorize('president', 'vp', 'publicvote_admin'), openElection);
+router.patch('/elections/:id/close', protect, authorize('president', 'vp', 'publicvote_admin'), closeElection);
+router.get('/results/:electionId', protect, authorize('president', 'vp', 'publicvote_admin'), getLiveResults);
+router.get('/winner/:electionId', protect, authorize('president', 'vp', 'publicvote_admin'), getWinner);
+router.get('/analytics/:electionId', protect, authorize('president', 'vp', 'publicvote_admin'), getVoterAnalytics);
+router.patch('/elections/:id/announce', protect, authorize('president', 'vp', 'publicvote_admin'), announceResults);
 
 // Member Management Routes
 router.get('/members', protect, authorize('president', 'vp'), getAllMembers);

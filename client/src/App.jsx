@@ -35,11 +35,19 @@ import Support from './pages/dashboard/member/Support';
 import ActiveElections from './pages/dashboard/member/ActiveElections';
 import VotingBooth from './pages/dashboard/member/VotingBooth';
 import VoteConfirmation from './pages/dashboard/member/VoteConfirmation';
+import AdminLayout from './pages/admin/AdminLayout';
+import ElectionManager from './pages/admin/ElectionManager';
+import CandidateManager from './pages/admin/CandidateManager';
+import ResultsManager from './pages/admin/ResultsManager';
 
 function App() {
   return (
     <Router>
-      <div className="app">
+      <div className="app" style={{
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+        minHeight: '100vh',
+        width: '100%'
+      }}>
         <Layout />
       </div>
     </Router>
@@ -49,7 +57,7 @@ function App() {
 const Layout = () => {
   const location = useLocation();
   const isHome = location.pathname === '/';
-  const isDashboard = location.pathname.startsWith('/dashboard');
+  const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
 
   return (
     <>
@@ -98,6 +106,15 @@ const Layout = () => {
             <Route path="member/elections" element={<ActiveElections />} />
             <Route path="member/vote/:electionId" element={<VotingBooth />} />
             <Route path="member/vote-confirmation/:electionId" element={<VoteConfirmation />} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<ElectionManager />} />
+            <Route path="dashboard" element={<ElectionManager />} />
+            <Route path="elections" element={<ElectionManager />} />
+            <Route path="candidates" element={<CandidateManager />} />
+            <Route path="results" element={<ResultsManager />} />
           </Route>
         </Routes>
       </main>
