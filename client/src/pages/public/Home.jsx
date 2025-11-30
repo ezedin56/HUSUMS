@@ -1,14 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import GridBackground from '../../components/GridBackground';
 
 const Home = () => {
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
     const [scrolled, setScrolled] = useState(false);
-
-    useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    }, [theme]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -18,423 +13,505 @@ const Home = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
-    };
-
     const sections = [
         { id: 'home', label: 'Home' },
-        { id: 'announcements', label: 'News' },
-        { id: 'events', label: 'Events' },
-        { id: 'leadership', label: 'Leadership' },
+        { id: 'features', label: 'Features' },
+        { id: 'about', label: 'About' },
+        { id: 'feedback', label: 'Feedback' },
         { id: 'contact', label: 'Contact' }
     ];
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-            {/* 2. Animated Navigation Bar */}
+        <div style={{
+            minHeight: '100vh',
+            color: 'white',
+            position: 'relative',
+            overflowX: 'hidden',
+            fontFamily: "'Inter', sans-serif" // Assuming Inter or system font
+        }}>
+            {/* Grid Background */}
+            <GridBackground />
+
+            {/* Overlay Gradient for depth */}
+            <div style={{
+                position: 'fixed',
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: 'radial-gradient(circle at 50% 50%, rgba(0, 255, 0, 0.05) 0%, rgba(0, 0, 0, 0.6) 100%)',
+                pointerEvents: 'none',
+                zIndex: 0
+            }} />
+
+            {/* Animated Navigation Bar */}
             <nav style={{
                 position: 'fixed',
                 top: 0,
                 left: 0,
                 right: 0,
                 padding: scrolled ? '1rem 2rem' : '1.5rem 2rem',
-                backgroundColor: scrolled ? 'var(--bg-primary)' : 'transparent',
-                boxShadow: scrolled ? 'var(--card-shadow)' : 'none',
-                transition: 'all 0.3s ease',
+                background: scrolled ? 'rgba(0, 20, 10, 0.6)' : 'rgba(0, 0, 0, 0.1)',
+                boxShadow: scrolled ? '0 4px 30px rgba(0, 255, 0, 0.1)' : 'none',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 zIndex: 1000,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                backdropFilter: scrolled ? 'blur(10px)' : 'none'
+                backdropFilter: 'blur(20px)',
+                borderBottom: '1px solid rgba(0, 255, 0, 0.1)'
             }}>
-                <div className="animate-slide-right" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary)' }}>
+                <div className="animate-slide-right" style={{
+                    fontSize: '1.8rem',
+                    fontWeight: '800',
+                    letterSpacing: '-0.5px',
+                    background: 'linear-gradient(to right, #fff, #00ff00)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    filter: 'drop-shadow(0 0 10px rgba(0,255,0,0.3))'
+                }}>
                     HUSUMS
                 </div>
-                <div className="animate-slide-left" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+                <div className="animate-slide-left" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
                     {sections.map(section => (
                         <a
                             key={section.id}
                             href={`#${section.id}`}
                             style={{
                                 textDecoration: 'none',
-                                color: 'var(--text-primary)',
+                                color: 'rgba(255,255,255,0.8)',
                                 fontWeight: '500',
-                                position: 'relative',
-                                transition: 'color 0.3s'
+                                fontSize: '0.95rem',
+                                transition: 'all 0.3s',
+                                position: 'relative'
                             }}
-                            className="nav-link"
+                            className="nav-link hover:text-white hover:drop-shadow-[0_0_8px_rgba(0,255,0,0.8)]"
                         >
                             {section.label}
                         </a>
                     ))}
-                    <Link to="/login" className="btn btn-primary">Login</Link>
-                    <button
-                        onClick={toggleTheme}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '1.2rem',
-                            color: 'var(--text-primary)'
+                    <Link to="/login" className="btn" style={{
+                        padding: '0.6rem 1.8rem',
+                        borderRadius: '50px',
+                        background: 'rgba(0, 255, 0, 0.1)',
+                        border: '1px solid rgba(0, 255, 0, 0.4)',
+                        color: '#00ff00',
+                        fontWeight: '600',
+                        backdropFilter: 'blur(5px)',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 0 15px rgba(0, 255, 0, 0.1)'
+                    }}
+                        onMouseOver={e => {
+                            e.target.style.background = 'rgba(0, 255, 0, 0.2)';
+                            e.target.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.4)';
                         }}
-                    >
-                        {theme === 'light' ? '🌙' : '☀️'}
-                    </button>
+                        onMouseOut={e => {
+                            e.target.style.background = 'rgba(0, 255, 0, 0.1)';
+                            e.target.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.1)';
+                        }}
+                    >Login</Link>
                 </div>
             </nav>
 
-            {/* 3. Dynamic Hero Section */}
+            {/* Hero Section */}
             <section id="home" style={{
-                height: '100vh',
+                minHeight: '100vh',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'relative',
-                overflow: 'hidden',
                 textAlign: 'center',
-                color: 'white'
+                paddingTop: '80px',
+                paddingBottom: '2rem'
             }}>
-                {/* Parallax Background */}
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundImage: 'url("https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1920&auto=format&fit=crop")',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    filter: 'brightness(0.4)',
-                    zIndex: -1,
-                    transform: `translateY(${scrolled ? window.scrollY * 0.5 : 0}px)`
-                }} />
+                <div className="container" style={{ position: 'relative', zIndex: 10, maxWidth: '1000px' }}>
+                    <div style={{
+                        background: 'rgba(5, 20, 10, 0.3)',
+                        backdropFilter: 'blur(20px)',
+                        borderRadius: '30px',
+                        padding: '4rem',
+                        border: '1px solid rgba(0, 255, 0, 0.15)',
+                        boxShadow: '0 0 80px rgba(0, 255, 0, 0.05), inset 0 0 30px rgba(0, 255, 0, 0.02)'
+                    }}>
+                        <h1 className="animate-fade-up" style={{
+                            fontSize: '4.5rem',
+                            marginBottom: '1.5rem',
+                            fontWeight: '800',
+                            lineHeight: '1.1',
+                            letterSpacing: '-1px'
+                        }}>
+                            <span style={{ color: 'white', textShadow: '0 0 30px rgba(255,255,255,0.2)' }}>Your Voice,</span> <br />
+                            <span style={{
+                                background: 'linear-gradient(135deg, #00ff00 0%, #00aa00 100%)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                filter: 'drop-shadow(0 0 20px rgba(0,255,0,0.4))'
+                            }}>Our Mission</span>
+                        </h1>
+                        <p className="animate-fade-up delay-200" style={{
+                            fontSize: '1.25rem',
+                            marginBottom: '3rem',
+                            maxWidth: '700px',
+                            margin: '0 auto 3rem',
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            lineHeight: '1.6'
+                        }}>
+                            Empowering Haramaya University students through unity, leadership, and service.
+                        </p>
 
-                <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-                    <h1 className="animate-fade-up" style={{ fontSize: '4rem', marginBottom: '1rem', textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>
-                        Your Voice, <span style={{ color: 'var(--primary)' }}>Our Mission</span>
-                    </h1>
-                    <p className="animate-fade-up delay-200" style={{ fontSize: '1.5rem', marginBottom: '2rem', maxWidth: '800px', margin: '0 auto 2rem' }}>
-                        Empowering Haramaya University students through unity, leadership, and service.
-                    </p>
-                    <div className="animate-fade-up delay-400" style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <Link to="/vote" className="btn" style={{
-                            padding: '1rem 2.5rem',
-                            fontSize: '1.2rem',
-                            fontWeight: 'bold',
-                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                            color: 'white',
-                            border: 'none',
-                            boxShadow: '0 10px 30px rgba(16, 185, 129, 0.4)',
-                            animation: 'pulse 2s infinite'
-                        }}>
-                            🗳️ Vote Now
-                        </Link>
-                        <Link to="/login" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
-                            Get Started
-                        </Link>
-                        <a href="#announcements" className="btn" style={{
-                            padding: '1rem 2rem',
-                            fontSize: '1.1rem',
-                            backgroundColor: 'rgba(255,255,255,0.1)',
-                            color: 'white',
-                            border: '1px solid rgba(255,255,255,0.3)',
-                            backdropFilter: 'blur(5px)'
-                        }}>
-                            Latest News
-                        </a>
+                        <div className="animate-fade-up delay-400" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <Link to="/vote" className="btn" style={{
+                                padding: '1rem 3rem',
+                                fontSize: '1.1rem',
+                                fontWeight: '700',
+                                borderRadius: '50px',
+                                background: 'linear-gradient(90deg, #00ff00, #00cc00)',
+                                color: 'white',
+                                border: 'none',
+                                boxShadow: '0 0 30px rgba(0, 255, 0, 0.4)',
+                                transition: 'all 0.3s ease',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px'
+                            }}
+                                onMouseOver={e => {
+                                    e.target.style.transform = 'translateY(-2px)';
+                                    e.target.style.boxShadow = '0 0 50px rgba(0, 255, 0, 0.6)';
+                                }}
+                                onMouseOut={e => {
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.4)';
+                                }}
+                            >
+                                Vote Now
+                            </Link>
+                            <Link to="/login" className="btn" style={{
+                                padding: '1rem 3rem',
+                                fontSize: '1.1rem',
+                                fontWeight: '700',
+                                borderRadius: '50px',
+                                background: 'rgba(0, 170, 255, 0.1)',
+                                border: '1px solid rgba(0, 170, 255, 0.5)',
+                                color: 'white',
+                                boxShadow: '0 0 30px rgba(0, 170, 255, 0.2)',
+                                transition: 'all 0.3s ease',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px'
+                            }}
+                                onMouseOver={e => {
+                                    e.target.style.transform = 'translateY(-2px)';
+                                    e.target.style.background = 'rgba(0, 170, 255, 0.2)';
+                                    e.target.style.boxShadow = '0 0 50px rgba(0, 170, 255, 0.5)';
+                                }}
+                                onMouseOut={e => {
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.background = 'rgba(0, 170, 255, 0.1)';
+                                    e.target.style.boxShadow = '0 0 30px rgba(0, 170, 255, 0.2)';
+                                }}
+                            >
+                                Get Started
+                            </Link>
+                        </div>
                     </div>
 
-                    {/* Stats Counter */}
+                    {/* Futuristic Stats */}
                     <div className="animate-fade-up delay-500" style={{
-                        marginTop: '4rem',
+                        marginTop: '5rem',
                         display: 'flex',
                         justifyContent: 'center',
-                        gap: '4rem'
+                        gap: '2rem',
+                        flexWrap: 'wrap'
                     }}>
                         {[
-                            { label: 'Students', value: '30k+' },
-                            { label: 'Departments', value: '12' },
-                            { label: 'Events', value: '50+' }
+                            { label: 'Students', value: '30k+', color: '#00ff00' },
+                            { label: 'Colleges', value: '12', color: '#00aaff' },
+                            { label: 'Clubs', value: '50+', color: '#ff00ff' }
                         ].map((stat, index) => (
-                            <div key={index} style={{ textAlign: 'center' }}>
-                                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary)' }}>{stat.value}</div>
-                                <div style={{ fontSize: '1rem', opacity: 0.8 }}>{stat.label}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* 4. Announcements Carousel */}
-            <section id="announcements" className="container" style={{ padding: '6rem 2rem', backgroundColor: 'var(--bg-secondary)' }}>
-                <h2 className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '3rem' }}>Latest Announcements</h2>
-                <div style={{ display: 'flex', overflowX: 'auto', gap: '2rem', paddingBottom: '2rem', scrollSnapType: 'x mandatory' }}>
-                    {[
-                        { title: 'Election Results', date: 'Nov 28', content: 'The results for the 2025 Student Union elections are now live!' },
-                        { title: 'Library Hours Extended', date: 'Nov 25', content: 'During exam week, the library will remain open 24/7.' },
-                        { title: 'New Cafeteria Menu', date: 'Nov 20', content: 'Check out the new healthy options available starting next week.' },
-                        { title: 'Sports Tournament', date: 'Nov 15', content: 'Register your team for the inter-department football cup.' }
-                    ].map((item, index) => (
-                        <div key={index} className="card animate-slide-right" style={{
-                            minWidth: '300px',
-                            scrollSnapAlign: 'start',
-                            borderLeft: '4px solid var(--primary)'
-                        }}>
-                            <span className="badge badge-warning" style={{ marginBottom: '0.5rem', display: 'inline-block' }}>{item.date}</span>
-                            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{item.title}</h3>
-                            <p style={{ color: 'var(--text-secondary)' }}>{item.content}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* 6. Leadership Gallery */}
-            <section id="leadership" style={{ backgroundColor: 'var(--bg-secondary)', padding: '6rem 0' }}>
-                <div className="container">
-                    <h2 className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '3rem' }}>Our Leadership</h2>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-                        {[
-                            { name: 'Dawit Mekonnen', role: 'President', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop' },
-                            { name: 'Hanna Tadesse', role: 'Secretary', img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop' },
-                            { name: 'Ahmed Mohammed', role: 'Dept Head', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop' }
-                        ].map((leader, index) => (
-                            <div key={index} className={`card animate-fade-up delay-${(index + 1) * 200}`} style={{ padding: 0, overflow: 'hidden' }}>
-                                <div style={{ height: '300px', overflow: 'hidden' }}>
-                                    <img
-                                        src={leader.img}
-                                        alt={leader.name}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
-                                        onMouseOver={e => e.target.style.transform = 'scale(1.1)'}
-                                        onMouseOut={e => e.target.style.transform = 'scale(1)'}
-                                    />
-                                </div>
-                                <div style={{ padding: '1.5rem', textAlign: 'center' }}>
-                                    <h3>{leader.name}</h3>
-                                    <p style={{ color: 'var(--primary)', fontWeight: '600' }}>{leader.role}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* 7. Affairs Department Showcase */}
-            <section id="affairs" className="container" style={{ padding: '6rem 2rem' }}>
-                <h2 className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '3rem' }}>Affairs Departments</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '2rem' }}>
-                    {[
-                        { icon: '🎓', name: 'Academic Affairs', count: '12 Projects' },
-                        { icon: '⚽', name: 'Sports & Recreation', count: '5 Events' },
-                        { icon: '🍽️', name: 'Food & Dining', count: '3 Initiatives' },
-                        { icon: '🏥', name: 'Health & Wellness', count: '2 Campaigns' },
-                        { icon: '🏘️', name: 'Dormitory Services', count: '4 Upgrades' },
-                        { icon: '⚖️', name: 'Discipline & Conduct', count: 'Active' }
-                    ].map((dept, index) => (
-                        <div key={index} className="card animate-scale-in" style={{ textAlign: 'center', cursor: 'pointer' }}>
-                            <div style={{ fontSize: '2.5rem', marginBottom: '1rem', transition: 'transform 0.3s' }}
-                                onMouseOver={e => e.target.style.transform = 'scale(1.2)'}
-                                onMouseOut={e => e.target.style.transform = 'scale(1)'}>
-                                {dept.icon}
-                            </div>
-                            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{dept.name}</h3>
-                            <span className="badge badge-secondary">{dept.count}</span>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* 8. Events Timeline */}
-            <section id="events" className="container" style={{ padding: '6rem 2rem' }}>
-                <h2 className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '3rem' }}>Upcoming Events</h2>
-                <div style={{ position: 'relative', maxWidth: '800px', margin: '0 auto' }}>
-                    <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', backgroundColor: 'var(--border-color)', transform: 'translateX(-50%)' }} />
-                    {[
-                        { date: 'Nov 30', title: 'General Assembly', desc: 'Annual meeting for all students.' },
-                        { date: 'Dec 05', title: 'Cultural Night', desc: 'Celebrating our diverse heritage.' },
-                        { date: 'Dec 12', title: 'Exam Prep Workshop', desc: 'Tips and tricks for finals.' }
-                    ].map((event, index) => (
-                        <div key={index} className={`animate-slide-${index % 2 === 0 ? 'left' : 'right'}`} style={{
-                            display: 'flex',
-                            justifyContent: index % 2 === 0 ? 'flex-end' : 'flex-start',
-                            marginBottom: '2rem',
-                            position: 'relative'
-                        }}>
-                            <div style={{
-                                width: '45%',
-                                padding: '1.5rem',
-                                backgroundColor: 'var(--card-bg)',
-                                borderRadius: '1rem',
-                                boxShadow: 'var(--card-shadow)',
-                                border: '1px solid var(--border-color)',
-                                position: 'relative'
-                            }}>
+                            <div key={index} style={{
+                                flex: '1',
+                                minWidth: '200px',
+                                maxWidth: '280px',
+                                textAlign: 'center',
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                backdropFilter: 'blur(10px)',
+                                padding: '2rem',
+                                borderRadius: '20px',
+                                border: '1px solid rgba(255, 255, 255, 0.05)',
+                                boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+                                transition: 'transform 0.3s ease'
+                            }}
+                                onMouseOver={e => e.currentTarget.style.transform = 'translateY(-5px)'}
+                                onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
                                 <div style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    [index % 2 === 0 ? 'right' : 'left']: '-3.5rem',
-                                    transform: 'translateY(-50%)',
-                                    width: '1rem',
-                                    height: '1rem',
-                                    backgroundColor: 'var(--primary)',
-                                    borderRadius: '50%',
-                                    border: '4px solid var(--bg-primary)'
-                                }} />
-                                <span className="badge badge-success" style={{ marginBottom: '0.5rem', display: 'inline-block' }}>{event.date}</span>
-                                <h3>{event.title}</h3>
-                                <p style={{ color: 'var(--text-secondary)' }}>{event.desc}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* 9. Problem Resolution Pathway */}
-            <section id="resolution" style={{ backgroundColor: 'var(--bg-secondary)', padding: '6rem 0' }}>
-                <div className="container">
-                    <h2 className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '4rem' }}>Problem Resolution Pathway</h2>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
-                        {[
-                            { step: 1, title: 'Submit Issue', icon: '📝' },
-                            { step: 2, title: 'Dept Review', icon: '👀' },
-                            { step: 3, title: 'Action Plan', icon: '⚙️' },
-                            { step: 4, title: 'Resolution', icon: '✅' }
-                        ].map((item, index) => (
-                            <div key={index} style={{ flex: 1, textAlign: 'center', minWidth: '150px', position: 'relative' }}>
-                                <div className="animate-pulse" style={{
-                                    width: '80px', height: '80px',
-                                    backgroundColor: 'var(--card-bg)',
-                                    borderRadius: '50%',
-                                    margin: '0 auto 1rem',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: '2rem',
-                                    boxShadow: 'var(--card-shadow)',
-                                    border: '2px solid var(--primary)'
-                                }}>
-                                    {item.icon}
-                                </div>
-                                <h3 style={{ fontSize: '1.1rem' }}>{item.title}</h3>
-                                {index < 3 && (
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: '40px',
-                                        right: '-50%',
-                                        width: '100%',
-                                        height: '2px',
-                                        backgroundColor: 'var(--primary)',
-                                        zIndex: 0,
-                                        display: 'none' // Hidden on mobile, could show on desktop with media query
-                                    }} className="desktop-only-line" />
-                                )}
+                                    fontSize: '3rem',
+                                    fontWeight: '800',
+                                    color: 'white',
+                                    marginBottom: '0.5rem',
+                                    textShadow: `0 0 20px ${stat.color}80`
+                                }}>{stat.value}</div>
+                                <div style={{
+                                    fontSize: '0.9rem',
+                                    color: 'rgba(255,255,255,0.6)',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '2px',
+                                    fontWeight: '600'
+                                }}>{stat.label}</div>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* 10. Developer Team Section */}
-            <section id="developers" className="container" style={{ padding: '6rem 2rem' }}>
-                <h2 className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '3rem' }}>Meet the Developers</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
-                    {[
-                        { name: 'Ezadin Aliyi', role: 'Lead Developer', skills: ['React', 'Node.js', 'UI/UX'] },
-                        { name: 'Sultan Adinan', role: 'Backend Engineer', skills: ['Database', 'API', 'Security'] },
-                        { name: 'Kume Amin', role: 'Frontend Engineer', skills: ['CSS', 'Animation', 'Responsive'] }
-                    ].map((dev, index) => (
-                        <div key={index} className="card animate-fade-up" style={{ perspective: '1000px' }}>
-                            <div style={{ textAlign: 'center' }}>
-                                <div style={{
-                                    width: '100px', height: '100px',
-                                    backgroundColor: '#ddd',
-                                    borderRadius: '50%',
-                                    margin: '0 auto 1rem',
-                                    backgroundImage: `url(https://ui-avatars.com/api/?name=${dev.name}&background=random)`,
-                                    backgroundSize: 'cover'
-                                }} />
-                                <h3>{dev.name}</h3>
-                                <p style={{ color: 'var(--primary)', marginBottom: '1rem' }}>{dev.role}</p>
-                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                                    {dev.skills.map(skill => (
-                                        <span key={skill} className="badge badge-secondary">{skill}</span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* 11. Interactive Union Map */}
-            <section id="map" style={{ height: '400px', backgroundColor: '#e5e7eb', position: 'relative', overflow: 'hidden' }}>
+            {/* Features Section */}
+            <section id="features" className="container" style={{ padding: '8rem 2rem', position: 'relative', zIndex: 1 }}>
                 <div style={{
-                    width: '100%', height: '100%',
-                    backgroundImage: 'url("https://images.unsplash.com/photo-1524813686514-a57563d77965?q=80&w=1920&auto=format&fit=crop")',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    filter: 'grayscale(0.5)'
-                }} />
-                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.9)', padding: '2rem', borderRadius: '1rem' }}>
-                    <h3>Campus Map</h3>
-                    <p>Find your way to the Student Union Office</p>
-                    <button className="btn btn-primary" style={{ marginTop: '1rem' }}>Get Directions</button>
+                    background: 'rgba(0, 20, 10, 0.4)',
+                    backdropFilter: 'blur(30px)',
+                    borderRadius: '40px',
+                    padding: '4rem',
+                    border: '1px solid rgba(0, 255, 0, 0.1)'
+                }}>
+                    <h2 className="animate-fade-up" style={{
+                        textAlign: 'center',
+                        marginBottom: '4rem',
+                        color: 'white',
+                        fontSize: '2.5rem',
+                        fontWeight: '700'
+                    }}>What You Can Do</h2>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2.5rem' }}>
+                        {[
+                            { title: 'Vote Online', icon: '🗳️', desc: 'Secure blockchain-enabled voting system.' },
+                            { title: 'Track Events', icon: '📅', desc: 'Real-time updates on campus activities.' },
+                            { title: 'Submit Issues', icon: '📢', desc: 'Direct channel to student representatives.' },
+                            { title: 'Access Resources', icon: '📚', desc: 'Digital library and academic tools.' }
+                        ].map((feature, index) => (
+                            <div key={index} className="animate-fade-up" style={{
+                                padding: '2.5rem',
+                                background: 'linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+                                backdropFilter: 'blur(10px)',
+                                borderRadius: '24px',
+                                border: '1px solid rgba(255, 255, 255, 0.05)',
+                                textAlign: 'center',
+                                transition: 'all 0.3s ease',
+                                cursor: 'default'
+                            }}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.transform = 'translateY(-10px)';
+                                    e.currentTarget.style.border = '1px solid rgba(0, 255, 0, 0.3)';
+                                    e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 255, 0, 0.1)';
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            >
+                                <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem', filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' }}>{feature.icon}</div>
+                                <h3 style={{ marginBottom: '1rem', color: 'white', fontSize: '1.4rem' }}>{feature.title}</h3>
+                                <p style={{ color: 'rgba(255, 255, 255, 0.6)', lineHeight: '1.6' }}>{feature.desc}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
-            {/* 12. Social Feed */}
-            <section id="social" className="container" style={{ padding: '6rem 2rem' }}>
-                <h2 className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '3rem' }}>Social Feed</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-                    {[
-                        { user: 'HUSUMS', time: '2h ago', content: 'Great turnout at the General Assembly! Thank you all for coming. #Unity', likes: 120 },
-                        { user: 'HUSUMS', time: '5h ago', content: 'Don\'t forget to vote in the upcoming elections. Your voice matters! 🗳️', likes: 85 },
-                        { user: 'HUSUMS', time: '1d ago', content: 'New study spaces opened in the main library. Check them out!', likes: 200 }
-                    ].map((post, index) => (
-                        <div key={index} className="card animate-fade-in" style={{ borderLeft: '4px solid #1da1f2' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                <strong>@{post.user}</strong>
-                                <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{post.time}</span>
-                            </div>
-                            <p style={{ marginBottom: '1rem' }}>{post.content}</p>
-                            <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-secondary)' }}>
-                                <span>❤️ {post.likes}</span>
-                                <span>🔁 Share</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* 13. Enhanced Footer */}
-            <footer id="contact" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)', color: 'white', padding: '4rem 0 2rem' }}>
+            {/* About Section */}
+            <section id="about" style={{ padding: '8rem 0', position: 'relative', zIndex: 1 }}>
                 <div className="container">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem', marginBottom: '3rem' }}>
-                        <div>
-                            <h3 style={{ color: 'var(--primary)', marginBottom: '1.5rem' }}>HUSUMS</h3>
-                            <p style={{ color: '#9ca3af' }}>Serving the student body with dedication and transparency.</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '3rem' }}>
+                        <div className="animate-slide-right" style={{
+                            padding: '3.5rem',
+                            background: 'rgba(0, 20, 10, 0.4)',
+                            backdropFilter: 'blur(20px)',
+                            borderRadius: '30px',
+                            border: '1px solid rgba(0, 255, 0, 0.15)',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#00ff00', boxShadow: '0 0 20px #00ff00' }}></div>
+                            <h3 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: 'white', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                🎯 Our Mission
+                            </h3>
+                            <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'rgba(255,255,255,0.8)' }}>
+                                To empower the student body of Haramaya University by providing a transparent, efficient, and inclusive platform for representation, engagement, and service delivery.
+                            </p>
+                        </div>
+                        <div className="animate-slide-left" style={{
+                            padding: '3.5rem',
+                            background: 'rgba(0, 20, 10, 0.4)',
+                            backdropFilter: 'blur(20px)',
+                            borderRadius: '30px',
+                            border: '1px solid rgba(0, 255, 0, 0.15)',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#00aaff', boxShadow: '0 0 20px #00aaff' }}></div>
+                            <h3 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: 'white', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                👁️ Our Vision
+                            </h3>
+                            <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'rgba(255,255,255,0.8)' }}>
+                                To create a vibrant, digitally connected campus community where every student's voice is heard, valued, and acted upon through innovation.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Feedback Section */}
+            <section id="feedback" className="container" style={{ padding: '6rem 2rem', position: 'relative', zIndex: 1 }}>
+                <div style={{
+                    maxWidth: '800px',
+                    margin: '0 auto',
+                    background: 'rgba(5, 20, 10, 0.5)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '30px',
+                    padding: '4rem',
+                    border: '1px solid rgba(0, 255, 0, 0.2)',
+                    boxShadow: '0 20px 80px rgba(0, 0, 0, 0.4)'
+                }}>
+                    <h2 className="animate-fade-up" style={{ textAlign: 'center', marginBottom: '1rem', color: 'white', fontSize: '2.2rem' }}>We Value Your Feedback</h2>
+                    <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)', marginBottom: '3rem' }}>
+                        Help us improve your student experience.
+                    </p>
+
+                    <form style={{ display: 'grid', gap: '1.5rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.8rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Name</label>
+                                <input type="text" placeholder="John Doe" style={{
+                                    width: '100%',
+                                    padding: '1rem',
+                                    background: 'rgba(0,0,0,0.3)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '12px',
+                                    color: 'white',
+                                    outline: 'none',
+                                    transition: 'border 0.3s'
+                                }}
+                                    onFocus={e => e.target.style.border = '1px solid #00ff00'}
+                                    onBlur={e => e.target.style.border = '1px solid rgba(255, 255, 255, 0.1)'}
+                                />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.8rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Email</label>
+                                <input type="email" placeholder="john@example.com" style={{
+                                    width: '100%',
+                                    padding: '1rem',
+                                    background: 'rgba(0,0,0,0.3)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '12px',
+                                    color: 'white',
+                                    outline: 'none',
+                                    transition: 'border 0.3s'
+                                }}
+                                    onFocus={e => e.target.style.border = '1px solid #00ff00'}
+                                    onBlur={e => e.target.style.border = '1px solid rgba(255, 255, 255, 0.1)'}
+                                />
+                            </div>
                         </div>
                         <div>
-                            <h4 style={{ marginBottom: '1.5rem' }}>Quick Links</h4>
-                            <ul style={{ listStyle: 'none', color: '#9ca3af' }}>
-                                <li style={{ marginBottom: '0.5rem' }}><a href="#home" style={{ color: 'inherit', textDecoration: 'none' }}>Home</a></li>
-                                <li style={{ marginBottom: '0.5rem' }}><a href="#about" style={{ color: 'inherit', textDecoration: 'none' }}>About</a></li>
-                                <li style={{ marginBottom: '0.5rem' }}><a href="#events" style={{ color: 'inherit', textDecoration: 'none' }}>Events</a></li>
+                            <label style={{ display: 'block', marginBottom: '0.8rem', color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Message</label>
+                            <textarea rows="5" placeholder="Share your thoughts..." style={{
+                                width: '100%',
+                                padding: '1rem',
+                                background: 'rgba(0,0,0,0.3)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '12px',
+                                color: 'white',
+                                outline: 'none',
+                                resize: 'vertical',
+                                transition: 'border 0.3s'
+                            }}
+                                onFocus={e => e.target.style.border = '1px solid #00ff00'}
+                                onBlur={e => e.target.style.border = '1px solid rgba(255, 255, 255, 0.1)'}
+                            ></textarea>
+                        </div>
+                        <button type="button" className="btn" style={{
+                            padding: '1.2rem 2rem',
+                            background: 'linear-gradient(90deg, #00ff00, #00cc00)',
+                            color: 'black',
+                            border: 'none',
+                            borderRadius: '12px',
+                            fontSize: '1.1rem',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s',
+                            marginTop: '1rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px',
+                            boxShadow: '0 0 20px rgba(0, 255, 0, 0.3)'
+                        }}
+                            onMouseOver={e => {
+                                e.target.style.transform = 'translateY(-2px)';
+                                e.target.style.boxShadow = '0 0 40px rgba(0, 255, 0, 0.5)';
+                            }}
+                            onMouseOut={e => {
+                                e.target.style.transform = 'translateY(0)';
+                                e.target.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.3)';
+                            }}
+                        >
+                            Submit Feedback
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer id="contact" style={{
+                background: 'rgba(0, 0, 0, 0.8)',
+                backdropFilter: 'blur(20px)',
+                color: 'white',
+                padding: '5rem 0 2rem',
+                borderTop: '1px solid rgba(255, 255, 255, 0.05)'
+            }}>
+                <div className="container">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '4rem', marginBottom: '4rem' }}>
+                        <div>
+                            <h3 style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: '700' }}>HUSUMS</h3>
+                            <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: '1.6' }}>Serving the student body with dedication, transparency, and innovation.</p>
+                        </div>
+                        <div>
+                            <h4 style={{ marginBottom: '1.5rem', color: '#00ff00', fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Quick Links</h4>
+                            <ul style={{ listStyle: 'none', padding: 0 }}>
+                                {['Home', 'About', 'Features', 'Contact'].map(link => (
+                                    <li key={link} style={{ marginBottom: '0.8rem' }}>
+                                        <a href={`#${link.toLowerCase()}`} style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', transition: 'color 0.3s' }}
+                                            onMouseOver={e => e.target.style.color = '#00ff00'}
+                                            onMouseOut={e => e.target.style.color = 'rgba(255,255,255,0.7)'}
+                                        >{link}</a>
+                                    </li>
+                                ))}
                             </ul>
                         </div>
                         <div>
-                            <h4 style={{ marginBottom: '1.5rem' }}>Contact</h4>
-                            <p style={{ color: '#9ca3af', marginBottom: '0.5rem' }}>Campus Main Building</p>
-                            <p style={{ color: '#9ca3af', marginBottom: '0.5rem' }}>info@hu.edu.et</p>
-                            <p style={{ color: '#9ca3af' }}>+251 123 456 789</p>
+                            <h4 style={{ marginBottom: '1.5rem', color: '#00ff00', fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Contact</h4>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>Campus Main Building</p>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem' }}>info@hu.edu.et</p>
+                            <p style={{ color: 'rgba(255,255,255,0.7)' }}>+251 123 456 789</p>
                         </div>
                         <div>
-                            <h4 style={{ marginBottom: '1.5rem' }}>Newsletter</h4>
+                            <h4 style={{ marginBottom: '1.5rem', color: '#00ff00', fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Newsletter</h4>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <input type="email" placeholder="Your email" style={{ padding: '0.5rem', borderRadius: '0.25rem', border: 'none', flex: 1 }} />
-                                <button className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Subscribe</button>
+                                <input type="email" placeholder="Your email" style={{
+                                    padding: '0.8rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    flex: 1,
+                                    background: 'rgba(255,255,255,0.05)',
+                                    color: 'white',
+                                    outline: 'none'
+                                }} />
+                                <button className="btn" style={{
+                                    padding: '0.8rem 1.2rem',
+                                    background: '#00ff00',
+                                    color: 'black',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontWeight: '700',
+                                    cursor: 'pointer'
+                                }}>Join</button>
                             </div>
                         </div>
                     </div>
-                    <div style={{ borderTop: '1px solid #333', paddingTop: '2rem', textAlign: 'center', color: '#6b7280' }}>
+                    <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '2rem', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>
                         &copy; 2025 Haramaya University Student Union. All rights reserved.
                     </div>
                 </div>
