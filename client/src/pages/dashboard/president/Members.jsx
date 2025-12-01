@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { api, API_URL } from '../../../utils/api';
-import { Users, Trash2, AlertTriangle, ToggleLeft, ToggleRight } from 'lucide-react';
+import { api } from '../../../utils/api';
+import { Users, AlertTriangle, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
+import './MembersLuxury.css';
+import '../../../overflowFix.css';
 
 const Members = () => {
     const [members, setMembers] = useState([]);
@@ -8,12 +10,33 @@ const Members = () => {
     const [registrationStatus, setRegistrationStatus] = useState({ isOpen: true });
     const [loading, setLoading] = useState(true);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [animationReady, setAnimationReady] = useState(false);
 
     useEffect(() => {
         fetchMembers();
         fetchWarnings();
         fetchRegistrationStatus();
+
+        // Trigger animations after mount
+        setTimeout(() => setAnimationReady(true), 100);
+
+        // Generate floating particles
+        generateParticles();
     }, []);
+
+    const generateParticles = () => {
+        const particlesContainer = document.querySelector('.particles');
+        if (!particlesContainer) return;
+
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.animationDelay = `${Math.random() * 15}s`;
+            particle.style.animationDuration = `${15 + Math.random() * 10}s`;
+            particlesContainer.appendChild(particle);
+        }
+    };
 
     const fetchMembers = async () => {
         try {
@@ -71,126 +94,166 @@ const Members = () => {
     };
 
     if (loading) {
-        return <div className="flex items-center justify-center h-64">Loading...</div>;
+        return (
+            <div className="luxury-dashboard">
+                <div className="particles"></div>
+                <div className="noise-layer"></div>
+                <div className="luxury-loading">
+                    <div className="loading-spinner"></div>
+                    <p>Initializing Command Center...</p>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <Users className="text-[var(--primary)]" size={32} />
-                    <h2 className="text-3xl font-bold">Member Management</h2>
-                </div>
+        <div className="luxury-dashboard">
+            {/* Atmospheric Elements */}
+            <div className="particles"></div>
+            <div className="noise-layer"></div>
 
-                {/* Registration Control */}
-                <div className="flex items-center gap-3 card px-4 py-2">
-                    <span className="text-sm font-medium">Registration:</span>
-                    <button
-                        onClick={toggleRegistration}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${registrationStatus.isOpen
-                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                            : 'bg-red-100 text-red-700 hover:bg-red-200'
-                            }`}
-                    >
-                        {registrationStatus.isOpen ? (
-                            <>
-                                <ToggleRight size={20} />
-                                <span>Open</span>
-                            </>
-                        ) : (
-                            <>
-                                <ToggleLeft size={20} />
-                                <span>Closed</span>
-                            </>
-                        )}
-                    </button>
+            {/* Header Section */}
+            <div className="luxury-header">
+                <div className="header-icon-wrapper">
+                    <Users className="header-icon" size={56} />
+                    <div className="icon-glow"></div>
+                </div>
+                <div className="header-text">
+                    <h1 className="luxury-title" data-text="Member Management">
+                        Member Management
+                    </h1>
+                    <p className="luxury-subtitle">Manage student members and registration status</p>
                 </div>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="card">
-                    <div className="text-sm text-[var(--text-secondary)]">Total Members</div>
-                    <div className="text-3xl font-bold text-[var(--primary)]">{members.length}</div>
-                </div>
-                <div className="card">
-                    <div className="text-sm text-[var(--text-secondary)]">Members with Warnings</div>
-                    <div className="text-3xl font-bold text-red-500">{membersWithWarnings.length}</div>
-                </div>
-                <div className="card">
-                    <div className="text-sm text-[var(--text-secondary)]">Registration Status</div>
-                    <div className={`text-3xl font-bold ${registrationStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
-                        {registrationStatus.isOpen ? 'Open' : 'Closed'}
+            {/* Primary Status Section */}
+            <div className="status-primary">
+                <div className="status-label">Registration Status</div>
+                <button
+                    onClick={toggleRegistration}
+                    className={`status-toggle ${registrationStatus.isOpen ? 'status-open' : 'status-closed'}`}
+                >
+                    <div className="toggle-ring"></div>
+                    <div className="toggle-content">
+                        {registrationStatus.isOpen ? (
+                            <>
+                                <ToggleRight size={36} />
+                                <span className="toggle-text">OPEN</span>
+                            </>
+                        ) : (
+                            <>
+                                <ToggleLeft size={36} />
+                                <span className="toggle-text">CLOSED</span>
+                            </>
+                        )}
                     </div>
+                    <div className="toggle-glow"></div>
+                </button>
+            </div>
+
+            {/* Statistics Section */}
+            <div className="stats-grid">
+                <div className={`stat-card ${animationReady ? 'slide-up' : ''}`} style={{ animationDelay: '0.2s' }}>
+                    <div className="stat-icon-wrapper">
+                        <Users className="stat-icon" size={36} />
+                        <div className="stat-icon-glow"></div>
+                    </div>
+                    <div className="stat-content">
+                        <div className="stat-label">Total Members</div>
+                        <div className="stat-value">{members.length}</div>
+                    </div>
+                    <div className="card-shimmer"></div>
+                </div>
+
+                <div className={`stat-card ${animationReady ? 'slide-up' : ''}`} style={{ animationDelay: '0.35s' }}>
+                    <div className="stat-icon-wrapper warning">
+                        <AlertTriangle className="stat-icon" size={36} />
+                        <div className="stat-icon-glow warning"></div>
+                    </div>
+                    <div className="stat-content">
+                        <div className="stat-label">Members with Warnings</div>
+                        <div className="stat-value warning-value">{membersWithWarnings.length}</div>
+                    </div>
+                    <div className="card-shimmer"></div>
+                </div>
+
+                <div className={`stat-card ${animationReady ? 'slide-up' : ''}`} style={{ animationDelay: '0.5s' }}>
+                    <div className="stat-icon-wrapper status">
+                        {registrationStatus.isOpen ? (
+                            <>
+                                <ToggleRight className="stat-icon" size={36} />
+                                <div className="stat-icon-glow success"></div>
+                            </>
+                        ) : (
+                            <>
+                                <ToggleLeft className="stat-icon" size={36} />
+                                <div className="stat-icon-glow warning"></div>
+                            </>
+                        )}
+                    </div>
+                    <div className="stat-content">
+                        <div className="stat-label">Registration Status</div>
+                        <div className={`stat-value ${registrationStatus.isOpen ? 'success-value' : 'warning-value'}`}>
+                            {registrationStatus.isOpen ? 'OPEN' : 'CLOSED'}
+                        </div>
+                    </div>
+                    <div className="card-shimmer"></div>
                 </div>
             </div>
 
             {/* Members Table */}
-            <div className="card">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
+            <div className="luxury-table-container">
+                <div className="table-wrapper">
+                    <table className="luxury-table">
                         <thead>
-                            <tr className="border-b border-[var(--border-color)]">
-                                <th className="text-left p-4 font-semibold">Photo</th>
-                                <th className="text-left p-4 font-semibold">Name</th>
-                                <th className="text-left p-4 font-semibold">Student ID</th>
-                                <th className="text-left p-4 font-semibold">Email</th>
-                                <th className="text-left p-4 font-semibold">Role</th>
-                                <th className="text-left p-4 font-semibold">Department</th>
-                                <th className="text-left p-4 font-semibold">Status</th>
-                                <th className="text-right p-4 font-semibold">Actions</th>
+                            <tr>
+                                <th>Name</th>
+                                <th>Student ID</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {members.map(member => {
+                            {members.map((member, index) => {
                                 const warning = hasWarning(member.id);
                                 return (
-                                    <tr key={member.id} className="border-b border-[var(--border-color)] hover:bg-[var(--bg-secondary)]">
-                                        <td className="p-4">
-                                            <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center text-white font-bold overflow-hidden">
-                                                {member.profilePicture ? (
-                                                    <img
-                                                        src={`${API_URL.replace('/api', '')}${member.profilePicture}`}
-                                                        alt={`${member.firstName} ${member.lastName}`}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <span>{member.firstName?.[0]}{member.lastName?.[0]}</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-2">
-                                                <span>{member.firstName} {member.lastName}</span>
-                                                {warning && (
-                                                    <div className="relative group">
-                                                        <AlertTriangle size={18} className="text-red-500" />
-                                                        <div className="absolute left-full ml-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50">
-                                                            {warning.warningCount} consecutive absences
+                                    <tr
+                                        key={member.id}
+                                        className={animationReady ? 'fade-in' : ''}
+                                        style={{ animationDelay: `${0.9 + index * 0.05}s` }}
+                                    >
+                                        <td data-label="Name">
+                                            <div className="member-name-cell">
+                                                <div className="member-avatar-placeholder">
+                                                    {member.firstName?.[0]}{member.lastName?.[0]}
+                                                </div>
+                                                <div className="member-name-wrapper">
+                                                    <span className="member-name">{member.firstName} {member.lastName}</span>
+                                                    {warning && (
+                                                        <div className="warning-indicator">
+                                                            <AlertTriangle size={16} />
+                                                            <span className="warning-tooltip">{warning.warningCount} consecutive absences</span>
                                                         </div>
-                                                    </div>
-                                                )}
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="p-4">{member.studentId}</td>
-                                        <td className="p-4">{member.email}</td>
-                                        <td className="p-4">
-                                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 capitalize">
-                                                {member.role.replace('_', ' ')}
-                                            </span>
+                                        <td data-label="Student ID"><span className="mono-text">{member.studentId}</span></td>
+                                        <td data-label="Role">
+                                            <span className="role-badge">{member.role.replace('_', ' ')}</span>
                                         </td>
-                                        <td className="p-4">{member.department || '-'}</td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${warning ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                                                }`}>
+                                        <td data-label="Department">{member.department || '—'}</td>
+                                        <td data-label="Status">
+                                            <span className={`status-badge ${warning ? 'warning' : 'active'}`}>
                                                 {warning ? 'Warning' : 'Active'}
                                             </span>
                                         </td>
-                                        <td className="p-4 text-right">
+                                        <td data-label="Actions">
                                             <button
                                                 onClick={() => setDeleteConfirm(member)}
-                                                className="p-2 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
+                                                className="action-button delete"
                                                 title="Delete member"
                                             >
                                                 <Trash2 size={18} />
@@ -206,24 +269,18 @@ const Members = () => {
 
             {/* Delete Confirmation Modal */}
             {deleteConfirm && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="card max-w-md w-full mx-4">
-                        <h3 className="text-xl font-bold mb-4">Confirm Deletion</h3>
-                        <p className="text-[var(--text-secondary)] mb-6">
+                <div className="luxury-modal-overlay">
+                    <div className="luxury-modal">
+                        <h3 className="modal-title">Confirm Deletion</h3>
+                        <p className="modal-text">
                             Are you sure you want to delete <strong>{deleteConfirm.firstName} {deleteConfirm.lastName}</strong>?
-                            This action cannot be undone.
+                            <br />This action cannot be undone.
                         </p>
-                        <div className="flex justify-end gap-3">
-                            <button
-                                onClick={() => setDeleteConfirm(null)}
-                                className="btn bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            >
+                        <div className="modal-actions">
+                            <button onClick={() => setDeleteConfirm(null)} className="btn-secondary">
                                 Cancel
                             </button>
-                            <button
-                                onClick={() => handleDelete(deleteConfirm.id)}
-                                className="btn bg-red-500 text-white hover:bg-red-600"
-                            >
+                            <button onClick={() => handleDelete(deleteConfirm.id)} className="btn-danger">
                                 Delete
                             </button>
                         </div>

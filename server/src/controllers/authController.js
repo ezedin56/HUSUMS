@@ -55,15 +55,14 @@ const loginUser = async (req, res) => {
 // @route   POST /api/auth/register
 // @access  Private/Admin
 const registerUser = async (req, res) => {
-    const { studentId, email, role, firstName, lastName } = req.body;
+    const { studentId, role, firstName, lastName } = req.body;
 
     try {
-        const userExists = await User.findOne({
-            $or: [{ studentId }, { email }]
-        });
+        // Only check for duplicate studentId, not email
+        const userExists = await User.findOne({ studentId });
 
         if (userExists) {
-            return res.status(400).json({ message: 'Student ID or email already exists' });
+            return res.status(400).json({ message: 'Student ID already exists' });
         }
 
         // Generate a temporary password (e.g., studentId + 123) if not provided
@@ -73,7 +72,6 @@ const registerUser = async (req, res) => {
 
         const user = new User({
             studentId,
-            email,
             password: hashedPassword,
             role: role || 'member',
             firstName,
@@ -95,7 +93,7 @@ const registerUser = async (req, res) => {
         }
     } catch (error) {
         if (error.code === 11000) {
-            return res.status(400).json({ message: 'Student ID or email already exists' });
+            return res.status(400).json({ message: 'Student ID already exists' });
         }
         res.status(500).json({ message: error.message });
     }

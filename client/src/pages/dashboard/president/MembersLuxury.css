@@ -1,0 +1,450 @@
+/* ============================================
+   ELITE CINEMATIC COMMAND CENTER UI
+   2026-Grade Enterprise Dashboard  
+   ============================================ */
+
+/* ===== 1. CONTAINER ===== */
+.luxury-dashboard {
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    max-width: 100%;
+    width: 100%;
+}
+
+/* Prevent all luxury dashboard children from causing overflow */
+.luxury-dashboard>* {
+    max-width: 100%;
+}
+
+/* ===== 2. HEADER SECTION ===== */
+.luxury-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    position: relative;
+    z-index: 10;
+    padding: 0 1rem;
+    max-width: 100%;
+}
+
+.header-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    margin-bottom: 1.5rem;
+}
+
+.header-icon {
+    color: #3FFF86;
+    filter: drop-shadow(0 0 25px rgba(63, 255, 134, 0.6));
+}
+
+.icon-glow {
+    position: absolute;
+    inset: -30px;
+    background: radial-gradient(circle, rgba(63, 255, 134, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(25px);
+}
+
+.luxury-title {
+    font-size: clamp(2rem, 5vw + 1rem, 3.5rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffffff 0%, #3FFF86 60%, #59F5E3 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.03em;
+}
+
+.luxury-subtitle {
+    font-size: clamp(0.9rem, 2vw + 0.5rem, 1.15rem);
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+}
+
+/* ===== 3. STATUS TOGGLE ===== */
+.status-primary {
+    max-width: 600px;
+    margin: 0 auto 5rem;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+    padding: 0 1rem;
+}
+
+.status-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+.status-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 2rem 4rem;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 60px;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 60px rgba(63, 255, 134, 0.1);
+}
+
+.status-toggle:hover {
+    transform: translateY(-4px) scale(1.02);
+}
+
+.toggle-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.toggle-text {
+    font-size: clamp(1.25rem, 3vw + 0.5rem, 1.75rem);
+    font-weight: 800;
+    letter-spacing: 0.15em;
+}
+
+.status-toggle.status-open {
+    color: #3FFF86;
+    text-shadow: 0 0 30px rgba(63, 255, 134, 0.6);
+}
+
+.status-toggle.status-closed {
+    color: #FF6B6B;
+    text-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+}
+
+/* ===== 4. STATS GRID ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+    max-width: 1400px;
+    margin: 0 auto 5rem;
+    position: relative;
+    z-index: 10;
+    padding: 0 1rem;
+}
+
+.stat-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    padding: 3rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.stat-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    border-color: rgba(63, 255, 134, 0.4);
+}
+
+.stat-icon-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(63, 255, 134, 0.08);
+    border-radius: 20px;
+    border: 2px solid rgba(63, 255, 134, 0.3);
+}
+
+.stat-icon {
+    color: #3FFF86;
+    filter: drop-shadow(0 0 15px rgba(63, 255, 134, 0.5));
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+}
+
+.stat-value {
+    font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+    line-height: 1;
+}
+
+.stat-value.warning-value {
+    color: #FF6B6B;
+    text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+}
+
+.stat-value.success-value {
+    color: #3FFF86;
+    text-shadow: 0 0 30px rgba(63, 255, 134, 0.5);
+}
+
+/* ===== 5. TABLE SECTION ===== */
+.luxury-table-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+    padding: 0 1rem;
+}
+
+.table-wrapper {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    padding: 2.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.luxury-table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: separate;
+    border-spacing: 0 1rem;
+}
+
+.luxury-table th {
+    padding: 1.25rem 1.75rem;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.luxury-table td {
+    padding: 1.5rem 1.75rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.95rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.luxury-table tbody tr {
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.luxury-table tbody tr:hover {
+    background: rgba(63, 255, 134, 0.06);
+    transform: translateX(4px);
+}
+
+.member-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.member-avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(63, 255, 134, 0.15), rgba(89, 245, 227, 0.15));
+    border: 1.5px solid rgba(63, 255, 134, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #3FFF86;
+    flex-shrink: 0;
+}
+
+.member-name {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.warning-indicator {
+    position: relative;
+    display: inline-flex;
+    color: #FF6B6B;
+}
+
+.mono-text {
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.9rem;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    background: rgba(89, 245, 227, 0.08);
+    border: 1px solid rgba(89, 245, 227, 0.3);
+    border-radius: 24px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #59F5E3;
+    text-transform: capitalize;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border-radius: 24px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.status-badge.active {
+    background: rgba(63, 255, 134, 0.08);
+    border: 1px solid rgba(63, 255, 134, 0.4);
+    color: #3FFF86;
+}
+
+.status-badge.warning {
+    background: rgba(255, 107, 107, 0.08);
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    color: #FF6B6B;
+}
+
+.action-button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 0.7rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.action-button:hover {
+    background: rgba(255, 107, 107, 0.12);
+    border-color: rgba(255, 107, 107, 0.4);
+    color: #FF6B6B;
+}
+
+/* ===== 6. MODAL ===== */
+.luxury-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(15px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.luxury-modal {
+    background: rgba(5, 15, 10, 0.98);
+    backdrop-filter: blur(40px) saturate(180%);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-radius: 32px;
+    padding: 3rem;
+    max-width: 550px;
+    width: 90%;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+}
+
+.modal-title {
+    font-size: clamp(1.5rem, 3vw + 0.5rem, 2rem);
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 1.25rem;
+}
+
+.modal-text {
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: flex-end;
+}
+
+.btn-secondary,
+.btn-danger {
+    padding: 1rem 2.5rem;
+    border-radius: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    font-size: 1rem;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.95);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #FF6B6B, #FFA07A);
+    color: white;
+}
+
+/* ===== 7. RESPONSIVE ===== */
+@media (max-width: 767px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .stat-card {
+        padding: 2rem 1.75rem;
+    }
+
+    .status-toggle {
+        padding: 1.5rem 2.5rem;
+    }
+
+    .luxury-table th,
+    .luxury-table td {
+        padding: 1rem 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .btn-secondary,
+    .btn-danger {
+        width: 100%;
+    }
+}

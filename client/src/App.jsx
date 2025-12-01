@@ -7,6 +7,7 @@ import About from './pages/public/About';
 import Contact from './pages/public/Contact';
 import Login from './pages/auth/Login';
 import PublicVote from './pages/PublicVote';
+import './overflowFix.css';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import DashboardOverview from './pages/dashboard/DashboardOverview';
 import Broadcast from './pages/dashboard/president/Broadcast';

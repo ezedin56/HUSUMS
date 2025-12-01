@@ -92,8 +92,8 @@ const ResultsManager = () => {
                     <button
                         onClick={toggleAnnounce}
                         className={`btn flex items-center gap-2 ${selectedElection.resultsAnnounced
-                                ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
-                                : 'bg-gray-700 hover:bg-gray-600'
+                            ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
+                            : 'bg-gray-700 hover:bg-gray-600'
                             }`}
                     >
                         {selectedElection.resultsAnnounced ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -113,16 +113,6 @@ const ResultsManager = () => {
                     </div>
 
                     <div className="space-y-6">
-                        {results.results && results.results.reduce((acc, curr) => {
-                            if (!acc[curr.position]) acc[curr.position] = [];
-                            acc[curr.position].push(curr);
-                            return acc;
-                        }, {}).map((group, position) => (
-                            // Note: The reduce above returns an object, not an array, so map won't work directly on it.
-                            // I need to iterate over Object.entries
-                            null
-                        ))}
-
                         {Object.entries(results.results.reduce((acc, curr) => {
                             if (!acc[curr.position]) acc[curr.position] = [];
                             acc[curr.position].push(curr);
