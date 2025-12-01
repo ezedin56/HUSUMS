@@ -33,7 +33,7 @@ const CandidateManager = () => {
 
     useEffect(() => {
         if (selectedElectionId) {
-            const election = elections.find(e => e.id === selectedElectionId);
+            const election = elections.find(e => e._id === selectedElectionId);
             if (election && election.Candidates) {
                 setCandidates(election.Candidates);
             }
@@ -45,13 +45,19 @@ const CandidateManager = () => {
     const fetchElections = async () => {
         try {
             const data = await api.get('/president/elections');
-            setElections(data);
-            if (data.length > 0 && !selectedElectionId) {
-                setSelectedElectionId(data[0].id);
+            if (Array.isArray(data)) {
+                setElections(data);
+                if (data.length > 0 && !selectedElectionId) {
+                    setSelectedElectionId(data[0]._id);
+                }
+            } else {
+                console.error('Received non-array data for elections:', data);
+                setElections([]);
             }
             setLoading(false);
         } catch (error) {
             console.error('Error fetching elections:', error);
+            setElections([]);
             setLoading(false);
         }
     };
@@ -78,25 +84,7 @@ const CandidateManager = () => {
         }
 
         try {
-            // We need to use raw fetch or axios with multipart/form-data
-            // Assuming api instance handles headers correctly, but for file upload we might need to be careful with Content-Type
-            // The api utility likely sets Content-Type to application/json by default.
-            // Let's use the token from localStorage and fetch directly for safety, or override headers.
-
-            const token = JSON.parse(localStorage.getItem('user')).token;
-            const res = await fetch(`http://localhost:5000/api/president/elections/${selectedElectionId}/candidates`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    // Don't set Content-Type, browser sets it with boundary for FormData
-                },
-                body: data
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.message || 'Failed to add candidate');
-            }
+            await api.upload(`/president/elections/${selectedElectionId}/candidates`, data);
 
             alert('Candidate added successfully');
             setShowAddModal(false);
@@ -107,7 +95,7 @@ const CandidateManager = () => {
         }
     };
 
-    const selectedElection = elections.find(e => e.id === selectedElectionId);
+    const selectedElection = elections.find(e => e._id === selectedElectionId);
 
     return (
         <div className="space-y-6">
@@ -120,7 +108,7 @@ const CandidateManager = () => {
                         onChange={(e) => setSelectedElectionId(e.target.value)}
                     >
                         {elections.map(e => (
-                            <option key={e.id} value={e.id}>{e.title}</option>
+                            <option key={e._id} value={e._id}>{e.title}</option>
                         ))}
                     </select>
                     <button
@@ -259,14 +247,13 @@ const CandidateManager = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Photo</label>
+                                    <label className="block text-sm font-medium mb-1">Photo (Optional)</label>
                                     <div className="border-2 border-dashed border-white/20 rounded-lg p-8 text-center cursor-pointer hover:border-[var(--primary)] transition-colors relative">
                                         <input
                                             type="file"
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             onChange={e => setFormData({ ...formData, photo: e.target.files[0] })}
                                             accept="image/*"
-                                            required
                                         />
                                         <Upload className="mx-auto mb-2 text-gray-400" />
                                         <p className="text-sm text-gray-400">

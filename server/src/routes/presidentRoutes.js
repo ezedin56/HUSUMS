@@ -84,7 +84,7 @@ router.get('/analytics/:electionId', protect, authorize('president', 'vp', 'publ
 router.patch('/elections/:id/announce', protect, authorize('president', 'vp', 'publicvote_admin'), announceResults);
 
 // Member Management Routes
-router.get('/members', protect, authorize('president', 'vp'), getAllMembers);
+router.get('/members', protect, authorize('president', 'vp', 'publicvote_admin'), getAllMembers);
 router.get('/members/warnings', protect, authorize('president', 'vp'), getMembersWithWarnings);
 router.delete('/members/:id', protect, authorize('president'), deleteMember);
 router.put('/members/:id/status', protect, authorize('president', 'vp'), updateMemberStatus);
@@ -95,7 +95,7 @@ router.get('/registration/status', protect, authorize('president', 'vp'), getReg
 router.put('/registration/status', protect, authorize('president'), updateRegistrationStatus);
 
 // Analytics Routes
-router.get('/analytics/system', protect, authorize('president', 'vp'), getSystemAnalytics);
+router.get('/analytics/system', protect, authorize('president', 'vp', 'publicvote_admin'), getSystemAnalytics);
 
 // Department Oversight Routes
 router.get('/departments', protect, authorize('president', 'vp'), getDepartmentOverview);

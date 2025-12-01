@@ -4,6 +4,7 @@ import GridBackground from '../../components/GridBackground';
 
 const Home = () => {
     const [scrolled, setScrolled] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -69,7 +70,20 @@ const Home = () => {
                 }}>
                     HUSUMS
                 </div>
-                <div className="animate-slide-left" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
+
+                {/* Desktop Navigation */}
+                <style>{`
+                    @media (max-width: 768px) {
+                        .desktop-nav { display: none !important; }
+                        .mobile-menu-btn { display: flex !important; }
+                    }
+                    @media (min-width: 769px) {
+                        .desktop-nav { display: flex !important; }
+                        .mobile-menu-btn { display: none !important; }
+                    }
+                `}</style>
+
+                <div className="desktop-nav animate-slide-left" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
                     {sections.map(section => (
                         <a
                             key={section.id}
@@ -108,7 +122,115 @@ const Home = () => {
                         }}
                     >Login</Link>
                 </div>
+
+                {/* Mobile Hamburger Button */}
+                <button
+                    className="mobile-menu-btn"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    style={{
+                        display: 'none',
+                        flexDirection: 'column',
+                        gap: '5px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '0.5rem',
+                        zIndex: 1001
+                    }}
+                >
+                    <span style={{
+                        width: '25px',
+                        height: '2px',
+                        background: '#00ff00',
+                        transition: 'all 0.3s',
+                        transform: mobileMenuOpen ? 'rotate(45deg) translateY(7px)' : 'none'
+                    }}></span>
+                    <span style={{
+                        width: '25px',
+                        height: '2px',
+                        background: '#00ff00',
+                        transition: 'all 0.3s',
+                        opacity: mobileMenuOpen ? 0 : 1
+                    }}></span>
+                    <span style={{
+                        width: '25px',
+                        height: '2px',
+                        background: '#00ff00',
+                        transition: 'all 0.3s',
+                        transform: mobileMenuOpen ? 'rotate(-45deg) translateY(-7px)' : 'none'
+                    }}></span>
+                </button>
             </nav>
+
+            {/* Mobile Menu Overlay */}
+            <div style={{
+                position: 'fixed',
+                top: 0,
+                right: mobileMenuOpen ? 0 : '-100%',
+                width: '70%',
+                maxWidth: '300px',
+                height: '100vh',
+                background: 'rgba(0, 20, 10, 0.95)',
+                backdropFilter: 'blur(20px)',
+                zIndex: 999,
+                transition: 'right 0.3s ease',
+                padding: '5rem 2rem 2rem',
+                borderLeft: '1px solid rgba(0, 255, 0, 0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2rem'
+            }}>
+                {sections.map(section => (
+                    <a
+                        key={section.id}
+                        href={`#${section.id}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        style={{
+                            textDecoration: 'none',
+                            color: 'rgba(255,255,255,0.8)',
+                            fontWeight: '500',
+                            fontSize: '1.1rem',
+                            transition: 'all 0.3s',
+                            padding: '0.5rem 0',
+                            borderBottom: '1px solid rgba(255,255,255,0.1)'
+                        }}
+                    >
+                        {section.label}
+                    </a>
+                ))}
+                <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    style={{
+                        padding: '0.8rem 1.5rem',
+                        borderRadius: '50px',
+                        background: 'rgba(0, 255, 0, 0.1)',
+                        border: '1px solid rgba(0, 255, 0, 0.4)',
+                        color: '#00ff00',
+                        fontWeight: '600',
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        marginTop: '1rem'
+                    }}
+                >Login</Link>
+            </div>
+
+            {/* Mobile Menu Backdrop */}
+            {mobileMenuOpen && (
+                <div
+                    onClick={() => setMobileMenuOpen(false)}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0, 0, 0, 0.5)',
+                        zIndex: 998
+                    }}
+                />
+            )}
+
 
             {/* Hero Section */}
             <section id="home" style={{

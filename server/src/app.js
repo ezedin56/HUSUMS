@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
@@ -13,7 +14,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Connect to MongoDB
-connectDB();
+const seedDatabase = require('./seed');
+
+// Connect to MongoDB
+connectDB().then(async (isInMemory) => {
+    if (isInMemory) {
+        await seedDatabase();
+    }
+});
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));

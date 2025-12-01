@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, User, IdCard, Vote as VoteIcon } from 'lucide-react';
-import AnimatedNetworkBackground from '../components/AnimatedNetworkBackground';
+import GridBackground from '../components/GridBackground';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -15,6 +16,16 @@ const PublicVote = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [activeModal, setActiveModal] = useState(null); // 'about', 'howto', 'results', 'faq'
+    const [scrolled, setScrolled] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     useEffect(() => {
         if (step === 2) {
@@ -113,189 +124,219 @@ const PublicVote = () => {
     return (
         <div style={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
-            padding: '2rem 1rem',
+            color: 'white',
             position: 'relative',
-            overflow: 'hidden'
+            overflowX: 'hidden',
+            fontFamily: "'Inter', sans-serif"
         }}>
-            {/* Vibrant Animated Gradient Orbs */}
+            {/* Grid Background */}
+            <GridBackground />
+
+            {/* Overlay Gradient for depth */}
             <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: `
-                    radial-gradient(circle at 20% 30%, rgba(34, 197, 94, 0.15) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 70%, rgba(74, 222, 128, 0.12) 0%, transparent 50%),
-                    radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)
-                `,
-                animation: 'floatingOrbs 25s ease-in-out infinite',
+                position: 'fixed',
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: 'radial-gradient(circle at 50% 50%, rgba(0, 255, 0, 0.05) 0%, rgba(0, 0, 0, 0.6) 100%)',
                 pointerEvents: 'none',
                 zIndex: 0
             }} />
-
-            {/* Flowing Wave Gradients */}
-            <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: `
-                    linear-gradient(135deg, transparent 0%, transparent 40%, rgba(34, 197, 94, 0.08) 45%, rgba(34, 197, 94, 0.15) 50%, rgba(34, 197, 94, 0.08) 55%, transparent 60%, transparent 100%),
-                    linear-gradient(-45deg, transparent 0%, transparent 40%, rgba(74, 222, 128, 0.06) 45%, rgba(74, 222, 128, 0.12) 50%, rgba(74, 222, 128, 0.06) 55%, transparent 60%, transparent 100%)
-                `,
-                backgroundSize: '1000px 1000px, 1200px 1200px',
-                backgroundPosition: '0 0, 200px 100px',
-                animation: 'waveFlow 35s linear infinite',
-                pointerEvents: 'none',
-                zIndex: 0,
-                opacity: 0.8
-            }} />
-
-            {/* Floating Particles with Sparkle Effect */}
-            <div style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundImage: `
-                    radial-gradient(circle at 10% 20%, rgba(74, 222, 128, 0.2) 0%, transparent 3%),
-                    radial-gradient(circle at 90% 15%, rgba(34, 197, 94, 0.15) 0%, transparent 2.5%),
-                    radial-gradient(circle at 30% 70%, rgba(74, 222, 128, 0.18) 0%, transparent 3.5%),
-                    radial-gradient(circle at 70% 60%, rgba(16, 185, 129, 0.12) 0%, transparent 2.8%),
-                    radial-gradient(circle at 50% 40%, rgba(34, 197, 94, 0.16) 0%, transparent 3.2%),
-                    radial-gradient(circle at 85% 85%, rgba(74, 222, 128, 0.14) 0%, transparent 2.6%),
-                    radial-gradient(circle at 15% 55%, rgba(34, 197, 94, 0.13) 0%, transparent 2.3%)
-                `,
-                backgroundSize: '100% 100%',
-                animation: 'sparkleFloat 18s ease-in-out infinite',
-                pointerEvents: 'none',
-                zIndex: 0
-            }} />
-
-            {/* Pulsing Light Rings */}
-            <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                width: '150%',
-                height: '150%',
-                transform: 'translate(-50%, -50%)',
-                background: `
-                    radial-gradient(circle, transparent 30%, rgba(34, 197, 94, 0.05) 31%, rgba(34, 197, 94, 0.05) 32%, transparent 33%),
-                    radial-gradient(circle, transparent 50%, rgba(74, 222, 128, 0.04) 51%, rgba(74, 222, 128, 0.04) 52%, transparent 53%)
-                `,
-                animation: 'pulseRings 20s ease-in-out infinite',
-                pointerEvents: 'none',
-                zIndex: 0
-            }} />
-
-            {/* Shimmer Effect */}
-            <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(110deg, transparent 0%, transparent 40%, rgba(255, 255, 255, 0.03) 50%, transparent 60%, transparent 100%)',
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 10s linear infinite',
-                pointerEvents: 'none',
-                zIndex: 1
-            }} />
-
-            <AnimatedNetworkBackground color="#22c55e" opacity={0.4} />
 
             {/* Enhanced Keyframe Animations */}
             <style>{`
-                @keyframes floatingOrbs {
-                    0%, 100% {
-                        transform: translate(0, 0) scale(1);
-                        opacity: 0.6;
-                    }
-                    25% {
-                        transform: translate(30px, -40px) scale(1.1);
-                        opacity: 0.8;
-                    }
-                    50% {
-                        transform: translate(-20px, -60px) scale(0.95);
-                        opacity: 1;
-                    }
-                    75% {
-                        transform: translate(-40px, -30px) scale(1.05);
-                        opacity: 0.7;
-                    }
-                }
-
-                @keyframes waveFlow {
-                    0% {
-                        transform: translate(0, 0) rotate(0deg);
-                        opacity: 0.5;
-                    }
-                    50% {
-                        opacity: 1;
-                    }
-                    100% {
-                        transform: translate(-500px, 500px) rotate(10deg);
-                        opacity: 0.5;
-                    }
-                }
-
-                @keyframes sparkleFloat {
-                    0%, 100% {
-                        opacity: 0.3;
-                        transform: translateY(0) scale(1) rotate(0deg);
-                    }
-                    25% {
-                        opacity: 0.6;
-                    }
-                    50% {
-                        opacity: 1;
-                        transform: translateY(-50px) scale(1.15) rotate(180deg);
-                    }
-                    75% {
-                        opacity: 0.5;
-                    }
-                }
-
-                @keyframes pulseRings {
-                    0%, 100% {
-                        transform: translate(-50%, -50%) scale(1);
-                        opacity: 0.4;
-                    }
-                    50% {
-                        transform: translate(-50%, -50%) scale(1.2);
-                        opacity: 0.7;
-                    }
-                }
-
-                @keyframes shimmer {
-                    0% {
-                        background-position: -200% 0;
-                    }
-                    100% {
-                        background-position: 200% 0;
-                    }
-                }
-
                 /* Glass Effect Enhancement */
                 .glass {
-                    background: rgba(255, 255, 255, 0.08) !important;
-                    backdrop-filter: blur(25px) saturate(180%) !important;
-                    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
-                    border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
-                    box-shadow: 
-                        0 8px 32px 0 rgba(0, 0, 0, 0.37),
-                        0 0 0 1px rgba(34, 197, 94, 0.1),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                        0 20px 60px rgba(34, 197, 94, 0.15) !important;
+                    background: rgba(5, 20, 10, 0.3) !important;
+                    backdrop-filter: blur(20px) !important;
+                    -webkit-backdrop-filter: blur(20px) !important;
+                    border: 1px solid rgba(0, 255, 0, 0.15) !important;
+                    box-shadow: 0 0 80px rgba(0, 255, 0, 0.05), inset 0 0 30px rgba(0, 255, 0, 0.02) !important;
                     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
                 }
 
                 .glass:hover {
-                    background: rgba(255, 255, 255, 0.12) !important;
-                    border-color: rgba(34, 197, 94, 0.4) !important;
+                    background: rgba(5, 20, 10, 0.5) !important;
+                    border-color: rgba(0, 255, 0, 0.3) !important;
                     transform: translateY(-5px) !important;
-                    box-shadow: 
-                        0 12px 40px 0 rgba(0, 0, 0, 0.45),
-                        0 0 0 1px rgba(34, 197, 94, 0.3),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                        0 25px 80px rgba(34, 197, 94, 0.25) !important;
+                    box-shadow: 0 0 100px rgba(0, 255, 0, 0.1), inset 0 0 50px rgba(0, 255, 0, 0.05) !important;
+                }
+                
+                @media (max-width: 768px) {
+                    .desktop-nav { display: none !important; }
+                    .mobile-menu-btn { display: flex !important; }
+                }
+                @media (min-width: 769px) {
+                    .desktop-nav { display: flex !important; }
+                    .mobile-menu-btn { display: none !important; }
                 }
             `}</style>
 
-            <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+            {/* Animated Navigation Bar */}
+            <nav style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                padding: scrolled ? '1rem 2rem' : '1.5rem 2rem',
+                background: scrolled ? 'rgba(0, 20, 10, 0.6)' : 'rgba(0, 0, 0, 0.1)',
+                boxShadow: scrolled ? '0 4px 30px rgba(0, 255, 0, 0.1)' : 'none',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                zIndex: 1000,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backdropFilter: 'blur(20px)',
+                borderBottom: '1px solid rgba(0, 255, 0, 0.1)'
+            }}>
+                <Link to="/" style={{ textDecoration: 'none' }}>
+                    <div className="animate-slide-right" style={{
+                        fontSize: '1.8rem',
+                        fontWeight: '800',
+                        letterSpacing: '-0.5px',
+                        background: 'linear-gradient(to right, #fff, #00ff00)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        filter: 'drop-shadow(0 0 10px rgba(0,255,0,0.3))'
+                    }}>
+                        HUSUMS
+                    </div>
+                </Link>
+
+                <div className="desktop-nav animate-slide-left" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
+                    {[
+                        { id: 'home', label: 'Home' },
+                        { id: 'features', label: 'Features' },
+                        { id: 'about', label: 'About' },
+                        { id: 'feedback', label: 'Feedback' },
+                        { id: 'contact', label: 'Contact' }
+                    ].map(section => (
+                        <a
+                            key={section.id}
+                            href={`/#${section.id}`}
+                            style={{
+                                textDecoration: 'none',
+                                color: 'rgba(255,255,255,0.8)',
+                                fontWeight: '500',
+                                fontSize: '0.95rem',
+                                transition: 'all 0.3s',
+                                position: 'relative'
+                            }}
+                            className="nav-link hover:text-white hover:drop-shadow-[0_0_8px_rgba(0,255,0,0.8)]"
+                        >
+                            {section.label}
+                        </a>
+                    ))}
+                    <Link to="/login" className="btn" style={{
+                        padding: '0.6rem 1.8rem',
+                        borderRadius: '50px',
+                        background: 'rgba(0, 255, 0, 0.1)',
+                        border: '1px solid rgba(0, 255, 0, 0.4)',
+                        color: '#00ff00',
+                        fontWeight: '600',
+                        backdropFilter: 'blur(5px)',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 0 15px rgba(0, 255, 0, 0.1)'
+                    }}
+                        onMouseOver={e => {
+                            e.target.style.background = 'rgba(0, 255, 0, 0.2)';
+                            e.target.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.4)';
+                        }}
+                        onMouseOut={e => {
+                            e.target.style.background = 'rgba(0, 255, 0, 0.1)';
+                            e.target.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.1)';
+                        }}
+                    >Login</Link>
+                </div>
+
+                {/* Mobile Hamburger Button */}
+                <button
+                    className="mobile-menu-btn"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    style={{
+                        display: 'none',
+                        flexDirection: 'column',
+                        gap: '5px',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '0.5rem',
+                        zIndex: 1001
+                    }}
+                >
+                    <span style={{
+                        width: '25px',
+                        height: '2px',
+                        background: '#00ff00',
+                        transition: 'all 0.3s',
+                        transform: mobileMenuOpen ? 'rotate(45deg) translateY(7px)' : 'none'
+                    }}></span>
+                    <span style={{
+                        width: '25px',
+                        height: '2px',
+                        background: '#00ff00',
+                        transition: 'all 0.3s',
+                        opacity: mobileMenuOpen ? 0 : 1
+                    }}></span>
+                    <span style={{
+                        width: '25px',
+                        height: '2px',
+                        background: '#00ff00',
+                        transition: 'all 0.3s',
+                        transform: mobileMenuOpen ? 'rotate(-45deg) translateY(-7px)' : 'none'
+                    }}></span>
+                </button>
+            </nav>
+
+            {/* Mobile Menu Overlay */}
+            <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0, 0, 0, 0.95)',
+                backdropFilter: 'blur(20px)',
+                zIndex: 999,
+                display: mobileMenuOpen ? 'flex' : 'none',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '2rem',
+                transition: 'all 0.3s'
+            }}>
+                {[
+                    { id: 'home', label: 'Home' },
+                    { id: 'features', label: 'Features' },
+                    { id: 'about', label: 'About' },
+                    { id: 'feedback', label: 'Feedback' },
+                    { id: 'contact', label: 'Contact' }
+                ].map(section => (
+                    <a
+                        key={section.id}
+                        href={`/#${section.id}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        style={{
+                            textDecoration: 'none',
+                            color: 'white',
+                            fontSize: '1.5rem',
+                            fontWeight: '600',
+                            transition: 'all 0.3s'
+                        }}
+                    >
+                        {section.label}
+                    </a>
+                ))}
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)} style={{
+                    padding: '1rem 3rem',
+                    borderRadius: '50px',
+                    background: '#00ff00',
+                    color: 'black',
+                    fontWeight: '700',
+                    textDecoration: 'none',
+                    fontSize: '1.2rem'
+                }}>Login</Link>
+            </div>
+
+            <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1, paddingTop: '100px' }}>
                 <motion.div
                     initial={{ y: -50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -567,7 +608,7 @@ const PublicVote = () => {
                                                         width: '100px',
                                                         height: '100px',
                                                         borderRadius: '50%',
-                                                        background: candidate.photo ? `url(${candidate.photo})` : 'rgba(255,255,255,0.1)',
+                                                        background: candidate.photo ? `url(http://localhost:5000${candidate.photo})` : 'rgba(255,255,255,0.1)',
                                                         backgroundSize: 'cover',
                                                         backgroundPosition: 'center',
                                                         margin: '0 auto 1rem',
@@ -777,7 +818,7 @@ const PublicVote = () => {
                                                             width: '60px',
                                                             height: '60px',
                                                             borderRadius: '50%',
-                                                            background: candidate.photo ? `url(${candidate.photo})` : 'rgba(255,255,255,0.1)',
+                                                            background: candidate.photo ? `url(http://localhost:5000${candidate.photo})` : 'rgba(255,255,255,0.1)',
                                                             backgroundSize: 'cover',
                                                             backgroundPosition: 'center',
                                                             marginBottom: '0.5rem',

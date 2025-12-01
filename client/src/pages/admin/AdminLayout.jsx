@@ -7,7 +7,7 @@ import {
     LogOut,
     BarChart3
 } from 'lucide-react';
-import Footer from '../../components/Footer';
+import AdminFooter from '../../components/admin/AdminFooter';
 
 const AdminLayout = () => {
     const navigate = useNavigate();
@@ -112,7 +112,7 @@ const AdminLayout = () => {
                 <div style={{ flex: 1 }}>
                     <Outlet />
                 </div>
-                <Footer />
+                <AdminFooter />
             </main>
         </div>
     );

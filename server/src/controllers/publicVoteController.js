@@ -106,24 +106,29 @@ const submitPublicVote = async (req, res) => {
                 return res.status(400).json({ message: 'Election is not open for voting' });
             }
 
-            // Check if student already voted in this election
-            const existingVote = await Vote.findOne({ electionId, studentId });
-            if (existingVote) {
-                return res.status(400).json({
-                    message: 'You have already voted in this election'
-                });
-            }
-
             // Verify candidate exists
             const candidate = await Candidate.findById(candidateId);
             if (!candidate) {
                 return res.status(404).json({ message: 'Candidate not found' });
             }
 
+            // Check if student already voted for this position in this election
+            const existingVote = await Vote.findOne({
+                electionId,
+                studentId,
+                position: candidate.position
+            });
+            if (existingVote) {
+                return res.status(400).json({
+                    message: `You have already voted for the ${candidate.position} position`
+                });
+            }
+
             // Create vote
             const newVote = await Vote.create({
                 electionId,
                 candidateId,
+                position: candidate.position,
                 studentId,
                 voterName: fullName,
                 ipAddress,

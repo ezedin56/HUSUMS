@@ -34,7 +34,7 @@ const ResultsManager = () => {
             const data = await api.get('/president/elections');
             setElections(data);
             if (data.length > 0 && !selectedElectionId) {
-                setSelectedElectionId(data[0].id);
+                setSelectedElectionId(data[0]._id);
             }
             setLoading(false);
         } catch (error) {
@@ -62,7 +62,7 @@ const ResultsManager = () => {
         }
     };
 
-    const selectedElection = elections.find(e => e.id === selectedElectionId);
+    const selectedElection = elections.find(e => e._id === selectedElectionId);
 
     return (
         <div className="space-y-6">
@@ -75,7 +75,7 @@ const ResultsManager = () => {
                         onChange={(e) => setSelectedElectionId(e.target.value)}
                     >
                         {elections.map(e => (
-                            <option key={e.id} value={e.id}>{e.title}</option>
+                            <option key={e._id} value={e._id}>{e.title}</option>
                         ))}
                     </select>
                 </div>
@@ -92,8 +92,8 @@ const ResultsManager = () => {
                     <button
                         onClick={toggleAnnounce}
                         className={`btn flex items-center gap-2 ${selectedElection.resultsAnnounced
-                                ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
-                                : 'bg-gray-700 hover:bg-gray-600'
+                            ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
+                            : 'bg-gray-700 hover:bg-gray-600'
                             }`}
                     >
                         {selectedElection.resultsAnnounced ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -113,15 +113,7 @@ const ResultsManager = () => {
                     </div>
 
                     <div className="space-y-6">
-                        {results.results && results.results.reduce((acc, curr) => {
-                            if (!acc[curr.position]) acc[curr.position] = [];
-                            acc[curr.position].push(curr);
-                            return acc;
-                        }, {}).map((group, position) => (
-                            // Note: The reduce above returns an object, not an array, so map won't work directly on it.
-                            // I need to iterate over Object.entries
-                            null
-                        ))}
+
 
                         {Object.entries(results.results.reduce((acc, curr) => {
                             if (!acc[curr.position]) acc[curr.position] = [];

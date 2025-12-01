@@ -39,6 +39,7 @@ import AdminLayout from './pages/admin/AdminLayout';
 import ElectionManager from './pages/admin/ElectionManager';
 import CandidateManager from './pages/admin/CandidateManager';
 import ResultsManager from './pages/admin/ResultsManager';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
   return (
@@ -111,7 +112,7 @@ const Layout = () => {
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<ElectionManager />} />
-            <Route path="dashboard" element={<ElectionManager />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="elections" element={<ElectionManager />} />
             <Route path="candidates" element={<CandidateManager />} />
             <Route path="results" element={<ResultsManager />} />
