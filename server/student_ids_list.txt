@@ -1,0 +1,81 @@
+========================================
+    ALL STUDENT IDs IN DATABASE
+========================================
+Total users: 15
+
+1. Student ID: "SEC001"
+   Name: Sara Tadesse
+   Email: No email
+   Role: secretary
+   ---
+2. Student ID: "PRES001"
+   Name: John Doe
+   Email: No email
+   Role: president
+   ---
+3. Student ID: "CAND002"
+   Name: Sultan Adinan
+   Email: No email
+   Role: member
+   ---
+4. Student ID: "CAND003"
+   Name: Kume Amin
+   Email: No email
+   Role: member
+   ---
+5. Student ID: "MEM001"
+   Name: Ezedin  Usman
+   Email: No email
+   Role: member
+   ---
+6. Student ID: "1209/16"
+   Name: Ezedin Aliyi Usman
+   Email: No email
+   Role: dept_head
+   ---
+7. Student ID: "MEM1122"
+   Name: eze aliyi
+   Email: No email
+   Role: member
+   ---
+8. Student ID: "Ezu001"
+   Name: Ezedin Aliyi
+   Email: No email
+   Role: member
+   ---
+9. Student ID: "1122/15"
+   Name: Public Admin
+   Email: No email
+   Role: publicvote_admin
+   ---
+10. Student ID: "PVADMIN"
+   Name: PublicVote Admin
+   Email: No email
+   Role: publicvote_admin
+   ---
+11. Student ID: "1208/16"
+   Name: Ornia Zeadin
+   Email: No email
+   Role: member
+   ---
+12. Student ID: "2445/16"
+   Name: Ruhama Teshagir
+   Email: No email
+   Role: dept_head
+   ---
+13. Student ID: "1243/16"
+   Name: Hamdiya  Adinan
+   Email: No email
+   Role: member
+   ---
+14. Student ID: "1222/17"
+   Name: Wayesa Aliyi
+   Email: No email
+   Role: member
+   ---
+15. Student ID: "0405/16"
+   Name: Abdusamed Mohamed
+   Email: No email
+   Role: member
+   ---
+========================================

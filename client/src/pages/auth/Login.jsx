@@ -272,8 +272,16 @@ const Login = () => {
                     <p style={{ color: 'rgba(255, 255, 255, 0.6)', marginTop: '0.5rem' }}>Sign in to continue</p>
                 </div>
 
+                <p style={{
+                    textAlign: 'center',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    marginBottom: '3rem',
+                    fontSize: '0.95rem'
+                }}>Welcome back to HUSUMS</p>
+
                 <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: '1.5rem' }}>
+                    {/* Student ID Field */}
+                    <div style={{ marginBottom: '2rem' }}>
                         <label style={{
                             display: 'block',
                             marginBottom: '0.8rem',
@@ -288,6 +296,7 @@ const Login = () => {
                             value={formData.studentId}
                             onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
                             required
+                            placeholder="Enter your ID"
                             style={{
                                 width: '100%',
                                 padding: '1rem',
@@ -306,10 +315,10 @@ const Login = () => {
                                 e.target.style.border = '1px solid rgba(255, 255, 255, 0.1)';
                                 e.target.style.boxShadow = 'none';
                             }}
-                            placeholder="Enter your ID"
                         />
                     </div>
 
+                    {/* Password Field */}
                     <div style={{ marginBottom: '2.5rem' }}>
                         <label style={{
                             display: 'block',
@@ -325,6 +334,7 @@ const Login = () => {
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             required
+                            placeholder="••••••••"
                             style={{
                                 width: '100%',
                                 padding: '1rem',
@@ -343,10 +353,10 @@ const Login = () => {
                                 e.target.style.border = '1px solid rgba(255, 255, 255, 0.1)';
                                 e.target.style.boxShadow = 'none';
                             }}
-                            placeholder="••••••••"
                         />
                     </div>
 
+                    {/* Submit Button */}
                     <button
                         type="submit"
                         className="btn"
@@ -377,10 +387,27 @@ const Login = () => {
                         Sign In
                     </button>
                 </form>
+
+                {/* Additional Link */}
+                <div style={{
+                    marginTop: '2rem',
+                    textAlign: 'center',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                    fontSize: '0.9rem'
+                }}>
+                    Don't have an account? <a href="/register" style={{
+                        color: '#00ff00',
+                        textDecoration: 'none',
+                        fontWeight: '600',
+                        transition: 'all 0.3s'
+                    }}
+                        onMouseOver={(e) => e.target.style.textShadow = '0 0 10px rgba(0, 255, 0, 0.8)'}
+                        onMouseOut={(e) => e.target.style.textShadow = 'none'}
+                    >Register here</a>
+                </div>
             </div>
         </div>
     );
 };
 
 export default Login;
-

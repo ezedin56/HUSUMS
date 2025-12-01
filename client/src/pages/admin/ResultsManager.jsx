@@ -113,8 +113,11 @@ const ResultsManager = () => {
                     </div>
 
                     <div className="space-y-6">
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> e9f5ddac7b32362d91f84559deb989ca4e270d69
                         {Object.entries(results.results.reduce((acc, curr) => {
                             if (!acc[curr.position]) acc[curr.position] = [];
                             acc[curr.position].push(curr);

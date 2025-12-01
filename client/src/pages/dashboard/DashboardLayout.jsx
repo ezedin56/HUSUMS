@@ -1,50 +1,31 @@
-import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
     LayoutDashboard,
     Users,
     Vote,
     Inbox,
-    LogOut,
-    ChevronLeft,
-    ChevronRight,
-    UserCircle,
     CheckSquare,
     Calendar,
-    BookOpen,
+    UserCircle,
     HelpCircle,
-    Settings,
-    Bell
+    Settings
 } from 'lucide-react';
 import './memberDashboard.css';
 import Footer from '../../components/Footer';
+import ResponsiveNavbar from '../../components/ResponsiveNavbar';
 
 const DashboardLayout = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const [user, setUser] = useState(() => {
         const storedUser = localStorage.getItem('user');
         return storedUser ? JSON.parse(storedUser) : null;
     });
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         if (!user) {
             navigate('/login');
         }
-
-        const handleResize = () => {
-            if (window.innerWidth < 1024) {
-                setIsSidebarOpen(false);
-            } else {
-                setIsSidebarOpen(true);
-            }
-        };
-
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
     }, [navigate, user]);
 
     if (!user) return (
@@ -87,150 +68,85 @@ const DashboardLayout = () => {
     };
 
     return (
-        <div className="dashboard-shell">
-            <div className="dashboard-stars" />
+        <div className="member-dashboard-shell" style={{
+            display: 'block',
+            background: 'linear-gradient(135deg, #000E08 0%, #032718 100%)',
+            minHeight: '100vh',
+            overflowX: 'hidden',
+            width: '100%',
+            maxWidth: '100vw',
+            position: 'relative'
+        }}>
+            {/* Atmospheric Blur Background */}
+            <div style={{
+                position: 'fixed',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: `
+                    radial-gradient(circle at 15% 20%, rgba(63, 255, 134, 0.08) 0%, transparent 40%),
+                    radial-gradient(circle at 85% 80%, rgba(89, 245, 227, 0.06) 0%, transparent 40%),
+                    radial-gradient(circle at 50% 50%, rgba(63, 255, 134, 0.03) 0%, transparent 60%)
+                `,
+                filter: 'blur(60px)',
+                animation: 'atmosphericDrift 30s ease-in-out infinite',
+                pointerEvents: 'none',
+                zIndex: 0
+            }} />
 
-            {/* Sidebar */}
-            <aside className={`dashboard-sidebar ${isSidebarOpen ? 'expanded' : 'collapsed'}`}>
-                {/* Logo Header */}
-                <div className="sidebar-header">
-                    {isSidebarOpen && (
-                        <div className="sidebar-logo">
-                            <span className="logo-icon">⚡</span>
-                            <span className="logo-text">HUSUMS</span>
-                        </div>
-                    )}
-                    <button
-                        className="sidebar-toggle"
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    >
-                        {isSidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-                    </button>
-                </div>
+            {/* Parallax Depth Layer */}
+            <div style={{
+                position: 'fixed',
+                inset: 0,
+                background: `
+                    radial-gradient(circle at 30% 40%, rgba(63, 255, 134, 0.04) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 60%, rgba(89, 245, 227, 0.03) 0%, transparent 50%)
+                `,
+                filter: 'blur(40px)',
+                animation: 'parallaxFloat 20s ease-in-out infinite reverse',
+                pointerEvents: 'none',
+                zIndex: 0
+            }} />
 
-                {/* User Profile */}
-                <div className="sidebar-profile">
-                    <div className="profile-avatar">
-                        {user.profilePicture ? (
-                            <img
-                                src={`http://localhost:5000${user.profilePicture}`}
-                                alt={user.firstName}
-                            />
-                        ) : (
-                            <span>{user.firstName?.[0] || 'U'}</span>
-                        )}
-                        <div className="avatar-status online" />
-                    </div>
-                    {isSidebarOpen && (
-                        <div className="profile-info">
-                            <p className="profile-name">{user.firstName} {user.lastName}</p>
-                            <p className="profile-role">{user.role}</p>
-                        </div>
-                    )}
-                </div>
+            <style>{`
+                @keyframes atmosphericDrift {
+                    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+                    50% { transform: translate(2%, 3%) scale(1.05); opacity: 1; }
+                }
+                @keyframes parallaxFloat {
+                    0%, 100% { transform: translateY(0px) scale(1); }
+                    50% { transform: translateY(-20px) scale(1.02); }
+                }
+            `}</style>
 
-                {/* Navigation */}
-                <nav className="sidebar-nav">
-                    {currentNavItems.map((item, index) => {
-                        const isActive = location.pathname === item.path ||
-                            (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
-                        return (
-                            <Link
-                                key={item.path}
-                                to={item.path}
-                                className={`nav-item ${isActive ? 'active' : ''}`}
-                                style={{ '--nav-delay': `${index * 0.05}s` }}
-                            >
-                                <span className="nav-icon">{item.icon}</span>
-                                {isSidebarOpen && <span className="nav-label">{item.label}</span>}
-                                {!isSidebarOpen && (
-                                    <span className="nav-tooltip">{item.label}</span>
-                                )}
-                            </Link>
-                        );
-                    })}
-                </nav>
-
-                {/* Footer Actions */}
-                <div className="sidebar-footer">
-                    <button className="logout-btn" onClick={handleLogout}>
-                        <LogOut size={20} />
-                        {isSidebarOpen && <span>Logout</span>}
-                    </button>
-                </div>
-            </aside>
+            {/* Top Navigation Bar */}
+            <ResponsiveNavbar
+                user={user}
+                navItems={currentNavItems}
+                onLogout={handleLogout}
+            />
 
             {/* Main Content */}
-            <main className="dashboard-main">
-                {/* Top Bar */}
-                <header className="dashboard-topbar">
-                    <div className="topbar-left">
-                        <button
-                            className="mobile-menu-btn"
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        >
-                            <span />
-                            <span />
-                            <span />
-                        </button>
-                        <div className="breadcrumb">
-                            <span className="breadcrumb-role">{user.role}</span>
-                            <span className="breadcrumb-separator">/</span>
-                            <span className="breadcrumb-page">
-                                {currentNavItems.find(item =>
-                                    item.path === location.pathname ||
-                                    (item.path !== '/dashboard' && location.pathname.startsWith(item.path))
-                                )?.label || 'Dashboard'}
-                            </span>
-                        </div>
-                    </div>
-                    <div className="topbar-right">
-                        <button className="topbar-btn notification">
-                            <Bell size={20} />
-                            <span className="notification-dot" />
-                        </button>
-                        <div className="topbar-time">
-                            {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                    </div>
-                </header>
-
+            <main className="dashboard-main" style={{
+                marginLeft: 0,
+                paddingTop: '80px',
+                width: '100%',
+                maxWidth: '100%',
+                position: 'relative',
+                zIndex: 10,
+                overflowX: 'hidden'
+            }}>
                 {/* Content Area */}
-                <div className="dashboard-content">
+                <div className="dashboard-content" style={{
+                    padding: '2rem',
+                    maxWidth: '100%',
+                    overflowX: 'hidden'
+                }}>
                     <Outlet />
                 </div>
                 <Footer />
             </main>
-
-            {/* Mobile Menu Overlay */}
-            {isMobileMenuOpen && (
-                <div className="mobile-overlay" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div className="mobile-menu" onClick={e => e.stopPropagation()}>
-                        <div className="mobile-menu-header">
-                            <span className="logo-icon">⚡</span>
-                            <span className="logo-text">HUSUMS</span>
-                            <button onClick={() => setIsMobileMenuOpen(false)}>×</button>
-                        </div>
-                        <nav className="mobile-nav">
-                            {currentNavItems.map((item) => (
-                                <Link
-                                    key={item.path}
-                                    to={item.path}
-                                    className={`mobile-nav-item ${location.pathname === item.path ? 'active' : ''}`}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                    {item.icon}
-                                    <span>{item.label}</span>
-                                </Link>
-                            ))}
-                        </nav>
-                        <button className="mobile-logout" onClick={handleLogout}>
-                            <LogOut size={20} />
-                            <span>Logout</span>
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

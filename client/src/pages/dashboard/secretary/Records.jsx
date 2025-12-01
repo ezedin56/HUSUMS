@@ -37,7 +37,6 @@ const Records = () => {
                                     <th style={{ padding: '0.75rem' }}>ID</th>
                                     <th style={{ padding: '0.75rem' }}>Role</th>
                                     <th style={{ padding: '0.75rem' }}>Department</th>
-                                    <th style={{ padding: '0.75rem' }}>Email</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -47,7 +46,6 @@ const Records = () => {
                                         <td style={{ padding: '0.75rem' }}>{member.studentId}</td>
                                         <td style={{ padding: '0.75rem', textTransform: 'capitalize' }}>{member.role.replace('_', ' ')}</td>
                                         <td style={{ padding: '0.75rem' }}>{member.Department ? member.Department.name : member.department || '-'}</td>
-                                        <td style={{ padding: '0.75rem' }}>{member.email}</td>
                                     </tr>
                                 ))}
                             </tbody>

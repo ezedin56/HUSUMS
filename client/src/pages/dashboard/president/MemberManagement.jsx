@@ -201,7 +201,6 @@ const MemberManagement = () => {
                                             </div>
                                             <div>
                                                 <div className="font-semibold">{member.firstName} {member.lastName}</div>
-                                                <div className="text-xs text-[var(--text-secondary)]">{member.email}</div>
                                             </div>
                                         </td>
                                         <td className="p-4">{member.studentId}</td>

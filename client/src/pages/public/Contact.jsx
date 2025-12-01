@@ -4,7 +4,6 @@ import axios from 'axios';
 const Contact = () => {
     const [formData, setFormData] = useState({
         senderName: '',
-        senderEmail: '',
         subject: '',
         content: '',
         recipientRole: 'president'
@@ -15,7 +14,7 @@ const Contact = () => {
         try {
             await axios.post('http://localhost:5000/api/public/problems', formData);
             alert('Problem submitted successfully!');
-            setFormData({ senderName: '', senderEmail: '', subject: '', content: '', recipientRole: 'president' });
+            setFormData({ senderName: '', subject: '', content: '', recipientRole: 'president' });
         } catch (error) {
             console.error(error);
             alert('Error submitting problem');
@@ -27,7 +26,7 @@ const Contact = () => {
             <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Report a Problem</h1>
             <div className="card">
                 <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', marginBottom: '1rem' }}>
                         <div>
                             <label style={{ display: 'block', marginBottom: '0.5rem' }}>Full Name</label>
                             <input
@@ -36,15 +35,6 @@ const Contact = () => {
                                 value={formData.senderName}
                                 onChange={(e) => setFormData({ ...formData, senderName: e.target.value })}
                                 required
-                            />
-                        </div>
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem' }}>Email (Optional)</label>
-                            <input
-                                type="email"
-                                className="input"
-                                value={formData.senderEmail}
-                                onChange={(e) => setFormData({ ...formData, senderEmail: e.target.value })}
                             />
                         </div>
                     </div>
