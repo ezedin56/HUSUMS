@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import SystemStatus from './components/SystemStatus';
-import AnimatedNetworkBackground from './components/AnimatedNetworkBackground';
+
 import Home from './pages/public/Home';
 import About from './pages/public/About';
 import Contact from './pages/public/Contact';
 import Login from './pages/auth/Login';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 import PublicVote from './pages/PublicVote';
 import './overflowFix.css';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
@@ -56,22 +57,40 @@ function App() {
   );
 }
 
+import backgroundImage from './assets/background.png';
+
 const Layout = () => {
   const location = useLocation();
   const isHome = location.pathname === '/';
   const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/forgot-password' || location.pathname.startsWith('/reset-password');
+  const isVotePage = location.pathname === '/vote';
 
   return (
     <>
-      <AnimatedNetworkBackground color="#16a34a" opacity={0.3} />
-      {!isHome && !isDashboard && <Navbar />}
-      <main className={!isHome && !isDashboard ? 'container' : ''} style={!isHome && !isDashboard ? { padding: '2rem 0' } : {}}>
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -1,
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }} />
+
+      {!isHome && !isDashboard && !isAuthPage && !isVotePage && <Navbar />}
+      <main className={!isHome && !isDashboard && !isAuthPage && !isVotePage ? 'container' : ''} style={!isHome && !isDashboard && !isAuthPage && !isVotePage ? { padding: '2rem 0' } : {}}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/vote" element={<PublicVote />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardOverview />} />
@@ -120,7 +139,6 @@ const Layout = () => {
           </Route>
         </Routes>
       </main>
-      <SystemStatus />
     </>
   );
 };

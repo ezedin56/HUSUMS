@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const { User } = require('../models');
+const { sendPasswordResetEmail } = require('../config/emailConfig');
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET || 'secret_key_change_me', {
@@ -128,4 +130,97 @@ const updateProfilePicture = async (req, res) => {
     }
 };
 
-module.exports = { loginUser, registerUser, updateProfilePicture };
+// @desc    Forgot password - send reset email
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        // Find user by email
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'No user found with that email address' });
+        }
+
+        // Generate reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+
+        // Hash token and set to resetPasswordToken field
+        const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+        // Set token and expiry (10 minutes)
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+        await user.save();
+
+        // Send email
+        const emailResult = await sendPasswordResetEmail(user.email, resetToken);
+
+        if (!emailResult.success) {
+            user.resetPasswordToken = null;
+            user.resetPasswordExpire = null;
+            await user.save();
+            return res.status(500).json({ message: 'Error sending email. Please try again later.' });
+        }
+
+        res.json({
+            message: 'Password reset email sent successfully',
+            email: user.email
+        });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Reset password
+// @route   POST /api/auth/reset-password/:token
+// @access  Public
+const resetPassword = async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    try {
+        // Hash the token from URL to compare
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        // Find user with matching token and not expired
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired reset token' });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+
+        // Clear reset token fields
+        user.resetPasswordToken = null;
+        user.resetPasswordExpire = null;
+
+        await user.save();
+
+        res.json({
+            message: 'Password reset successful',
+            studentId: user.studentId
+        });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = {
+    loginUser,
+    registerUser,
+    updateProfilePicture,
+    forgotPassword,
+    resetPassword
+};

@@ -10,7 +10,6 @@ const Navbar = () => {
                 <div style={{ display: 'flex', gap: '1.5rem' }}>
                     <Link to="/" style={{ color: 'var(--text-main)' }}>Home</Link>
                     <Link to="/about" style={{ color: 'var(--text-main)' }}>About</Link>
-                    <Link to="/contact" style={{ color: 'var(--text-main)' }}>Report Problem</Link>
                     <Link to="/login" className="btn btn-primary">Login</Link>
                 </div>
             </div>

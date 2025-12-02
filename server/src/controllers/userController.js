@@ -41,8 +41,17 @@ const updateProfile = async (req, res) => {
             region,
             zone,
             woreda,
-            city
+            city,
+            email
         } = req.body;
+
+        // Check if email is being updated and if it's already taken
+        if (email && email !== user.email) {
+            const emailExists = await User.findOne({ email });
+            if (emailExists) {
+                return res.status(400).json({ message: 'Email is already in use by another account' });
+            }
+        }
 
         // Update fields if provided
         // Update fields if provided (allow empty strings to clear fields)
@@ -57,8 +66,7 @@ const updateProfile = async (req, res) => {
         if (zone !== undefined) user.zone = zone;
         if (woreda !== undefined) user.woreda = woreda;
         if (city !== undefined) user.city = city;
-
-        if (city !== undefined) user.city = city;
+        if (email !== undefined) user.email = email;
 
         // Handle password update
         if (req.body.password) {
@@ -99,22 +107,22 @@ const updateProfile = async (req, res) => {
 const getDashboardStats = async (req, res) => {
     try {
         const { User, Event, Election, Vote, Attendance } = require('../models');
-        
+
         // Count members
         const memberCount = await User.countDocuments({ role: 'member' });
-        
+
         // Count events
         const eventCount = await Event.countDocuments();
-        
+
         // Count active elections
         const activeElectionCount = await Election.countDocuments({ status: 'active' });
-        
+
         // Count votes cast by current user (if member)
         let votesCast = 0;
         if (req.user.role === 'member') {
             votesCast = await Vote.countDocuments({ userId: req.user._id });
         }
-        
+
         // Get user's attendance stats (if member)
         let attendanceStats = null;
         if (req.user.role === 'member') {
@@ -122,13 +130,13 @@ const getDashboardStats = async (req, res) => {
             const totalPresent = attendanceRecords.filter(a => a.status === 'present' || a.status === 'late').length;
             const totalRecords = attendanceRecords.length;
             const attendanceRate = totalRecords > 0 ? Math.round((totalPresent / totalRecords) * 100) : 0;
-            
+
             attendanceStats = {
                 totalCheckIns: totalPresent,
                 attendanceRate
             };
         }
-        
+
         res.json({
             members: memberCount,
             events: eventCount,

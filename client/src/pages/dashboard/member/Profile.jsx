@@ -15,7 +15,8 @@ const Profile = () => {
         zone: '',
         woreda: '',
         city: '',
-        password: ''
+        password: '',
+        email: ''
     });
     const [photo, setPhoto] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -38,7 +39,8 @@ const Profile = () => {
                 zone: res.zone || '',
                 woreda: res.woreda || '',
                 city: res.city || '',
-                password: ''
+                password: '',
+                email: res.email || ''
             });
             if (res.profilePicture) {
                 setPreview(`http://localhost:5000${res.profilePicture}`);
@@ -222,6 +224,7 @@ const Profile = () => {
                         {renderInput('firstName', 'First Name')}
                         {renderInput('middleName', 'Middle Name')}
                         {renderInput('lastName', 'Last Name')}
+                        {renderInput('email', 'Email Address', { type: 'email', placeholder: 'Required for password reset' })}
                         {renderInput('phoneNumber', 'Phone Number')}
                     </div>
                 </fieldset>
