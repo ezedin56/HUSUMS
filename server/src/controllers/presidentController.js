@@ -1,4 +1,4 @@
-const { Message, Event, Election, Candidate, User, Vote, BroadcastTemplate } = require('../models');
+const { Message, Event, Election, Candidate, User, Vote, BroadcastTemplate, AuditLog } = require('../models');
 
 // @desc    Send a broadcast message
 // @route   POST /api/president/broadcast
@@ -92,6 +92,9 @@ const createElection = async (req, res) => {
     const { title, description, positions, startDate, endDate } = req.body;
 
     try {
+        // Determine election type based on user role
+        const electionType = req.user.role === 'publicvote_admin' ? 'public' : 'internal';
+
         const election = await Election.create({
             title,
             description,
@@ -99,7 +102,18 @@ const createElection = async (req, res) => {
             startDate,
             endDate,
             status: 'upcoming',
+            electionType,
             createdBy: req.user._id
+        });
+
+        // Log audit
+        await AuditLog.create({
+            user: req.user._id,
+            action: 'ELECTION_CREATED',
+            targetType: 'Election',
+            targetId: election._id,
+            details: { title, positions: positions.length, electionType },
+            ipAddress: req.ip
         });
 
         res.status(201).json(election);
@@ -126,7 +140,63 @@ const addCandidate = async (req, res) => {
             photo
         });
 
+        // Log audit
+        const user = await User.findById(userId).select('firstName lastName');
+        await AuditLog.create({
+            user: req.user._id,
+            action: 'CANDIDATE_ADDED',
+            targetType: 'Candidate',
+            targetId: candidate._id,
+            details: {
+                candidateName: user ? `${user.firstName} ${user.lastName}` : 'Unknown',
+                position,
+                electionId: id
+            },
+            ipAddress: req.ip
+        });
+
         res.status(201).json(candidate);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update candidate details
+// @route   PUT /api/president/candidates/:id
+// @access  Private (President/VP/Public Admin)
+const updateCandidate = async (req, res) => {
+    const { id } = req.params;
+    const { position, manifesto, description } = req.body;
+    const photo = req.file ? `/uploads/${req.file.filename}` : undefined;
+
+    try {
+        const candidate = await Candidate.findById(id);
+        if (!candidate) {
+            return res.status(404).json({ message: 'Candidate not found' });
+        }
+
+        // Update fields
+        if (position) candidate.position = position;
+        if (manifesto !== undefined) candidate.manifesto = manifesto;
+        if (description !== undefined) candidate.description = description;
+        if (photo) candidate.photo = photo;
+
+        await candidate.save();
+
+        // Log audit
+        await AuditLog.create({
+            user: req.user._id,
+            action: 'CANDIDATE_UPDATED',
+            targetType: 'Candidate',
+            targetId: candidate._id,
+            details: {
+                position: candidate.position,
+                updates: { position, manifesto: !!manifesto, description: !!description, photo: !!photo }
+            },
+            ipAddress: req.ip
+        });
+
+        res.json(candidate);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -141,15 +211,11 @@ const getElections = async (req, res) => {
         let query = {};
 
         if (req.user.role === 'publicvote_admin') {
-            // Public Admin sees only elections created by publicvote_admin
-            const publicAdmins = await User.find({ role: 'publicvote_admin' }).select('_id');
-            const publicAdminIds = publicAdmins.map(u => u._id);
-            query.createdBy = { $in: publicAdminIds };
+            // Public Admin sees only public elections
+            query.electionType = 'public';
         } else {
-            // President, VP, Members, Secretary see only elections NOT created by publicvote_admin
-            const publicAdmins = await User.find({ role: 'publicvote_admin' }).select('_id');
-            const publicAdminIds = publicAdmins.map(u => u._id);
-            query.createdBy = { $nin: publicAdminIds };
+            // President, VP, Members, Secretary see only internal elections
+            query.electionType = 'internal';
         }
 
         const elections = await Election.find(query)
@@ -810,6 +876,17 @@ const openElection = async (req, res) => {
         election.isOpen = true;
         election.status = 'ongoing';
         await election.save();
+
+        // Log audit
+        await AuditLog.create({
+            user: req.user._id,
+            action: 'ELECTION_OPENED',
+            targetType: 'Election',
+            targetId: id,
+            details: { title: election.title },
+            ipAddress: req.ip
+        });
+
         res.json({ message: 'Election opened successfully', election });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -829,6 +906,17 @@ const closeElection = async (req, res) => {
         election.isOpen = false;
         election.status = 'completed';
         await election.save();
+
+        // Log audit
+        await AuditLog.create({
+            user: req.user._id,
+            action: 'ELECTION_CLOSED',
+            targetType: 'Election',
+            targetId: id,
+            details: { title: election.title },
+            ipAddress: req.ip
+        });
+
         res.json({ message: 'Election closed successfully', election });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -972,6 +1060,16 @@ const announceResults = async (req, res) => {
         election.resultsAnnounced = !election.resultsAnnounced;
         await election.save();
 
+        // Log audit
+        await AuditLog.create({
+            user: req.user._id,
+            action: election.resultsAnnounced ? 'RESULTS_ANNOUNCED' : 'RESULTS_HIDDEN',
+            targetType: 'Election',
+            targetId: id,
+            details: { title: election.title },
+            ipAddress: req.ip
+        });
+
         res.json({
             message: `Results ${election.resultsAnnounced ? 'announced' : 'hidden'} successfully`,
             election
@@ -987,7 +1085,7 @@ const announceResults = async (req, res) => {
 const deleteCandidate = async (req, res) => {
     const { id } = req.params;
     try {
-        const candidate = await Candidate.findById(id);
+        const candidate = await Candidate.findById(id).populate('userId', 'firstName lastName');
         if (!candidate) {
             return res.status(404).json({ message: 'Candidate not found' });
         }
@@ -995,6 +1093,19 @@ const deleteCandidate = async (req, res) => {
         // Delete associated votes for this candidate
         await Vote.deleteMany({ candidateId: id });
         await Candidate.findByIdAndDelete(id);
+
+        // Log audit
+        await AuditLog.create({
+            user: req.user._id,
+            action: 'CANDIDATE_DELETED',
+            targetType: 'Candidate',
+            targetId: id,
+            details: {
+                candidateName: candidate.userId ? `${candidate.userId.firstName} ${candidate.userId.lastName}` : 'Unknown',
+                position: candidate.position
+            },
+            ipAddress: req.ip
+        });
 
         res.json({ message: 'Candidate deleted successfully' });
     } catch (error) {
@@ -1017,6 +1128,16 @@ const deleteElection = async (req, res) => {
         await Candidate.deleteMany({ electionId: id });
         await Vote.deleteMany({ electionId: id });
         await Election.findByIdAndDelete(id);
+
+        // Log audit
+        await AuditLog.create({
+            user: req.user._id,
+            action: 'ELECTION_DELETED',
+            targetType: 'Election',
+            targetId: id,
+            details: { title: election.title, status: election.status },
+            ipAddress: req.ip
+        });
 
         res.json({ message: 'Election deleted successfully' });
     } catch (error) {
@@ -1060,5 +1181,6 @@ module.exports = {
     getVoterAnalytics,
     announceResults,
     deleteElection,
-    deleteCandidate
+    deleteCandidate,
+    updateCandidate
 };

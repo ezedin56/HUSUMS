@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../utils/api';
 import {
     Plus,
-    User,
     Search,
-    Trash2,
     Upload
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CandidateCard from '../../components/admin/CandidateCard';
 
 const CandidateManager = () => {
     const [elections, setElections] = useState([]);
@@ -16,6 +15,8 @@ const CandidateManager = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingCandidate, setEditingCandidate] = useState(null);
     const [userSearch, setUserSearch] = useState('');
 
     const [formData, setFormData] = useState({
@@ -115,6 +116,41 @@ const CandidateManager = () => {
         }
     };
 
+    const handleEditCandidate = (candidate) => {
+        setEditingCandidate(candidate);
+        setFormData({
+            userId: candidate.userId ? candidate.userId._id : '',
+            position: candidate.position,
+            manifesto: candidate.manifesto || '',
+            description: candidate.description || '',
+            photo: null
+        });
+        setShowEditModal(true);
+    };
+
+    const handleUpdateCandidate = async (e) => {
+        e.preventDefault();
+
+        const data = new FormData();
+        data.append('position', formData.position);
+        data.append('manifesto', formData.manifesto);
+        data.append('description', formData.description);
+        if (formData.photo) {
+            data.append('photo', formData.photo);
+        }
+
+        try {
+            await api.upload(`/president/candidates/${editingCandidate.id}`, data, 'PUT');
+            alert('Candidate updated successfully');
+            setShowEditModal(false);
+            setEditingCandidate(null);
+            setFormData({ userId: '', position: '', manifesto: '', description: '', photo: null });
+            fetchElections();
+        } catch (error) {
+            alert('Error updating candidate: ' + error.message);
+        }
+    };
+
     const selectedElection = elections.find(e => e._id === selectedElectionId);
 
     return (
@@ -151,39 +187,12 @@ const CandidateManager = () => {
                         </div>
                     ) : (
                         candidates.map(candidate => (
-                            <motion.div
+                            <CandidateCard
                                 key={candidate.id}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="card bg-white/5 border border-white/10 p-6 rounded-xl flex flex-col items-center text-center"
-                            >
-                                <div className="w-24 h-24 rounded-full bg-gray-700 mb-4 overflow-hidden border-4 border-white/10">
-                                    {candidate.photoUrl ? (
-                                        <img
-                                            src={`http://localhost:5000${candidate.photoUrl}`}
-                                            alt="Candidate"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center">
-                                            <User size={40} className="text-gray-400" />
-                                        </div>
-                                    )}
-                                </div>
-                                <h3 className="text-xl font-bold mb-1">
-                                    {candidate.User?.firstName} {candidate.User?.lastName}
-                                </h3>
-                                <p className="text-[var(--primary)] font-medium mb-4">{candidate.position}</p>
-                                <p className="text-sm text-gray-400 line-clamp-3 mb-4">
-                                    {candidate.description}
-                                </p>
-                                <button
-                                    onClick={() => handleDeleteCandidate(candidate.id)}
-                                    className="mt-auto btn btn-sm bg-red-500/20 text-red-400 hover:bg-red-500/30 w-full flex items-center justify-center gap-2"
-                                >
-                                    <Trash2 size={16} /> Remove
-                                </button>
-                            </motion.div>
+                                candidate={candidate}
+                                onEdit={handleEditCandidate}
+                                onDelete={handleDeleteCandidate}
+                            />
                         ))
                     )}
                 </div>
@@ -304,6 +313,105 @@ const CandidateManager = () => {
                                     </button>
                                     <button type="submit" className="btn btn-primary">
                                         Add Candidate
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Edit Candidate Modal */}
+            <AnimatePresence>
+                {showEditModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-[#1e293b] p-6 rounded-xl w-full max-w-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
+                        >
+                            <h2 className="text-xl font-bold mb-4">Edit Candidate</h2>
+                            <form onSubmit={handleUpdateCandidate} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Candidate</label>
+                                    <div className="input w-full bg-black/20 border-white/10 opacity-50">
+                                        {editingCandidate?.User?.firstName} {editingCandidate?.User?.lastName}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Position</label>
+                                    <select
+                                        className="input w-full bg-black/20 border-white/10"
+                                        value={formData.position}
+                                        onChange={e => setFormData({ ...formData, position: e.target.value })}
+                                        required
+                                    >
+                                        <option value="">Select Position</option>
+                                        <option value="President">President</option>
+                                        <option value="Vice President">Vice President</option>
+                                        <option value="Secretary">Secretary</option>
+                                        {selectedElection?.positions
+                                            ?.filter(pos => !['President', 'Vice President', 'Secretary'].includes(pos))
+                                            .map(pos => (
+                                                <option key={pos} value={pos}>{pos}</option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Description</label>
+                                    <textarea
+                                        className="input w-full bg-black/20 border-white/10"
+                                        value={formData.description}
+                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                        rows={2}
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Manifesto</label>
+                                    <textarea
+                                        className="input w-full bg-black/20 border-white/10"
+                                        value={formData.manifesto}
+                                        onChange={e => setFormData({ ...formData, manifesto: e.target.value })}
+                                        rows={4}
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Photo (Optional)</label>
+                                    <div className="border-2 border-dashed border-white/20 rounded-lg p-8 text-center cursor-pointer hover:border-[var(--primary)] transition-colors relative">
+                                        <input
+                                            type="file"
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            onChange={e => setFormData({ ...formData, photo: e.target.files[0] })}
+                                            accept="image/*"
+                                        />
+                                        <Upload className="mx-auto mb-2 text-gray-400" />
+                                        <p className="text-sm text-gray-400">
+                                            {formData.photo ? formData.photo.name : 'Click or drag to upload new photo'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end gap-3 mt-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowEditModal(false);
+                                            setEditingCandidate(null);
+                                        }}
+                                        className="btn bg-white/10 hover:bg-white/20"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="btn btn-primary">
+                                        Update Candidate
                                     </button>
                                 </div>
                             </form>

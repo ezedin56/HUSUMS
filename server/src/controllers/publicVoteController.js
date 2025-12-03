@@ -8,15 +8,14 @@ const User = require('../models/User');
 // @access  Public
 const getActiveElections = async (req, res) => {
     try {
-        // Fetch ongoing elections and populate creator info
-        const allElections = await Election.find({ isOpen: true, status: 'ongoing' })
+        // Fetch ongoing public elections only
+        const elections = await Election.find({
+            isOpen: true,
+            status: 'ongoing',
+            electionType: 'public'
+        })
             .populate('createdBy', 'firstName lastName role')
             .sort({ startDate: -1 });
-
-        // Filter to ONLY show elections created by publicvote_admin
-        const elections = allElections.filter(election =>
-            election.createdBy && election.createdBy.role === 'publicvote_admin'
-        );
 
         const electionsWithCandidates = await Promise.all(
             elections.map(async (election) => {

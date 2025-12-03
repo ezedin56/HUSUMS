@@ -34,7 +34,8 @@ const {
     getVoterAnalytics,
     announceResults,
     deleteElection,
-    deleteCandidate
+    deleteCandidate,
+    updateCandidate
 } = require('../controllers/presidentController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const multer = require('multer');
@@ -86,6 +87,7 @@ router.get('/analytics/:electionId', protect, authorize('president', 'vp', 'publ
 router.patch('/elections/:id/announce', protect, authorize('president', 'publicvote_admin'), announceResults);
 router.delete('/elections/:id', protect, authorize('president', 'publicvote_admin'), deleteElection);
 router.delete('/candidates/:id', protect, authorize('president', 'publicvote_admin'), deleteCandidate);
+router.put('/candidates/:id', protect, authorize('president', 'publicvote_admin'), upload.single('photo'), updateCandidate);
 
 // Member Management Routes
 router.get('/members', protect, authorize('president', 'vp', 'publicvote_admin'), getAllMembers);

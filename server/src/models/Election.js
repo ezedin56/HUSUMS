@@ -34,6 +34,12 @@ const electionSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    electionType: {
+        type: String,
+        enum: ['internal', 'public'],
+        required: true,
+        default: 'internal'
+    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
