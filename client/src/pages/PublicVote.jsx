@@ -14,6 +14,19 @@ const PublicVote = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+
+    useEffect(() => {
+        // Load saved credentials from localStorage on mount
+        const savedStudentId = localStorage.getItem('husums_student_id');
+        const savedFullName = localStorage.getItem('husums_full_name');
+
+        if (savedStudentId && savedFullName) {
+            setStudentId(savedStudentId);
+            setFullName(savedFullName);
+            setRememberMe(true);
+        }
+    }, []);
 
     useEffect(() => {
         if (step === 2) {
@@ -49,6 +62,15 @@ const PublicVote = () => {
                 throw new Error(data.message);
             }
 
+            // Save credentials to localStorage if 'Remember me' is checked
+            if (rememberMe) {
+                localStorage.setItem('husums_student_id', studentId);
+                localStorage.setItem('husums_full_name', fullName);
+            } else {
+                localStorage.removeItem('husums_student_id');
+                localStorage.removeItem('husums_full_name');
+            }
+
             setStep(2);
         } catch (err) {
             setError(err.message);
@@ -57,19 +79,20 @@ const PublicVote = () => {
         }
     };
 
-    const handleVoteSelection = (electionId, candidateId, position) => {
+    const handleCandidateClick = (electionId, candidateId, position) => {
         setSelectedVotes(prev => {
-            // If the same candidate is clicked again, deselect them
-            if (prev[position]?.candidateId === candidateId) {
-                const newVotes = { ...prev };
+            const newVotes = { ...prev };
+
+            // If clicking the same candidate, deselect
+            if (newVotes[position]?.candidateId === candidateId) {
                 delete newVotes[position];
-                return newVotes;
+            } else {
+                // Select new candidate (replaces any existing selection)
+                newVotes[position] = { electionId, candidateId };
             }
-            // Otherwise, select the new candidate
-            return {
-                ...prev,
-                [position]: { electionId, candidateId }
-            };
+
+            console.log('Updated votes:', newVotes); // Debug log
+            return newVotes;
         });
     };
 
@@ -99,6 +122,10 @@ const PublicVote = () => {
             if (!response.ok) {
                 throw new Error(data.message);
             }
+
+            // Clear saved credentials after successful vote
+            localStorage.removeItem('husums_student_id');
+            localStorage.removeItem('husums_full_name');
 
             setSuccess(true);
             setStep(3);
@@ -350,6 +377,38 @@ const PublicVote = () => {
                                     />
                                 </div>
 
+                                {/* Remember me checkbox */}
+                                <div style={{
+                                    marginBottom: '20px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px'
+                                }}>
+                                    <input
+                                        type="checkbox"
+                                        id="rememberMe"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
+                                        style={{
+                                            width: '18px',
+                                            height: '18px',
+                                            cursor: 'pointer',
+                                            accentColor: '#00ff00'
+                                        }}
+                                    />
+                                    <label
+                                        htmlFor="rememberMe"
+                                        style={{
+                                            color: 'white',
+                                            fontSize: '0.95rem',
+                                            cursor: 'pointer',
+                                            userSelect: 'none'
+                                        }}
+                                    >
+                                        Remember me
+                                    </label>
+                                </div>
+
                                 {error && (
                                     <div style={{
                                         padding: '12px',
@@ -405,7 +464,7 @@ const PublicVote = () => {
                             initial={{ opacity: 0, x: 100 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -100 }}
-                            style={{ width: '100%', maxWidth: '1000px' }}
+                            style={{ width: '100%' }}
                         >
                             {/* Voting Interface Header - Modern & Attractive */}
                             <div style={{
@@ -418,24 +477,44 @@ const PublicVote = () => {
                                 boxShadow: '0 8px 32px rgba(0, 255, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
                             }}>
                                 <div style={{ textAlign: 'center' }}>
-                                    <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🗳️</div>
-                                    <h2 style={{
-                                        fontSize: '2.5rem',
-                                        fontWeight: '800',
-                                        background: 'linear-gradient(135deg, #00ff00, #00cc00)',
-                                        WebkitBackgroundClip: 'text',
-                                        WebkitTextFillColor: 'transparent',
+                                    {/* Ballot Box Icon */}
+                                    <div style={{
+                                        fontSize: '4rem',
+                                        marginBottom: '20px',
+                                        filter: 'drop-shadow(0 0 20px rgba(0, 255, 0, 0.3))'
+                                    }}>🗳️</div>
+
+                                    {/* Main Title */}
+                                    <h1 style={{
+                                        fontSize: '3rem',
+                                        fontWeight: '900',
+                                        color: '#00ff00',
                                         textAlign: 'center',
-                                        marginBottom: '12px',
-                                        letterSpacing: '0.5px',
-                                        textShadow: '0 0 30px rgba(0, 255, 0, 0.3)'
+                                        marginBottom: '16px',
+                                        letterSpacing: '1px',
+                                        textShadow: '0 0 30px rgba(0, 255, 0, 0.5), 0 0 60px rgba(0, 255, 0, 0.3)',
+                                        lineHeight: '1.2'
                                     }}>
-                                        YOU MAY NOW CAST YOUR VOTES!
-                                    </h2>
+                                        Student Union<br />Elections
+                                    </h1>
+
+                                    {/* Subtitle */}
                                     <p style={{
                                         textAlign: 'center',
-                                        color: 'rgba(255,255,255,0.95)',
-                                        fontSize: '1.2rem',
+                                        color: 'rgba(255, 255, 255, 0.9)',
+                                        fontSize: '1.25rem',
+                                        fontWeight: '400',
+                                        margin: '0 0 10px 0',
+                                        letterSpacing: '0.5px'
+                                    }}>
+                                        Make your voice heard! Cast your vote today.
+                                    </p>
+
+                                    {/* Election Title */}
+                                    <p style={{
+                                        textAlign: 'center',
+                                        color: 'rgba(255, 255, 255, 0.7)',
+                                        fontSize: '1.1rem',
                                         fontWeight: '500',
                                         margin: 0
                                     }}>{elections[0]?.title}</p>
@@ -472,7 +551,7 @@ const PublicVote = () => {
                                         }}>{position}</h3>
                                     </div>
 
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '25px' }}>
                                         {candidates.map(candidate => {
                                             const isSelected = selectedVotes[position]?.candidateId === candidate._id;
                                             // Get first and last name for display in circle
@@ -483,26 +562,36 @@ const PublicVote = () => {
                                             return (
                                                 <div
                                                     key={candidate._id}
-                                                    onClick={() => handleVoteSelection(elections[0]._id, candidate._id, position)}
+                                                    onClick={() => handleCandidateClick(elections[0]._id, candidate._id, position)}
                                                     style={{
-                                                        background: '#2d3748',
+                                                        background: isSelected
+                                                            ? 'linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 0, 0.15))'
+                                                            : 'rgba(51, 65, 85, 0.8)',
                                                         borderRadius: '16px',
                                                         padding: '30px 20px',
                                                         cursor: 'pointer',
-                                                        border: isSelected ? '2px solid #00ff00' : '2px solid rgba(0, 255, 0, 0.3)',
-                                                        transition: 'all 0.3s',
+                                                        border: isSelected ? '3px solid #00ff00' : '2px solid rgba(100, 181, 246, 0.4)',
+                                                        transition: 'all 0.3s ease',
                                                         position: 'relative',
                                                         display: 'flex',
                                                         flexDirection: 'column',
-                                                        alignItems: 'center'
+                                                        alignItems: 'center',
+                                                        boxShadow: isSelected ? '0 8px 30px rgba(0, 255, 0, 0.4), inset 0 0 20px rgba(0, 255, 0, 0.1)' : '0 2px 10px rgba(0, 0, 0, 0.3)',
+                                                        transform: isSelected ? 'scale(1.02)' : 'scale(1)'
                                                     }}
                                                     onMouseOver={(e) => {
-                                                        e.currentTarget.style.transform = 'translateY(-5px)';
-                                                        e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 255, 0, 0.3)';
+                                                        if (!isSelected) {
+                                                            e.currentTarget.style.transform = 'translateY(-5px)';
+                                                            e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 255, 0, 0.2)';
+                                                            e.currentTarget.style.border = '2px solid rgba(0, 255, 0, 0.5)';
+                                                        }
                                                     }}
                                                     onMouseOut={(e) => {
-                                                        e.currentTarget.style.transform = 'translateY(0)';
-                                                        e.currentTarget.style.boxShadow = 'none';
+                                                        if (!isSelected) {
+                                                            e.currentTarget.style.transform = 'translateY(0)';
+                                                            e.currentTarget.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.3)';
+                                                            e.currentTarget.style.border = '2px solid rgba(255, 255, 255, 0.1)';
+                                                        }
                                                     }}
                                                 >
                                                     {/* Checkmark in top-right corner */}
@@ -520,15 +609,17 @@ const PublicVote = () => {
                                                         width: '140px',
                                                         height: '140px',
                                                         borderRadius: '50%',
-                                                        border: '3px solid #00ff00',
+                                                        border: isSelected ? '4px solid #00ff00' : '3px solid rgba(100, 181, 246, 0.6)',
                                                         display: 'flex',
                                                         flexDirection: 'column',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
                                                         marginBottom: '20px',
-                                                        background: 'rgba(0, 255, 0, 0.1)',
+                                                        background: isSelected ? 'rgba(0, 255, 0, 0.2)' : 'rgba(30, 41, 59, 0.8)',
                                                         overflow: 'hidden',
-                                                        position: 'relative'
+                                                        position: 'relative',
+                                                        boxShadow: isSelected ? '0 0 20px rgba(0, 255, 0, 0.5)' : 'none',
+                                                        transition: 'all 0.3s ease'
                                                     }}>
                                                         {/* If there's a photo, show it as background */}
                                                         {candidate.photo && (
@@ -570,8 +661,10 @@ const PublicVote = () => {
                                                         margin: '0 0 8px 0',
                                                         fontSize: '1.3rem',
                                                         fontWeight: '700',
-                                                        color: 'white',
-                                                        textAlign: 'center'
+                                                        color: isSelected ? '#00ff00' : 'white',
+                                                        textAlign: 'center',
+                                                        textShadow: isSelected ? '0 0 10px rgba(0, 255, 0, 0.5)' : 'none',
+                                                        transition: 'all 0.3s ease'
                                                     }}>{candidate.name}</h4>
 
                                                     {/* Additional info */}

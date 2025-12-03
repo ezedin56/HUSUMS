@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Lock, Eye } from 'lucide-react';
+import loginBg from '../../assets/images/login-bg.jpg';
 
 const Login = () => {
     const [formData, setFormData] = useState({ studentId: '', password: '' });
@@ -32,56 +33,61 @@ const Login = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontFamily: "'Inter', sans-serif",
-            position: 'relative',
-            overflow: 'hidden'
+            backgroundImage: `url(${loginBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            position: 'relative'
         }}>
-            {/* Overlay Gradient for depth - lighter to show background */}
+            {/* Blurred Background Overlay */}
             <div style={{
-                position: 'fixed',
-                top: 0, left: 0, right: 0, bottom: 0,
-                background: 'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%)',
-                pointerEvents: 'none',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: `url(${loginBg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                filter: 'blur(1px)',
                 zIndex: 0
             }} />
 
+            {/* Centered Login Card */}
             <div style={{
-                width: '100%',
-                maxWidth: '400px',
-                padding: '3rem 2.5rem',
-                background: 'rgba(255, 255, 255, 0.12)', // Transparent glassmorphism
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                borderRadius: '24px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                width: '420px',
+                padding: '40px',
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                borderRadius: '20px',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
                 position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                zIndex: 10
+                zIndex: 1
             }}>
                 {/* Header Section */}
-                <div style={{ textAlign: 'center', marginBottom: '2rem', width: '100%' }}>
+                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                     <h1 style={{
                         fontSize: '2rem',
-                        fontWeight: '800',
-                        background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                        fontWeight: '700',
+                        margin: '0 0 8px 0',
+                        background: 'linear-gradient(135deg, #00cc00, #00ff00)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
-                        margin: '0 0 0.5rem 0',
-                        letterSpacing: '-0.5px'
+                        letterSpacing: '-0.5px',
+                        textShadow: '0 2px 10px rgba(0, 204, 0, 0.3)'
                     }}>HUSUMS</h1>
                     <h2 style={{
                         fontSize: '1.5rem',
                         fontWeight: '600',
-                        color: '#222',
-                        margin: '0 0 0.5rem 0'
+                        color: '#fff',
+                        margin: '0 0 8px 0'
                     }}>Welcome Back</h2>
                     <p style={{
-                        fontSize: '0.95rem',
-                        color: '#666',
-                        margin: 0
+                        margin: 0,
+                        color: '#fff',
+                        fontSize: '0.95rem'
                     }}>Sign in to continue</p>
                 </div>
 
@@ -90,7 +96,7 @@ const Login = () => {
                         {/* Student ID Input */}
                         <div style={{
                             position: 'relative',
-                            marginBottom: '1.2rem'
+                            marginBottom: '24px'
                         }}>
                             <input
                                 type="text"
@@ -100,27 +106,31 @@ const Login = () => {
                                 placeholder="Student ID"
                                 style={{
                                     width: '100%',
-                                    padding: '1rem 3rem 1rem 1.2rem',
-                                    background: 'rgba(255, 255, 255, 0.12)',
-                                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                                    height: '48px',
+                                    padding: '0 48px 0 16px',
+                                    fontSize: '0.95rem',
+                                    border: '1px solid #16a34a',
                                     borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    color: '#fff',
                                     outline: 'none',
-                                    transition: 'all 0.3s ease'
+                                    transition: 'all 0.3s ease',
+                                    boxSizing: 'border-box',
+                                    background: 'rgba(0, 0, 0, 0.4)',
+                                    backdropFilter: 'blur(10px)',
+                                    color: '#fff',
+                                    boxShadow: '0 0 10px rgba(22, 163, 74, 0.1)'
                                 }}
                                 onFocus={(e) => {
-                                    e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                                    e.target.style.boxShadow = '0 0 20px rgba(22, 163, 74, 0.4), inset 0 0 10px rgba(22, 163, 74, 0.2)';
+                                    e.target.style.background = 'rgba(0, 0, 0, 0.6)';
                                 }}
                                 onBlur={(e) => {
-                                    e.target.style.background = 'rgba(255, 255, 255, 0.12)';
-                                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+                                    e.target.style.boxShadow = '0 0 10px rgba(22, 163, 74, 0.1)';
+                                    e.target.style.background = 'rgba(0, 0, 0, 0.4)';
                                 }}
                             />
                             <div style={{
                                 position: 'absolute',
-                                right: '1.2rem',
+                                right: '16px',
                                 top: '50%',
                                 transform: 'translateY(-50%)',
                                 color: '#999',
@@ -133,7 +143,7 @@ const Login = () => {
                         {/* Password Input */}
                         <div style={{
                             position: 'relative',
-                            marginBottom: '1.5rem'
+                            marginBottom: '24px'
                         }}>
                             <input
                                 type={showPassword ? "text" : "password"}
@@ -143,28 +153,32 @@ const Login = () => {
                                 placeholder="Password"
                                 style={{
                                     width: '100%',
-                                    padding: '1rem 3rem 1rem 1.2rem',
-                                    background: 'rgba(255, 255, 255, 0.12)',
-                                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                                    height: '48px',
+                                    padding: '0 48px 0 16px',
+                                    fontSize: '0.95rem',
+                                    border: '1px solid #16a34a',
                                     borderRadius: '12px',
-                                    fontSize: '1rem',
-                                    color: '#fff',
                                     outline: 'none',
-                                    transition: 'all 0.3s ease'
+                                    transition: 'all 0.3s ease',
+                                    boxSizing: 'border-box',
+                                    background: 'rgba(0, 0, 0, 0.4)',
+                                    backdropFilter: 'blur(10px)',
+                                    color: '#fff',
+                                    boxShadow: '0 0 10px rgba(22, 163, 74, 0.1)'
                                 }}
                                 onFocus={(e) => {
-                                    e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                                    e.target.style.boxShadow = '0 0 20px rgba(22, 163, 74, 0.4), inset 0 0 10px rgba(22, 163, 74, 0.2)';
+                                    e.target.style.background = 'rgba(0, 0, 0, 0.6)';
                                 }}
                                 onBlur={(e) => {
-                                    e.target.style.background = 'rgba(255, 255, 255, 0.12)';
-                                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+                                    e.target.style.boxShadow = '0 0 10px rgba(22, 163, 74, 0.1)';
+                                    e.target.style.background = 'rgba(0, 0, 0, 0.4)';
                                 }}
                             />
                             <div
                                 style={{
                                     position: 'absolute',
-                                    right: '1.2rem',
+                                    right: '16px',
                                     top: '50%',
                                     transform: 'translateY(-50%)',
                                     color: '#999',
@@ -181,9 +195,9 @@ const Login = () => {
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            marginBottom: '2rem',
+                            marginBottom: '24px',
                             fontSize: '0.9rem',
-                            color: 'white'
+                            color: '#fff'
                         }}>
                             <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }}>
                                 <input
@@ -199,13 +213,12 @@ const Login = () => {
                                 Remember me
                             </label>
                             <Link to="/forgot-password" style={{
-                                color: 'white',
+                                color: '#00ff00',
                                 textDecoration: 'none',
-                                opacity: 0.8,
-                                transition: 'opacity 0.2s'
+                                transition: 'all 0.3s'
                             }}
-                                onMouseOver={(e) => e.target.style.opacity = 1}
-                                onMouseOut={(e) => e.target.style.opacity = 0.8}
+                                onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
+                                onMouseOut={(e) => e.target.style.textDecoration = 'none'}
                             >
                                 Forgot Password?
                             </Link>
@@ -216,29 +229,46 @@ const Login = () => {
                             type="submit"
                             style={{
                                 width: '100%',
-                                padding: '1rem',
-                                background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                                height: '48px',
+                                background: 'linear-gradient(135deg, #00cc00, #00ff00)',
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '12px',
                                 fontSize: '1rem',
                                 fontWeight: '600',
                                 cursor: 'pointer',
-                                letterSpacing: '0.5px',
-                                transition: 'transform 0.2s, box-shadow 0.2s',
-                                boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
+                                transition: 'all 0.3s',
+                                boxShadow: '0 4px 12px rgba(0, 204, 0, 0.2)'
                             }}
-                            onMouseOver={e => {
+                            onMouseOver={(e) => {
                                 e.target.style.transform = 'translateY(-2px)';
-                                e.target.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.4)';
+                                e.target.style.boxShadow = '0 6px 20px rgba(0, 204, 0, 0.3)';
                             }}
-                            onMouseOut={e => {
+                            onMouseOut={(e) => {
                                 e.target.style.transform = 'translateY(0)';
-                                e.target.style.boxShadow = '0 4px 12px rgba(34, 197, 94, 0.3)';
+                                e.target.style.boxShadow = '0 4px 12px rgba(0, 204, 0, 0.2)';
                             }}
                         >
                             LOGIN
                         </button>
+
+                        {/* Back to Home Link */}
+                        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                            <Link
+                                to="/"
+                                style={{
+                                    color: '#fff',
+                                    textDecoration: 'none',
+                                    fontSize: '0.9rem',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s'
+                                }}
+                                onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
+                                onMouseOut={(e) => e.target.style.textDecoration = 'none'}
+                            >
+                                ← Back to Home
+                            </Link>
+                        </div>
                     </form>
                 </div>
             </div>

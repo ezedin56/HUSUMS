@@ -74,14 +74,16 @@ const verifyStudent = async (req, res) => {
     }
 };
 
-// @desc    Submit public vote
-// @route   POST /api/public/vote
-// @access  Public
 const submitPublicVote = async (req, res) => {
     const { studentId, fullName, votes } = req.body;
     const ipAddress = req.ip || req.connection.remoteAddress;
 
     try {
+        // Validation
+        if (!votes || !Array.isArray(votes) || votes.length === 0) {
+            return res.status(400).json({ message: 'No votes provided' });
+        }
+
         // 1. Verify student exists
         const user = await User.findOne({ studentId });
         if (!user) {
@@ -94,22 +96,47 @@ const submitPublicVote = async (req, res) => {
             return res.status(400).json({ message: 'Full name does not match' });
         }
 
-        // 3. Process each vote (one per position)
+        // 3. Validate vote structure and check for duplicates
+        const positions = new Set();
+        for (const vote of votes) {
+            if (!vote.electionId || !vote.candidateId) {
+                return res.status(400).json({ message: 'Invalid vote structure' });
+            }
+
+            // Get candidate to check position
+            const candidate = await Candidate.findById(vote.candidateId);
+            if (!candidate) {
+                return res.status(404).json({ message: 'Invalid candidate' });
+            }
+
+            // Ensure no duplicate positions in the same submission
+            if (positions.has(candidate.position)) {
+                return res.status(400).json({
+                    message: `Cannot vote for multiple candidates in the same position: ${candidate.position}`
+                });
+            }
+            positions.add(candidate.position);
+        }
+
+        // 4. Process each vote (one per position)
         const voteResults = [];
+        const candidateUpdates = [];
 
         for (const vote of votes) {
             const { electionId, candidateId } = vote;
 
             // Check if election is open
             const election = await Election.findById(electionId);
-            if (!election || !election.isOpen) {
-                return res.status(400).json({ message: 'Election is not open for voting' });
+            if (!election || !election.isOpen || election.status !== 'ongoing') {
+                return res.status(400).json({
+                    message: 'Election is not open for voting'
+                });
             }
 
-            // Verify candidate exists
+            // Verify candidate exists and belongs to this election
             const candidate = await Candidate.findById(candidateId);
-            if (!candidate) {
-                return res.status(404).json({ message: 'Candidate not found' });
+            if (!candidate || candidate.electionId.toString() !== electionId) {
+                return res.status(404).json({ message: 'Candidate not found in this election' });
             }
 
             // Check if student already voted for this position in this election
@@ -118,6 +145,7 @@ const submitPublicVote = async (req, res) => {
                 studentId,
                 position: candidate.position
             });
+
             if (existingVote) {
                 return res.status(400).json({
                     message: `You have already voted for the ${candidate.position} position`
@@ -135,25 +163,36 @@ const submitPublicVote = async (req, res) => {
                 timestamp: new Date()
             });
 
-            // Increment candidate vote count
-            await Candidate.findByIdAndUpdate(candidateId, {
-                $inc: { voteCount: 1 }
-            });
-
+            // Store candidate update for later
+            candidateUpdates.push(candidateId);
             voteResults.push(newVote);
         }
 
+        // Update all candidate vote counts
+        await Promise.all(
+            candidateUpdates.map(candidateId =>
+                Candidate.findByIdAndUpdate(candidateId, {
+                    $inc: { voteCount: 1 }
+                })
+            )
+        );
+
         res.status(201).json({
             message: 'Vote(s) submitted successfully!',
-            votes: voteResults
+            votesCount: voteResults.length,
+            votes: voteResults.map(v => ({
+                position: v.position,
+                candidateId: v.candidateId
+            }))
         });
     } catch (error) {
         if (error.code === 11000) {
             return res.status(400).json({
-                message: 'You have already voted in this election'
+                message: 'You have already voted for this position in this election'
             });
         }
-        res.status(500).json({ message: error.message });
+        console.error('Vote submission error:', error);
+        res.status(500).json({ message: 'An error occurred while submitting your vote' });
     }
 };
 

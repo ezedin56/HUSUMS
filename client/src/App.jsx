@@ -64,22 +64,26 @@ const Layout = () => {
   const isHome = location.pathname === '/';
   const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
   const isAuthPage = location.pathname === '/login' || location.pathname === '/forgot-password' || location.pathname.startsWith('/reset-password');
-  const isVotePage = location.pathname === '/vote';
+  const isVotePage = location.pathname === '/vote' || location.pathname === '/public-vote';
+  const showBackground = location.pathname === '/login' || location.pathname === '/forgot-password';
 
   return (
     <>
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: -1,
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }} />
+      {/* Background image on login and forgot password pages */}
+      {showBackground && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: -1,
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }} />
+      )}
 
       {!isHome && !isDashboard && !isAuthPage && !isVotePage && <Navbar />}
       <main className={!isHome && !isDashboard && !isAuthPage && !isVotePage ? 'container' : ''} style={!isHome && !isDashboard && !isAuthPage && !isVotePage ? { padding: '2rem 0' } : {}}>
@@ -88,6 +92,7 @@ const Layout = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/vote" element={<PublicVote />} />
+          <Route path="/public-vote" element={<PublicVote />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
