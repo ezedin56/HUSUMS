@@ -562,35 +562,37 @@ const PublicVote = () => {
                                             return (
                                                 <div
                                                     key={candidate._id}
-                                                    onClick={() => handleCandidateClick(elections[0]._id, candidate._id, position)}
+                                                    onDoubleClick={() => handleCandidateClick(elections[0]._id, candidate._id, position)}
                                                     style={{
                                                         background: isSelected
-                                                            ? 'linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 200, 0, 0.15))'
-                                                            : 'rgba(51, 65, 85, 0.8)',
+                                                            ? 'linear-gradient(135deg, rgba(0, 255, 0, 0.25), rgba(0, 200, 0, 0.2))'
+                                                            : 'rgba(45, 55, 72, 0.9)',
                                                         borderRadius: '16px',
                                                         padding: '30px 20px',
                                                         cursor: 'pointer',
-                                                        border: isSelected ? '3px solid #00ff00' : '2px solid rgba(100, 181, 246, 0.4)',
+                                                        border: isSelected ? '4px solid #00ff00' : '2px solid rgba(71, 85, 105, 0.6)',
                                                         transition: 'all 0.3s ease',
                                                         position: 'relative',
                                                         display: 'flex',
                                                         flexDirection: 'column',
                                                         alignItems: 'center',
-                                                        boxShadow: isSelected ? '0 8px 30px rgba(0, 255, 0, 0.4), inset 0 0 20px rgba(0, 255, 0, 0.1)' : '0 2px 10px rgba(0, 0, 0, 0.3)',
-                                                        transform: isSelected ? 'scale(1.02)' : 'scale(1)'
+                                                        boxShadow: isSelected
+                                                            ? '0 8px 30px rgba(0, 255, 0, 0.5), inset 0 0 30px rgba(0, 255, 0, 0.15)'
+                                                            : '0 4px 15px rgba(0, 0, 0, 0.4)',
+                                                        transform: isSelected ? 'scale(1.05)' : 'scale(1)'
                                                     }}
                                                     onMouseOver={(e) => {
                                                         if (!isSelected) {
-                                                            e.currentTarget.style.transform = 'translateY(-5px)';
+                                                            e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
                                                             e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 255, 0, 0.2)';
-                                                            e.currentTarget.style.border = '2px solid rgba(0, 255, 0, 0.5)';
+                                                            e.currentTarget.style.border = '2px solid rgba(0, 255, 0, 0.6)';
                                                         }
                                                     }}
                                                     onMouseOut={(e) => {
                                                         if (!isSelected) {
-                                                            e.currentTarget.style.transform = 'translateY(0)';
-                                                            e.currentTarget.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.3)';
-                                                            e.currentTarget.style.border = '2px solid rgba(255, 255, 255, 0.1)';
+                                                            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.4)';
+                                                            e.currentTarget.style.border = '2px solid rgba(71, 85, 105, 0.6)';
                                                         }
                                                     }}
                                                 >
@@ -600,8 +602,9 @@ const PublicVote = () => {
                                                             position: 'absolute',
                                                             top: '15px',
                                                             right: '15px',
-                                                            color: '#00ff00'
-                                                        }} size={28} />
+                                                            color: '#00ff00',
+                                                            filter: 'drop-shadow(0 0 8px rgba(0, 255, 0, 0.8))'
+                                                        }} size={32} />
                                                     )}
 
                                                     {/* Circular profile with name inside */}
@@ -609,16 +612,16 @@ const PublicVote = () => {
                                                         width: '140px',
                                                         height: '140px',
                                                         borderRadius: '50%',
-                                                        border: isSelected ? '4px solid #00ff00' : '3px solid rgba(100, 181, 246, 0.6)',
+                                                        border: isSelected ? '4px solid #00ff00' : '3px solid rgba(100, 116, 139, 0.7)',
                                                         display: 'flex',
                                                         flexDirection: 'column',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
                                                         marginBottom: '20px',
-                                                        background: isSelected ? 'rgba(0, 255, 0, 0.2)' : 'rgba(30, 41, 59, 0.8)',
+                                                        background: isSelected ? 'rgba(0, 255, 0, 0.2)' : 'rgba(30, 41, 59, 0.9)',
                                                         overflow: 'hidden',
                                                         position: 'relative',
-                                                        boxShadow: isSelected ? '0 0 20px rgba(0, 255, 0, 0.5)' : 'none',
+                                                        boxShadow: isSelected ? '0 0 25px rgba(0, 255, 0, 0.6)' : '0 4px 10px rgba(0, 0, 0, 0.3)',
                                                         transition: 'all 0.3s ease'
                                                     }}>
                                                         {/* If there's a photo, show it as background */}
@@ -663,7 +666,7 @@ const PublicVote = () => {
                                                         fontWeight: '700',
                                                         color: isSelected ? '#00ff00' : 'white',
                                                         textAlign: 'center',
-                                                        textShadow: isSelected ? '0 0 10px rgba(0, 255, 0, 0.5)' : 'none',
+                                                        textShadow: isSelected ? '0 0 15px rgba(0, 255, 0, 0.7)' : 'none',
                                                         transition: 'all 0.3s ease'
                                                     }}>{candidate.name}</h4>
 
@@ -671,9 +674,21 @@ const PublicVote = () => {
                                                     <p style={{
                                                         margin: 0,
                                                         fontSize: '0.95rem',
-                                                        color: 'rgba(255, 255, 255, 0.7)',
-                                                        textAlign: 'center'
+                                                        color: isSelected ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.6)',
+                                                        textAlign: 'center',
+                                                        transition: 'all 0.3s ease'
                                                     }}>{candidate.description || '3rd Year, General'}</p>
+
+                                                    {/* Double-click hint for unselected cards */}
+                                                    {!isSelected && (
+                                                        <p style={{
+                                                            margin: '10px 0 0 0',
+                                                            fontSize: '0.75rem',
+                                                            color: 'rgba(255, 255, 255, 0.4)',
+                                                            textAlign: 'center',
+                                                            fontStyle: 'italic'
+                                                        }}>Double-click to select</p>
+                                                    )}
                                                 </div>
                                             );
                                         })}

@@ -45,9 +45,19 @@ const getActiveElections = async (req, res) => {
 const verifyStudent = async (req, res) => {
     const { studentId, fullName } = req.body;
 
+    console.log('[VERIFY] Request:', { studentId, fullName });
+
     try {
-        // Check if user exists with this student ID and name
-        const user = await User.findOne({ studentId });
+        // Validate that both fields are provided
+        if (!studentId || !fullName) {
+            return res.status(400).json({
+                message: 'Please provide both Student ID and Full Name.'
+            });
+        }
+
+        // Check if user exists with this student ID
+        const user = await User.findOne({ studentId: studentId.trim() });
+        console.log('[VERIFY] User found:', user ? `Yes (${user.firstName} ${user.lastName})` : 'No');
 
         if (!user) {
             return res.status(404).json({
@@ -55,8 +65,10 @@ const verifyStudent = async (req, res) => {
             });
         }
 
-        const userFullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+        // Verify the full name matches (case-insensitive)
+        const userFullName = `${user.firstName} ${user.lastName}`.toLowerCase().trim();
         const providedName = fullName.toLowerCase().trim();
+        console.log('[VERIFY] Comparing:', { userFullName, providedName, match: userFullName === providedName });
 
         if (userFullName !== providedName) {
             return res.status(400).json({
@@ -64,12 +76,15 @@ const verifyStudent = async (req, res) => {
             });
         }
 
+        // Student verified successfully
+        console.log('[VERIFY] Success!');
         res.json({
             verified: true,
             message: 'Student verified successfully',
             studentId: user.studentId
         });
     } catch (error) {
+        console.error('[VERIFY] Error:', error);
         res.status(500).json({ message: error.message });
     }
 };
