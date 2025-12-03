@@ -137,7 +137,22 @@ const addCandidate = async (req, res) => {
 // @access  Private (President/VP/Member)
 const getElections = async (req, res) => {
     try {
-        const elections = await Election.find()
+        // Determine which elections to show based on user role
+        let query = {};
+
+        if (req.user.role === 'publicvote_admin') {
+            // Public Admin sees only elections created by publicvote_admin
+            const publicAdmins = await User.find({ role: 'publicvote_admin' }).select('_id');
+            const publicAdminIds = publicAdmins.map(u => u._id);
+            query.createdBy = { $in: publicAdminIds };
+        } else {
+            // President, VP, Members, Secretary see only elections NOT created by publicvote_admin
+            const publicAdmins = await User.find({ role: 'publicvote_admin' }).select('_id');
+            const publicAdminIds = publicAdmins.map(u => u._id);
+            query.createdBy = { $nin: publicAdminIds };
+        }
+
+        const elections = await Election.find(query)
             .populate('createdBy', 'firstName lastName')
             .sort({ startDate: -1 });
 
@@ -966,6 +981,27 @@ const announceResults = async (req, res) => {
     }
 };
 
+// @desc    Delete a candidate
+// @route   DELETE /api/president/candidates/:id
+// @access  Private (President/Public Admin)
+const deleteCandidate = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const candidate = await Candidate.findById(id);
+        if (!candidate) {
+            return res.status(404).json({ message: 'Candidate not found' });
+        }
+
+        // Delete associated votes for this candidate
+        await Vote.deleteMany({ candidateId: id });
+        await Candidate.findByIdAndDelete(id);
+
+        res.json({ message: 'Candidate deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Delete an election
 // @route   DELETE /api/president/elections/:id
 // @access  Private (President)
@@ -1023,5 +1059,6 @@ module.exports = {
     getWinner,
     getVoterAnalytics,
     announceResults,
-    deleteElection
+    deleteElection,
+    deleteCandidate
 };
