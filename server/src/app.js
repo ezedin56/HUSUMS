@@ -17,10 +17,15 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 const seedDatabase = require('./seed');
 
 // Connect to MongoDB
+// Connect to MongoDB
 connectDB().then(async (isInMemory) => {
     if (isInMemory) {
         await seedDatabase();
     }
+
+    // Start Automation Jobs
+    require('./jobs/autoCreateSession')();
+    require('./jobs/autoCloseAttendance')();
 });
 
 // Routes
@@ -29,6 +34,8 @@ app.use('/api/president', require('./routes/presidentRoutes'));
 app.use('/api/secretary', require('./routes/secretaryRoutes'));
 app.use('/api/departments', require('./routes/departmentRoutes'));
 app.use('/api/attendance', require('./routes/attendanceRoutes'));
+app.use('/api/attendance/sessions', require('./routes/attendanceSessionRoutes'));
+app.use('/api/attendance/schedule', require('./routes/attendanceScheduleRoutes'));
 app.use('/api/public', require('./routes/publicRoutes'));
 app.use('/api/public', require('./routes/publicVoteRoutes')); // Public voting routes
 app.use('/api/users', require('./routes/userRoutes'));

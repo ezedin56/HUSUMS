@@ -233,14 +233,16 @@ const castVote = async (req, res) => {
         }
 
         // Create vote
+        const candidate = await Candidate.findById(candidateId);
         const vote = await Vote.create({
             electionId: id,
             candidateId,
-            voterId
+            voterId,
+            studentId: req.user.studentId,
+            position: candidate ? candidate.position : 'Unknown'
         });
 
         // Increment candidate vote count (optional, can be calculated dynamically)
-        const candidate = await Candidate.findById(candidateId);
         if (candidate) {
             candidate.voteCount += 1;
             await candidate.save();
@@ -509,11 +511,17 @@ const getSystemAnalytics = async (req, res) => {
 // @access  Private (President/VP)
 const getLiveElectionResults = async (req, res) => {
     try {
-        // Look for ongoing elections (isOpen: true)
-        const activeElection = await Election.findOne({ isOpen: true, status: 'ongoing' });
+        // Look for ongoing elections first (isOpen: true, status: 'ongoing')
+        let activeElection = await Election.findOne({ isOpen: true, status: 'ongoing' });
+
+        // If no ongoing election, get the most recent completed election
+        if (!activeElection) {
+            activeElection = await Election.findOne({ status: 'completed' })
+                .sort({ endDate: -1 }); // Get most recent
+        }
 
         if (!activeElection) {
-            return res.json({ message: 'No active election', active: false });
+            return res.json({ message: 'No election to display', active: false });
         }
 
         // Get candidates for this election
@@ -525,7 +533,7 @@ const getLiveElectionResults = async (req, res) => {
             name: `${candidate.userId.firstName} ${candidate.userId.lastName}`,
             position: candidate.position,
             votes: candidate.voteCount,
-            photoUrl: candidate.photoUrl
+            photoUrl: candidate.photo
         }));
 
         res.json({
@@ -772,36 +780,7 @@ const updateRegistrationStatus = async (req, res) => {
 };
 
 // Export all functions
-module.exports = {
-    sendBroadcast,
-    createEvent,
-    getEvents,
-    createElection,
-    addCandidate,
-    getElections,
-    getElectionResults,
-    castVote,
-    getAllMembers,
-    updateMemberStatus,
-    getMemberAnalytics,
-    getBroadcastTemplates,
-    createBroadcastTemplate,
-    updateEventStatus,
-    getLiveElectionResults,
-    getSystemAnalytics,
-    getDepartmentOverview,
-    getDepartmentTasks,
-    getPresidentInbox,
-    updateProblemStatus,
-    getAuditLogs,
-    updateUserRole,
-    getArchives,
-    createArchive,
-    deleteMember,
-    getMembersWithWarnings,
-    getRegistrationStatus,
-    updateRegistrationStatus
-};
+
 
 // @desc    Open an election for voting
 // @route   PATCH /api/president/elections/:id/open
@@ -987,6 +966,28 @@ const announceResults = async (req, res) => {
     }
 };
 
+// @desc    Delete an election
+// @route   DELETE /api/president/elections/:id
+// @access  Private (President)
+const deleteElection = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const election = await Election.findById(id);
+        if (!election) {
+            return res.status(404).json({ message: 'Election not found' });
+        }
+
+        // Delete associated candidates and votes
+        await Candidate.deleteMany({ electionId: id });
+        await Vote.deleteMany({ electionId: id });
+        await Election.findByIdAndDelete(id);
+
+        res.json({ message: 'Election deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     sendBroadcast,
     createEvent,
@@ -1021,5 +1022,6 @@ module.exports = {
     getLiveResults,
     getWinner,
     getVoterAnalytics,
-    announceResults
+    announceResults,
+    deleteElection
 };

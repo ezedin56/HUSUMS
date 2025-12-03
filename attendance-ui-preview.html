@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management - UI Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a1f14 0%, #0d2818 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .page-header p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 32px;
+            width: fit-content;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .tab:hover {
+            color: #fff;
+        }
+
+        .tab.active {
+            background: #22c55e;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 80px 40px;
+            text-align: center;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .empty-state-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: rgba(255, 255, 255, 0.4);
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 500px;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: #fff;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-primary svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Active Session State (Hidden by default) */
+        .active-session {
+            display: none;
+        }
+
+        .active-session.show {
+            display: block;
+        }
+
+        .session-header {
+            background: rgba(34, 197, 94, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .session-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #22c55e;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .live-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.2); }
+        .stat-icon.green { background: rgba(34, 197, 94, 0.2); }
+        .stat-icon.red { background: rgba(239, 68, 68, 0.2); }
+        .stat-icon.yellow { background: rgba(234, 179, 8, 0.2); }
+
+        .stat-content h3 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-content p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Toggle button for demo */
+        .demo-toggle {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #22c55e;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            z-index: 1000;
+        }
+
+        .demo-toggle:hover {
+            background: #16a34a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Attendance Management</h1>
+            <p>Manage daily attendance, schedules, and history</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+                Active Session
+            </button>
+            <button class="tab">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Schedule
+            </button>
+            <button class="tab">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                History
+            </button>
+            <button class="tab">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                Warnings
+            </button>
+        </div>
+
+        <!-- Empty State (Default) -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-state-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+            </div>
+            <h2>No Active Session</h2>
+            <p>There is currently no active attendance session. Start a new session to begin taking attendance.</p>
+            <button class="btn-primary" onclick="toggleState()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Start New Session
+            </button>
+        </div>
+
+        <!-- Active Session State (Hidden) -->
+        <div class="active-session" id="activeSession">
+            <div class="session-header">
+                <span class="live-badge">LIVE</span>
+                <h2 style="font-size: 24px; margin-bottom: 8px;">Attendance - 12/03/2025</h2>
+                <p style="color: rgba(255,255,255,0.6); font-size: 14px;">150 Members • Session ends at 10:00 AM</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <svg fill="none" stroke="#3b82f6" viewBox="0 0 24 24" width="24" height="24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3>150</h3>
+                        <p>Total Members</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <svg fill="none" stroke="#22c55e" viewBox="0 0 24 24" width="24" height="24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 style="color: #22c55e;">128</h3>
+                        <p>Present (85%)</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <svg fill="none" stroke="#ef4444" viewBox="0 0 24 24" width="24" height="24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 style="color: #ef4444;">15</h3>
+                        <p>Absent (10%)</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <svg fill="none" stroke="#eab308" viewBox="0 0 24 24" width="24" height="24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 style="color: #eab308;">7</h3>
+                        <p>Late (5%)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; text-align: center;">
+                <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">Member attendance marking interface would appear here...</p>
+                <button class="btn-primary" style="background: #ef4444;" onclick="toggleState()">
+                    Close Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Toggle Button -->
+    <button class="demo-toggle" onclick="toggleState()">Toggle State (Demo)</button>
+
+    <script>
+        function toggleState() {
+            const emptyState = document.getElementById('emptyState');
+            const activeSession = document.getElementById('activeSession');
+            
+            if (emptyState.style.display === 'none') {
+                emptyState.style.display = 'flex';
+                activeSession.classList.remove('show');
+            } else {
+                emptyState.style.display = 'none';
+                activeSession.classList.add('show');
+            }
+        }
+    </script>
+</body>
+</html>

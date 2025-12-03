@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../utils/api';
+import './Elections.css';
 import {
     Vote,
     Plus,
@@ -8,7 +9,8 @@ import {
     Clock,
     TrendingUp,
     AlertTriangle,
-    CheckCircle
+    CheckCircle,
+    Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -51,6 +53,7 @@ const Elections = () => {
     const fetchElections = async () => {
         try {
             const data = await api.get('/president/elections');
+            console.log('Fetched elections:', data);
             setElections(data);
         } catch (error) {
             console.error('Error fetching elections:', error);
@@ -75,6 +78,15 @@ const Elections = () => {
         }
     };
 
+    const [successMessage, setSuccessMessage] = useState('');
+
+    useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => setSuccessMessage(''), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -82,7 +94,7 @@ const Elections = () => {
                 ...formData,
                 positions: formData.positions.split(',').map(p => p.trim()).filter(p => p)
             });
-            alert('Election created successfully');
+            setSuccessMessage('Election created successfully!');
             setElections([res.data, ...elections]);
             setFormData({ title: '', description: '', positions: '', startDate: '', endDate: '' });
         } catch (error) {
@@ -95,20 +107,85 @@ const Elections = () => {
 
     const handleViewResults = async (election) => {
         try {
-            const [winnerRes, liveRes] = await Promise.all([
-                api.get(`/president/winner/${election.id}`),
-                api.get(`/president/results/${election.id}`)
-            ]);
+            const electionId = election._id || election.id;
+            if (!electionId || electionId === 'undefined') {
+                console.error('Invalid election object:', election);
+                throw new Error('Invalid election ID (undefined)');
+            }
+
+            const res = await api.get(`/president/results/${electionId}`);
+
+            // Process the results to match UI expectations
+            const processedWinners = {};
+            const positions = {};
+
+            if (res.results && Array.isArray(res.results)) {
+                res.results.forEach(candidate => {
+                    if (!positions[candidate.position]) {
+                        positions[candidate.position] = [];
+                    }
+                    positions[candidate.position].push(candidate);
+                });
+
+                Object.keys(positions).forEach(position => {
+                    const candidates = positions[position];
+                    candidates.sort((a, b) => b.voteCount - a.voteCount);
+
+                    if (candidates.length > 0) {
+                        processedWinners[position] = {
+                            name: candidates[0].name,
+                            photo: candidates[0].photo,
+                            voteCount: candidates[0].voteCount
+                        };
+                    }
+                });
+            }
 
             setResultsData({
-                winners: winnerRes.winners,
-                totalVotes: liveRes.totalVotes
+                totalVotes: res.totalVotes,
+                winners: processedWinners
             });
+
             setShowResultsModal(true);
         } catch (error) {
+            console.error('Error fetching results:', error);
             alert('Error fetching results: ' + error.message);
         }
     };
+
+    const handleOpenElection = async (id) => {
+        if (!window.confirm('Are you sure you want to open this election? Voting will begin immediately.')) return;
+        try {
+            await api.patch(`/president/elections/${id}/open`);
+            setSuccessMessage('Election opened successfully!');
+            fetchElections();
+        } catch (error) {
+            alert('Error opening election: ' + error.message);
+        }
+    };
+
+    const handleCloseElection = async (id) => {
+        if (!window.confirm('Are you sure you want to close this election? Voting will stop immediately.')) return;
+        try {
+            await api.patch(`/president/elections/${id}/close`);
+            setSuccessMessage('Election closed successfully!');
+            fetchElections();
+        } catch (error) {
+            alert('Error closing election: ' + error.message);
+        }
+    };
+
+    const handleDeleteElection = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this election? This action cannot be undone and will delete all associated candidates and votes.')) return;
+        try {
+            await api.delete(`/president/elections/${id}`);
+            setSuccessMessage('Election deleted successfully!');
+            fetchElections();
+        } catch (error) {
+            alert('Error deleting election: ' + error.message);
+        }
+    };
+
 
     const handleAddCandidate = async (e) => {
         e.preventDefault();
@@ -144,6 +221,18 @@ const Elections = () => {
 
     return (
         <div className="space-y-6 animate-fade-in">
+            {successMessage && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center gap-2"
+                    role="alert"
+                >
+                    <CheckCircle size={20} />
+                    <span className="block sm:inline">{successMessage}</span>
+                </motion.div>
+            )}
             <div className="flex justify-between items-center">
                 <h2 className="text-3xl font-bold flex items-center gap-3">
                     <Vote className="text-[var(--primary)]" />
@@ -177,16 +266,25 @@ const Elections = () => {
                             </div>
                         ) : (
                             <>
-                                <div className="card bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white">
+                                <div className={`card ${liveResults.election.status === 'completed' ? 'bg-gradient-to-r from-gray-700 to-gray-900' : 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)]'} text-white`}>
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <h3 className="text-2xl font-bold">{liveResults.election.title}</h3>
-                                            <p className="opacity-90">Live Voting in Progress</p>
+                                            <p className="opacity-90">
+                                                {liveResults.election.status === 'ongoing' ? 'Live Voting in Progress' : 'Election Results'}
+                                            </p>
                                         </div>
-                                        <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full animate-pulse">
-                                            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                                            <span className="font-bold text-sm">LIVE</span>
-                                        </div>
+                                        {liveResults.election.status === 'ongoing' ? (
+                                            <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full animate-pulse">
+                                                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                                                <span className="font-bold text-sm">LIVE</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full">
+                                                <CheckCircle size={16} />
+                                                <span className="font-bold text-sm">COMPLETED</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -214,40 +312,80 @@ const Elections = () => {
                                         </div>
                                     </motion.div>
 
-                                    <div className="space-y-4">
-                                        {liveResults.results.sort((a, b) => b.votes - a.votes).map((candidate, index) => (
-                                            <motion.div
-                                                key={candidate.id}
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: index * 0.1 }}
-                                                className="card flex items-center gap-4"
-                                            >
-                                                <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
-                                                    {candidate.photoUrl ? (
-                                                        <img src={`http://localhost:5000${candidate.photoUrl}`} alt={candidate.name} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
-                                                            {candidate.name[0]}
-                                                        </div>
-                                                    )}
+                                    <div className="space-y-6">
+                                        {Object.entries(
+                                            liveResults.results.reduce((groups, candidate) => {
+                                                const position = candidate.position || 'Unknown';
+                                                if (!groups[position]) groups[position] = [];
+                                                groups[position].push(candidate);
+                                                return groups;
+                                            }, {})
+                                        ).map(([position, candidates]) => {
+                                            const sortedCandidates = candidates.sort((a, b) => b.votes - a.votes);
+                                            const totalVotesForPosition = sortedCandidates.reduce((sum, c) => sum + c.votes, 0);
+
+                                            return (
+                                                <div key={position} className="space-y-3">
+                                                    <h4 className="font-bold text-lg text-gray-800 border-b-2 border-[var(--primary)] pb-2">
+                                                        {position}
+                                                    </h4>
+                                                    {sortedCandidates.map((candidate, index) => {
+                                                        const percentage = totalVotesForPosition > 0
+                                                            ? ((candidate.votes / totalVotesForPosition) * 100).toFixed(1)
+                                                            : 0;
+                                                        const isWinner = index === 0;
+
+                                                        return (
+                                                            <motion.div
+                                                                key={candidate.id}
+                                                                initial={{ opacity: 0, y: 20 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                transition={{ delay: index * 0.1 }}
+                                                                className={`card flex items-center gap-4 ${isWinner ? 'border-2 border-green-500' : 'border-2 border-gray-300'}`}
+                                                            >
+                                                                <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden">
+                                                                    {candidate.photoUrl ? (
+                                                                        <img src={`http://localhost:5000${candidate.photoUrl}`} alt={candidate.name} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold text-xl">
+                                                                            {candidate.name[0]}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <div className="flex justify-between items-center mb-1">
+                                                                        <div>
+                                                                            <h4 className="font-bold text-lg">{candidate.name}</h4>
+                                                                        </div>
+                                                                        <div className="text-right">
+                                                                            <span className="text-2xl font-bold text-[var(--primary)]">{percentage}%</span>
+                                                                            <p className="text-xs text-gray-500">{candidate.votes} votes</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="w-full bg-gray-200 rounded-full h-3">
+                                                                        <div
+                                                                            className={`h-3 rounded-full transition-all duration-1000 ${isWinner ? 'bg-green-500' : 'bg-red-400'}`}
+                                                                            style={{ width: `${percentage}%` }}
+                                                                        ></div>
+                                                                    </div>
+                                                                    <div className="mt-2 flex items-center gap-2">
+                                                                        {isWinner ? (
+                                                                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold flex items-center gap-1">
+                                                                                <CheckCircle size={14} /> WINNER
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">
+                                                                                LOST
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </motion.div>
+                                                        );
+                                                    })}
                                                 </div>
-                                                <div className="flex-1">
-                                                    <div className="flex justify-between items-center mb-1">
-                                                        <h4 className="font-bold">{candidate.name}</h4>
-                                                        <span className="text-xl font-bold text-[var(--primary)]">{candidate.votes}</span>
-                                                    </div>
-                                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                                        <div
-                                                            className="bg-[var(--primary)] h-2 rounded-full transition-all duration-1000"
-                                                            style={{ width: `${(candidate.votes / Math.max(...liveResults.results.map(r => r.votes), 1)) * 100}%` }}
-                                                        ></div>
-                                                    </div>
-                                                    <p className="text-xs text-[var(--text-secondary)] mt-1">{candidate.position}</p>
-                                                </div>
-                                                {index === 0 && <CheckCircle className="text-green-500" />}
-                                            </motion.div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </>
@@ -317,11 +455,11 @@ const Elections = () => {
                         </div>
 
                         <div className="lg:col-span-2 space-y-4">
-                            <h3 className="font-bold text-lg">Election Timeline</h3>
-                            {elections.length === 0 ? (
-                                <p className="text-[var(--text-secondary)]">No elections found.</p>
+                            <h3 className="font-bold text-lg">Active Elections</h3>
+                            {elections.filter(e => e.status !== 'completed').length === 0 ? (
+                                <p className="text-[var(--text-secondary)]">No active elections found.</p>
                             ) : (
-                                elections.map((election, index) => (
+                                elections.filter(e => e.status !== 'completed').map((election, index) => (
                                     <motion.div
                                         key={election.id}
                                         initial={{ opacity: 0, x: 20 }}
@@ -337,23 +475,82 @@ const Elections = () => {
                                                     <span className="flex items-center gap-1"><Calendar size={14} /> {new Date(election.startDate).toLocaleDateString()} - {new Date(election.endDate).toLocaleDateString()}</span>
                                                     <span className="flex items-center gap-1"><UserPlus size={14} /> {election.Candidates?.length || 0} Candidates</span>
                                                 </div>
-                                                {election.status === 'completed' && (
+
+                                                <div className="flex gap-3 mt-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedElection(election);
+                                                            setShowCandidateModal(true);
+                                                        }}
+                                                        className="text-sm text-[var(--primary)] hover:underline flex items-center gap-1"
+                                                    >
+                                                        <UserPlus size={14} /> Add Candidate
+                                                    </button>
+
+                                                    {election.status === 'upcoming' && (
+                                                        <button
+                                                            onClick={() => handleOpenElection(election.id || election._id)}
+                                                            className="text-sm text-green-600 hover:underline flex items-center gap-1"
+                                                        >
+                                                            <CheckCircle size={14} /> Open Election
+                                                        </button>
+                                                    )}
+
+                                                    {election.status === 'ongoing' && (
+                                                        <button
+                                                            onClick={() => handleCloseElection(election.id || election._id)}
+                                                            className="text-sm text-red-600 hover:underline flex items-center gap-1"
+                                                        >
+                                                            <AlertTriangle size={14} /> Close Election
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))
+                            )}
+                        </div>
+
+                        <div className="space-y-4 mt-8">
+                            <h3 className="font-bold text-lg">Completed Elections</h3>
+                            {elections.filter(e => e.status === 'completed').length === 0 ? (
+                                <p className="text-[var(--text-secondary)]">No completed elections found.</p>
+                            ) : (
+                                elections.filter(e => e.status === 'completed').map((election, index) => (
+                                    <motion.div
+                                        key={election.id}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        className="card relative overflow-hidden bg-gray-50"
+                                    >
+                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gray-500"></div>
+                                        <div className="flex justify-between items-start pl-4">
+                                            <div>
+                                                <h4 className="font-bold text-lg text-gray-700">{election.title}</h4>
+                                                <div className="flex gap-4 text-sm text-[var(--text-secondary)] mt-1">
+                                                    <span className="flex items-center gap-1"><Calendar size={14} /> Ended {new Date(election.endDate).toLocaleDateString()}</span>
+                                                    <span className="flex items-center gap-1"><UserPlus size={14} /> {election.Candidates?.length || 0} Candidates</span>
+                                                </div>
+
+                                                <div className="flex gap-3 mt-2">
                                                     <button
                                                         onClick={() => handleViewResults(election)}
-                                                        className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                                                        className="text-sm text-[var(--primary)] hover:underline flex items-center gap-1"
                                                     >
-                                                        <CheckCircle size={14} /> View Results
+                                                        <TrendingUp size={14} /> View Results
                                                     </button>
-                                                )}
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedElection(election);
-                                                        setShowCandidateModal(true);
-                                                    }}
-                                                    className="text-sm text-[var(--primary)] hover:underline flex items-center gap-1"
-                                                >
-                                                    <UserPlus size={14} /> Add Candidate
-                                                </button>
+                                                    <button
+                                                        onClick={() => handleDeleteElection(election.id || election._id)}
+                                                        className="text-sm text-red-600 hover:underline flex items-center gap-1"
+                                                    >
+                                                        <Trash2 size={14} /> Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-1 bg-gray-200 px-3 py-1 rounded-full text-xs font-bold text-gray-600">
+                                                <CheckCircle size={12} /> COMPLETED
                                             </div>
                                         </div>
                                     </motion.div>
