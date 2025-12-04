@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, User, IdCard, Vote as VoteIcon } from 'lucide-react';
+import {
+    FaUniversity, FaVoteYea, FaClock, FaUsers, FaCheckCircle, FaLock,
+    FaShieldAlt, FaCalendarAlt, FaMapMarkerAlt, FaEnvelope, FaPhone,
+    FaBook, FaGavel, FaBalanceScale, FaMoon, FaSun, FaHome, FaArrowLeft
+} from 'react-icons/fa';
 
 const API_URL = 'http://localhost:5000/api';
 
@@ -11,16 +15,242 @@ const PublicVote = () => {
     const [fullName, setFullName] = useState('');
     const [elections, setElections] = useState([]);
     const [selectedVotes, setSelectedVotes] = useState({});
+    const [submittedPositions, setSubmittedPositions] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+    const [timeRemaining, setTimeRemaining] = useState('02:14:25');
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmingPosition, setConfirmingPosition] = useState(null);
+    const [ballotId] = useState(`HUS-VOTE-${Math.random().toString(36).substr(2, 8).toUpperCase()}`);
+    const [darkMode, setDarkMode] = useState(() => {
+        const saved = localStorage.getItem('voting_theme');
+        return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    });
+    const [showPlatformModal, setShowPlatformModal] = useState(false);
+    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [selectedCandidate, setSelectedCandidate] = useState(null);
 
     useEffect(() => {
-        // Load saved credentials from localStorage on mount
+        localStorage.setItem('voting_theme', darkMode ? 'dark' : 'light');
+    }, [darkMode]);
+
+    const theme = {
+        bg: darkMode ? '#0f172a' : '#f9fafb',
+        cardBg: darkMode ? '#1e293b' : '#ffffff',
+        text: darkMode ? '#f1f5f9' : '#111827',
+        textSecondary: darkMode ? '#cbd5e1' : '#6b7280',
+        border: darkMode ? '#334155' : '#e5e7eb',
+        primary: '#059669',
+        primaryHover: '#047857',
+        headerBg: darkMode ? '#1e293b' : '#059669',
+        footerBg: darkMode ? '#0f172a' : '#111827',
+        sidebarBg: darkMode ? '#1e293b' : '#ffffff',
+        selectedBg: darkMode ? 'rgba(5, 150, 105, 0.2)' : '#f0fdf4',
+        hoverBg: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)'
+    };
+
+    // Mock data for demonstration
+    const mockPositions = [
+        {
+            id: 'president',
+            title: 'President',
+            icon: '🏛️',
+            candidates: [
+                {
+                    _id: '1',
+                    name: 'Ezedin Aliyi',
+                    fullName: 'Ezedin Aliyi Mohammed',
+                    department: 'Software Engineering',
+                    year: 'Year 3',
+                    slogan: 'Digital transformation of student services',
+                    platform: ['24/7 Library Access', 'Campus WiFi Expansion', 'Mental Health Support'],
+                    currentSupport: 45,
+                    // Detailed Information
+                    phone: '+251 912 345 678',
+                    email: 'ezedin.aliyi@student.haramaya.edu.et',
+                    region: 'Oromia',
+                    zone: 'East Hararghe',
+                    woreda: 'Haramaya',
+                    city: 'Harar',
+                    background: 'Passionate technology enthusiast with a vision to modernize student union operations through digital innovation.',
+                    education: [
+                        'BSc in Software Engineering (Ongoing) - Haramaya University',
+                        'High School Diploma - Harar Secondary School (2021)'
+                    ],
+                    experience: [
+                        'Class Representative - Software Engineering Department (2023-2024)',
+                        'Member of Computer Science Club (2022-Present)',
+                        'Volunteer at University IT Support Center'
+                    ],
+                    achievements: [
+                        'Led initiative to digitize class attendance system',
+                        'Organized 3 successful tech workshops for students',
+                        'Dean\'s List - Academic Year 2023'
+                    ],
+                    manifesto: `My vision is to transform our student union into a modern, technology-driven organization that serves every student efficiently. 
+
+Key Initiatives:
+1. Digital Student Services Platform
+   - Online request submission for documents
+   - Real-time tracking of applications
+   - Mobile app for union services
+
+2. 24/7 Library Access System
+   - Digital entry cards for students
+   - Extended library hours with security
+   - Online resource booking
+
+3. Campus-Wide WiFi Expansion
+   - Partner with university IT to increase coverage
+   - Free WiFi in all dormitories
+   - Faster internet speeds in common areas
+
+4. Mental Health Support Program
+   - Establish peer counseling network
+   - Monthly mental health awareness sessions
+   - Anonymous support hotline
+
+5. Transparent Budget Management
+   - Monthly financial reports
+   - Online voting for major budget decisions
+   - Open budget dashboard
+
+Together, we can build a union that truly serves every student!`
+                },
+                {
+                    _id: '2',
+                    name: 'Fenet Abdurahman',
+                    fullName: 'Fenet Abdurahman Ahmed',
+                    department: 'Law',
+                    year: 'Year 5',
+                    slogan: 'Strengthening student rights protection',
+                    platform: ['Student Legal Aid Clinic', 'Academic Grievance System', 'Internship Partnerships'],
+                    currentSupport: 55,
+                    // Detailed Information
+                    phone: '+251 923 456 789',
+                    email: 'fenet.abdurahman@student.haramaya.edu.et',
+                    region: 'Oromia',
+                    zone: 'West Hararghe',
+                    woreda: 'Chiro',
+                    city: 'Chiro',
+                    background: 'Dedicated law student with deep understanding of student rights and administrative procedures, committed to ensuring fair treatment for all students.',
+                    education: [
+                        'LLB in Law (Final Year) - Haramaya University',
+                        'High School Diploma - Chiro Preparatory School (2019)'
+                    ],
+                    experience: [
+                        'President of Law Students Association (2023-2024)',
+                        'Legal Aid Volunteer - University Legal Clinic',
+                        'Student Representative - University Disciplinary Committee',
+                        'Intern at Regional Court - Summer 2023'
+                    ],
+                    achievements: [
+                        'Successfully mediated 15+ student-administration disputes',
+                        'Established free legal consultation service for students',
+                        'Won Best Moot Court Competition - National Level',
+                        'Published article on Student Rights in Ethiopian Law Journal'
+                    ],
+                    manifesto: `My commitment is to protect and advance student rights through legal frameworks and advocacy.
+
+Core Pillars:
+1. Student Legal Aid Clinic
+   - Free legal consultation for all students
+   - Assistance with academic appeals
+   - Support for disciplinary hearings
+   - Rights education workshops
+
+2. Comprehensive Academic Grievance System
+   - Clear appeal procedures for grades
+   - Fair hearing process for disciplinary cases
+   - Student representation in administrative decisions
+   - Protection against arbitrary decisions
+
+3. Internship & Career Partnerships
+   - Build relationships with law firms and companies
+   - Secure internship opportunities for all departments
+   - Career guidance and mentorship program
+   - Graduate employment support
+
+4. Student Rights Charter
+   - Document all student rights and responsibilities
+   - Ensure university policies respect student rights
+   - Regular training for union representatives
+
+5. Advocacy & Representation
+   - Strong voice in university senate
+   - Regular feedback sessions with administration
+   - Protection of student interests
+
+Your rights matter. Let's protect them together!`
+                }
+            ]
+        },
+        {
+            id: 'vicePresident',
+            title: 'Vice President',
+            icon: '🤝',
+            candidates: [
+                {
+                    _id: '3',
+                    name: 'Oliyad ayano',
+                    department: 'Information System',
+                    year: 'Year 3',
+                    slogan: 'Building bridges across departments',
+                    platform: ['Inter-Department Events', 'Student Welfare Programs', 'Budget Transparency'],
+                    currentSupport: 60
+                },
+                {
+                    _id: '4',
+                    name: 'Maria Solomon',
+                    department: 'Medicine',
+                    year: 'Year 4',
+                    slogan: 'Health and wellness for all',
+                    platform: ['Health Insurance Support', 'Fitness Programs', 'Mental Health Awareness'],
+                    currentSupport: 40
+                }
+            ]
+        },
+        {
+            id: 'generalSecretary',
+            title: 'General Secretary',
+            icon: '📝',
+            candidates: [
+                {
+                    _id: '5',
+                    name: 'Nuhamin ',
+                    department: 'Software Engineering',
+                    year: 'Year 3',
+                    slogan: 'Efficient administration for better service',
+                    platform: ['Digital Record System', 'Faster Processing', 'Student Feedback Portal'],
+                    currentSupport: 40
+                },
+                {
+                    _id: '6',
+                    name: 'Fenet Tasmesgen',
+                    department: 'Software Engineering',
+                    year: 'Year 3',
+                    slogan: 'Transparency and accountability',
+                    platform: ['Open Budget Reports', 'Monthly Town Halls', 'Anonymous Suggestion Box'],
+                    currentSupport: 60
+                },
+                {
+                    _id: '7',
+                    name: 'Sultan adinan',
+                    department: 'Software Engineering',
+                    year: 'Year 3',
+                    slogan: 'Transparency and accountability',
+                    platform: ['Open Budget Reports', 'Monthly Town Halls', 'Anonymous Suggestion Box'],
+                    currentSupport: 60
+                }
+            ]
+        }
+    ];
+
+    useEffect(() => {
         const savedStudentId = localStorage.getItem('husums_student_id');
         const savedFullName = localStorage.getItem('husums_full_name');
-
         if (savedStudentId && savedFullName) {
             setStudentId(savedStudentId);
             setFullName(savedFullName);
@@ -31,6 +261,18 @@ const PublicVote = () => {
     useEffect(() => {
         if (step === 2) {
             fetchElections();
+            const timer = setInterval(() => {
+                setTimeRemaining(prev => {
+                    const [h, m, s] = prev.split(':').map(Number);
+                    let totalSeconds = h * 3600 + m * 60 + s - 1;
+                    if (totalSeconds < 0) totalSeconds = 0;
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    const seconds = totalSeconds % 60;
+                    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                });
+            }, 1000);
+            return () => clearInterval(timer);
         }
     }, [step]);
 
@@ -40,7 +282,7 @@ const PublicVote = () => {
             const data = await response.json();
             setElections(data);
         } catch (err) {
-            setError('Failed to load elections');
+            console.log('Using mock data for demonstration');
         }
     };
 
@@ -62,7 +304,6 @@ const PublicVote = () => {
                 throw new Error(data.message);
             }
 
-            // Save credentials to localStorage if 'Remember me' is checked
             if (rememberMe) {
                 localStorage.setItem('husums_student_id', studentId);
                 localStorage.setItem('husums_full_name', fullName);
@@ -79,56 +320,67 @@ const PublicVote = () => {
         }
     };
 
-    const handleCandidateClick = (electionId, candidateId, position) => {
+
+    const handleCandidateClick = (positionId, candidateId) => {
+        // Don't allow selection if position already submitted
+        if (submittedPositions[positionId]) return;
+
+        // Single click: Always select the candidate
+        setSelectedVotes(prev => ({
+            ...prev,
+            [positionId]: candidateId
+        }));
+    };
+
+    const handleCandidateDoubleClick = (positionId, candidateId) => {
+        // Don't allow changes if position already submitted
+        if (submittedPositions[positionId]) return;
+
+        // Double click: Unselect only if this candidate is currently selected
         setSelectedVotes(prev => {
-            const newVotes = { ...prev };
-
-            // If clicking the same candidate, deselect
-            if (newVotes[position]?.candidateId === candidateId) {
-                delete newVotes[position];
-            } else {
-                // Select new candidate (replaces any existing selection)
-                newVotes[position] = { electionId, candidateId };
+            if (prev[positionId] === candidateId) {
+                const newVotes = { ...prev };
+                delete newVotes[positionId];
+                return newVotes;
             }
-
-            console.log('Updated votes:', newVotes); // Debug log
-            return newVotes;
+            return prev;
         });
     };
 
-    const handleSubmitVotes = async () => {
+
+    const handleSubmitPosition = (positionId) => {
+        if (!selectedVotes[positionId]) {
+            setError('Please select a candidate for this position first.');
+            return;
+        }
+        setConfirmingPosition(positionId);
+        setShowConfirmModal(true);
+    };
+
+    const confirmSubmitPosition = async () => {
         setLoading(true);
         setError('');
 
         try {
-            const votes = Object.values(selectedVotes);
+            // In production, submit to API
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-            if (votes.length === 0) {
-                throw new Error('Please select at least one candidate');
+            setSubmittedPositions(prev => ({
+                ...prev,
+                [confirmingPosition]: true
+            }));
+
+            setShowConfirmModal(false);
+            setConfirmingPosition(null);
+
+            // Check if all positions are submitted
+            const allSubmitted = mockPositions.every(p => submittedPositions[p.id] || p.id === confirmingPosition);
+            if (allSubmitted) {
+                localStorage.removeItem('husums_student_id');
+                localStorage.removeItem('husums_full_name');
+                setSuccess(true);
+                setStep(3);
             }
-
-            const response = await fetch(`${API_URL}/public/vote`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    studentId,
-                    fullName,
-                    votes
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message);
-            }
-
-            // Clear saved credentials after successful vote
-            localStorage.removeItem('husums_student_id');
-            localStorage.removeItem('husums_full_name');
-
-            setSuccess(true);
-            setStep(3);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -136,182 +388,88 @@ const PublicVote = () => {
         }
     };
 
-    // Group candidates by position
-    const groupedCandidates = elections.length > 0 ? elections[0].candidates.reduce((acc, candidate) => {
-        if (!acc[candidate.position]) {
-            acc[candidate.position] = [];
-        }
-        acc[candidate.position].push(candidate);
-        return acc;
-    }, {}) : {};
+    const getSelectedCandidateName = (positionId) => {
+        const position = mockPositions.find(p => p.id === positionId);
+        const candidateId = selectedVotes[positionId];
+        const candidate = position?.candidates.find(c => c._id === candidateId);
+        return candidate?.name || 'Not Selected';
+    };
+
+    const getSubmittedCount = () => Object.keys(submittedPositions).length;
+    const getTotalPositions = () => mockPositions.length;
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            fontFamily: "'Inter', sans-serif",
-            position: 'relative',
-            color: 'white',
-            overflowY: 'auto'
-        }}>
-            {/* Background Image & Overlay (Matches Login) */}
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundImage: `url(/src/assets/background.png)`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                zIndex: -2
-            }} />
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundImage: `url(/src/assets/background.png)`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                filter: 'blur(3px)',
-                zIndex: -1,
-                opacity: 0.8
-            }} />
-
-            {/* Navigation Bar - Only show on steps 2 and 3 */}
-            {(step === 2 || step === 3) && (
-                <nav style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    background: 'rgba(0, 0, 0, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    padding: '1rem 2rem',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    zIndex: 1000
-                }}>
-                    <Link to="/" style={{
-                        fontSize: '1.5rem',
-                        fontWeight: 'bold',
-                        color: '#00ff00',
-                        textDecoration: 'none',
-                        letterSpacing: '2px'
-                    }}>
-                        HUSUMS
-                    </Link>
-                    <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-                        <Link to="/" style={{
-                            color: 'white',
-                            textDecoration: 'none',
-                            fontSize: '1rem',
-                            transition: 'color 0.3s'
+        <div style={{ minHeight: '100vh', background: theme.bg, fontFamily: "'Inter', sans-serif", transition: 'background 0.3s' }}>
+            <AnimatePresence mode="wait">
+                {/* Step 1: Verification */}
+                {step === 1 && (
+                    <motion.div
+                        key="verify"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            minHeight: '100vh',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: darkMode ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                            padding: '20px'
                         }}
-                            onMouseOver={(e) => e.target.style.color = '#00ff00'}
-                            onMouseOut={(e) => e.target.style.color = 'white'}>
-                            Home
-                        </Link>
-                        <Link to="/about" style={{
-                            color: 'white',
-                            textDecoration: 'none',
-                            fontSize: '1rem',
-                            transition: 'color 0.3s'
-                        }}
-                            onMouseOver={(e) => e.target.style.color = '#00ff00'}
-                            onMouseOut={(e) => e.target.style.color = 'white'}>
-                            About
-                        </Link>
-                        <Link to="/login" style={{
-                            background: '#00ff00',
-                            color: 'black',
-                            padding: '0.5rem 1.5rem',
-                            borderRadius: '8px',
-                            textDecoration: 'none',
-                            fontWeight: '600',
-                            transition: 'all 0.3s'
-                        }}
-                            onMouseOver={(e) => {
-                                e.target.style.background = '#00cc00';
-                                e.target.style.transform = 'translateY(-2px)';
-                            }}
-                            onMouseOut={(e) => {
-                                e.target.style.background = '#00ff00';
-                                e.target.style.transform = 'translateY(0)';
-                            }}>
-                            Login
-                        </Link>
-                    </div>
-                </nav>
-            )}
+                    >
+                        <div style={{
+                            width: '100%',
+                            maxWidth: '400px',
+                            background: theme.cardBg,
+                            borderRadius: '20px',
+                            padding: '40px',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                            position: 'relative'
+                        }}>
+                            {/* Theme Toggle */}
+                            <button
+                                onClick={() => setDarkMode(!darkMode)}
+                                style={{
+                                    position: 'absolute',
+                                    top: '20px',
+                                    right: '20px',
+                                    background: 'transparent',
+                                    border: `1px solid ${theme.border}`,
+                                    borderRadius: '50%',
+                                    width: '40px',
+                                    height: '40px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    color: theme.text,
+                                    fontSize: '1.2rem'
+                                }}
+                            >
+                                {darkMode ? <FaSun /> : <FaMoon />}
+                            </button>
 
-            {/* Main Content Area */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', paddingTop: step === 2 || step === 3 ? '100px' : '20px' }}>
-
-                <AnimatePresence mode="wait">
-                    {step === 1 && (
-                        <motion.div
-                            key="verify"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            style={{
-                                width: '380px',
-                                padding: '32px',
-                                background: 'rgba(255, 255, 255, 0.2)',
-                                backdropFilter: 'blur(20px) saturate(180%)',
-                                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                                borderRadius: '20px',
-                                border: '1px solid rgba(255, 255, 255, 0.4)',
-                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
-                                position: 'relative',
-                                zIndex: 1
-                            }}
-                        >
-                            {/* Back to Home Button */}
                             <Link to="/" style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '8px',
-                                color: '#00ff00',
+                                color: theme.primary,
                                 textDecoration: 'none',
                                 fontSize: '0.95rem',
-                                fontWeight: '500',
-                                marginBottom: '24px',
-                                transition: 'all 0.3s ease'
-                            }}
-                                onMouseOver={(e) => {
-                                    e.currentTarget.style.gap = '12px';
-                                    e.currentTarget.style.color = '#00cc00';
-                                }}
-                                onMouseOut={(e) => {
-                                    e.currentTarget.style.gap = '8px';
-                                    e.currentTarget.style.color = '#00ff00';
-                                }}>
-                                <span>←</span> Back to Home
+                                fontWeight: '600',
+                                marginBottom: '24px'
+                            }}>
+                                <FaArrowLeft /> Back to Home
                             </Link>
 
-                            {/* Header Section (Inside Card) */}
                             <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                                <h2 style={{
-                                    fontSize: '1.5rem',
-                                    fontWeight: '600',
-                                    margin: '0 0 8px 0',
-                                    color: '#222'
-                                }}>Verify Your Identity</h2>
-                                <p style={{
-                                    margin: 0,
-                                    color: '#000',
-                                    fontSize: '1rem',
-                                    fontWeight: '500',
-                                    lineHeight: '1.5'
-                                }}>Enter your Student ID and Full Name to continue</p>
+                                <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🗳️</div>
+                                <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: theme.text, marginBottom: '8px' }}>
+                                    Verify Your Identity
+                                </h2>
+                                <p style={{ color: theme.textSecondary, fontSize: '0.95rem' }}>
+                                    Enter your Student ID and Full Name to continue
+                                </p>
                             </div>
 
                             <form onSubmit={handleVerify}>
@@ -324,29 +482,21 @@ const PublicVote = () => {
                                         required
                                         style={{
                                             width: '100%',
-                                            height: '48px',
-                                            padding: '0 16px',
+                                            padding: '14px 16px',
                                             fontSize: '1rem',
-                                            border: '1px solid #16a34a',
+                                            border: `2px solid ${theme.border}`,
                                             borderRadius: '12px',
                                             outline: 'none',
-                                            background: 'rgba(0, 0, 0, 0.4)',
-                                            color: 'white',
-                                            transition: 'all 0.3s ease',
-                                            boxShadow: '0 0 10px rgba(22, 163, 74, 0.1)'
+                                            transition: 'all 0.3s',
+                                            background: theme.bg,
+                                            color: theme.text
                                         }}
-                                        onFocus={(e) => {
-                                            e.target.style.boxShadow = '0 0 20px rgba(22, 163, 74, 0.4), inset 0 0 10px rgba(22, 163, 74, 0.2)';
-                                            e.target.style.background = 'rgba(0, 0, 0, 0.6)';
-                                        }}
-                                        onBlur={(e) => {
-                                            e.target.style.boxShadow = '0 0 10px rgba(22, 163, 74, 0.1)';
-                                            e.target.style.background = 'rgba(0, 0, 0, 0.4)';
-                                        }}
+                                        onFocus={(e) => e.target.style.borderColor = theme.primary}
+                                        onBlur={(e) => e.target.style.borderColor = theme.border}
                                     />
                                 </div>
 
-                                <div style={{ marginBottom: '30px' }}>
+                                <div style={{ marginBottom: '20px' }}>
                                     <input
                                         type="text"
                                         value={fullName}
@@ -355,56 +505,29 @@ const PublicVote = () => {
                                         required
                                         style={{
                                             width: '100%',
-                                            height: '48px',
-                                            padding: '0 16px',
+                                            padding: '14px 16px',
                                             fontSize: '1rem',
-                                            border: '1px solid #16a34a',
+                                            border: `2px solid ${theme.border}`,
                                             borderRadius: '12px',
                                             outline: 'none',
-                                            background: 'rgba(0, 0, 0, 0.4)',
-                                            color: 'white',
-                                            transition: 'all 0.3s ease',
-                                            boxShadow: '0 0 10px rgba(22, 163, 74, 0.1)'
+                                            transition: 'all 0.3s',
+                                            background: theme.bg,
+                                            color: theme.text
                                         }}
-                                        onFocus={(e) => {
-                                            e.target.style.boxShadow = '0 0 20px rgba(22, 163, 74, 0.4), inset 0 0 10px rgba(22, 163, 74, 0.2)';
-                                            e.target.style.background = 'rgba(0, 0, 0, 0.6)';
-                                        }}
-                                        onBlur={(e) => {
-                                            e.target.style.boxShadow = '0 0 10px rgba(22, 163, 74, 0.1)';
-                                            e.target.style.background = 'rgba(0, 0, 0, 0.4)';
-                                        }}
+                                        onFocus={(e) => e.target.style.borderColor = theme.primary}
+                                        onBlur={(e) => e.target.style.borderColor = theme.border}
                                     />
                                 </div>
 
-                                {/* Remember me checkbox */}
-                                <div style={{
-                                    marginBottom: '20px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px'
-                                }}>
+                                <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <input
                                         type="checkbox"
                                         id="rememberMe"
                                         checked={rememberMe}
                                         onChange={(e) => setRememberMe(e.target.checked)}
-                                        style={{
-                                            width: '18px',
-                                            height: '18px',
-                                            cursor: 'pointer',
-                                            accentColor: '#00ff00'
-                                        }}
+                                        style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: theme.primary }}
                                     />
-                                    <label
-                                        htmlFor="rememberMe"
-                                        style={{
-                                            color: 'white',
-                                            fontSize: '0.95rem',
-                                            cursor: 'pointer',
-                                            userSelect: 'none'
-                                        }}
-                                    >
+                                    <label htmlFor="rememberMe" style={{ color: theme.text, fontSize: '0.95rem', cursor: 'pointer' }}>
                                         Remember me
                                     </label>
                                 </div>
@@ -413,10 +536,11 @@ const PublicVote = () => {
                                     <div style={{
                                         padding: '12px',
                                         marginBottom: '20px',
-                                        background: 'rgba(220, 38, 38, 0.2)',
-                                        border: '1px solid rgba(220, 38, 38, 0.4)',
+                                        background: '#fee2e2',
+                                        border: '1px solid #fca5a5',
                                         borderRadius: '8px',
-                                        color: '#fca5a5',
+                                        color: '#dc2626',
+                                        fontSize: '0.9rem',
                                         textAlign: 'center'
                                     }}>
                                         {error}
@@ -428,450 +552,1082 @@ const PublicVote = () => {
                                     disabled={loading}
                                     style={{
                                         width: '100%',
-                                        height: '50px',
-                                        background: 'linear-gradient(135deg, #00cc00, #00ff00)',
+                                        padding: '14px',
+                                        background: theme.primary,
                                         color: 'white',
                                         border: 'none',
                                         borderRadius: '12px',
-                                        fontSize: '1.1rem',
+                                        fontSize: '1.05rem',
                                         fontWeight: '600',
                                         cursor: loading ? 'not-allowed' : 'pointer',
-                                        transition: 'all 0.3s',
-                                        boxShadow: '0 4px 15px rgba(0, 204, 0, 0.3)'
+                                        transition: 'all 0.3s'
                                     }}
-                                    onMouseOver={(e) => {
-                                        if (!loading) {
-                                            e.target.style.transform = 'translateY(-2px)';
-                                            e.target.style.boxShadow = '0 6px 20px rgba(0, 204, 0, 0.4)';
-                                        }
-                                    }}
-                                    onMouseOut={(e) => {
-                                        if (!loading) {
-                                            e.target.style.transform = 'translateY(0)';
-                                            e.target.style.boxShadow = '0 4px 15px rgba(0, 204, 0, 0.3)';
-                                        }
-                                    }}
+                                    onMouseOver={(e) => !loading && (e.target.style.background = theme.primaryHover)}
+                                    onMouseOut={(e) => !loading && (e.target.style.background = theme.primary)}
                                 >
                                     {loading ? 'Verifying...' : 'Continue to Vote'}
                                 </button>
                             </form>
-                        </motion.div>
-                    )}
+                        </div>
+                    </motion.div>
+                )}
 
-                    {step === 2 && (
-                        <motion.div
-                            key="vote"
-                            initial={{ opacity: 0, x: 100 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -100 }}
-                            style={{ width: '100%' }}
-                        >
-                            {/* Voting Interface Header - Modern & Attractive */}
-                            <div style={{
-                                background: 'linear-gradient(135deg, rgba(22, 163, 74, 0.15), rgba(0, 255, 0, 0.1))',
-                                backdropFilter: 'blur(20px)',
-                                borderRadius: '24px',
-                                padding: '40px 30px',
-                                marginBottom: '40px',
-                                border: '1px solid rgba(0, 255, 0, 0.2)',
-                                boxShadow: '0 8px 32px rgba(0, 255, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-                            }}>
-                                <div style={{ textAlign: 'center' }}>
-                                    {/* Ballot Box Icon */}
-                                    <div style={{
-                                        fontSize: '4rem',
-                                        marginBottom: '20px',
-                                        filter: 'drop-shadow(0 0 20px rgba(0, 255, 0, 0.3))'
-                                    }}>🗳️</div>
-
-                                    {/* Main Title */}
-                                    <h1 style={{
-                                        fontSize: '3rem',
-                                        fontWeight: '900',
-                                        color: '#00ff00',
-                                        textAlign: 'center',
-                                        marginBottom: '16px',
-                                        letterSpacing: '1px',
-                                        textShadow: '0 0 30px rgba(0, 255, 0, 0.5), 0 0 60px rgba(0, 255, 0, 0.3)',
-                                        lineHeight: '1.2'
-                                    }}>
-                                        Student Union<br />Elections
+                {/* Step 2: Voting Interface */}
+                {step === 2 && (
+                    <motion.div
+                        key="vote"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        {/* Header */}
+                        <header style={{
+                            background: theme.headerBg,
+                            color: 'white',
+                            padding: '16px 20px',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 100
+                        }}>
+                            <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <Link to="/" style={{
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '600',
+                                        padding: '8px 16px',
+                                        borderRadius: '8px',
+                                        background: 'rgba(255,255,255,0.1)',
+                                        transition: 'background 0.2s'
+                                    }}
+                                        onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'}
+                                        onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
+                                    >
+                                        <FaHome /> Home
+                                    </Link>
+                                    <h1 style={{ fontSize: 'clamp(1.1rem, 3vw, 1.5rem)', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <FaVoteYea /> UNION ELECTIONS 2025
                                     </h1>
+                                </div>
+                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', fontSize: 'clamp(0.75rem, 2vw, 0.9rem)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <FaClock /> {timeRemaining}
+                                    </div>
+                                    <button
+                                        onClick={() => setDarkMode(!darkMode)}
+                                        style={{
+                                            background: 'rgba(255,255,255,0.1)',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            width: '36px',
+                                            height: '36px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            color: 'white',
+                                            fontSize: '1.1rem'
+                                        }}
+                                    >
+                                        {darkMode ? <FaSun /> : <FaMoon />}
+                                    </button>
+                                </div>
+                            </div>
+                        </header>
 
-                                    {/* Subtitle */}
-                                    <p style={{
-                                        textAlign: 'center',
-                                        color: 'rgba(255, 255, 255, 0.9)',
-                                        fontSize: '1.25rem',
-                                        fontWeight: '400',
-                                        margin: '0 0 10px 0',
-                                        letterSpacing: '0.5px'
+                        {/* Main Content */}
+                        <div style={{
+                            display: 'flex',
+                            maxWidth: '1400px',
+                            margin: '0 auto',
+                            gap: '20px',
+                            padding: '20px',
+                            alignItems: 'flex-start',
+                            flexDirection: window.innerWidth < 1024 ? 'column' : 'row'
+                        }}>
+                            {/* Sidebar */}
+                            <aside style={{
+                                width: window.innerWidth < 1024 ? '100%' : '280px',
+                                flexShrink: 0,
+                                position: window.innerWidth >= 1024 ? 'sticky' : 'relative',
+                                top: window.innerWidth >= 1024 ? '100px' : 'auto'
+                            }}>
+                                <div style={{
+                                    background: theme.sidebarBg,
+                                    borderRadius: '16px',
+                                    padding: '20px',
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                    border: `1px solid ${theme.border}`
+                                }}>
+                                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                                        <FaUniversity style={{ fontSize: '2rem', color: theme.primary, marginBottom: '8px' }} />
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.text, margin: '0 0 4px 0' }}>HUSUMS</h3>
+                                        <p style={{ fontSize: '0.85rem', color: theme.textSecondary, margin: 0 }}>VOTING PORTAL</p>
+                                    </div>
+
+                                    <div style={{ marginBottom: '20px' }}>
+                                        <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: theme.text, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            📋 BALLOT PROGRESS
+                                        </h4>
+                                        {mockPositions.map(position => (
+                                            <div key={position.id} style={{ marginBottom: '10px', fontSize: '0.85rem' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: theme.text }}>
+                                                    <span style={{ color: theme.textSecondary }}>{position.icon} {position.title}:</span>
+                                                    {submittedPositions[position.id] ? (
+                                                        <span style={{ color: theme.primary, fontWeight: '600', fontSize: '0.75rem' }}>✓ Submitted</span>
+                                                    ) : selectedVotes[position.id] ? (
+                                                        <span style={{ color: '#f59e0b', fontSize: '0.75rem' }}>Selected</span>
+                                                    ) : (
+                                                        <span style={{ color: '#dc2626', fontSize: '0.75rem' }}>Pending</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div style={{ marginTop: '12px', padding: '10px', background: theme.selectedBg, borderRadius: '8px', textAlign: 'center' }}>
+                                            <div style={{ fontSize: '0.85rem', color: theme.text, fontWeight: '600' }}>
+                                                {getSubmittedCount()} / {getTotalPositions()} Submitted
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginBottom: '20px', padding: '14px', background: '#f0fdf4', borderRadius: '12px', border: '1px solid #bbf7d0' }}>
+                                        <div style={{ fontSize: '0.85rem', color: '#166534', marginBottom: '6px', fontWeight: '600' }}>
+                                            ⏰ TIME REMAINING
+                                        </div>
+                                        <div style={{ fontSize: '1.3rem', fontWeight: '800', color: theme.primary, textAlign: 'center' }}>
+                                            {timeRemaining}
+                                        </div>
+                                    </div>
+
+                                    <div style={{ padding: '14px', background: '#fef3c7', borderRadius: '12px', border: '1px solid #fde047' }}>
+                                        <h4 style={{ fontSize: '0.85rem', fontWeight: '700', color: '#92400e', marginBottom: '8px' }}>
+                                            ⚠️ VOTING RULES
+                                        </h4>
+                                        <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: '0.75rem', color: '#78350f', lineHeight: '1.6' }}>
+                                            <li>Double-click to select</li>
+                                            <li>Submit individually</li>
+                                            <li>Vote is anonymous</li>
+                                            <li>Results: Dec 7, 3PM</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </aside>
+
+                            {/* Main Voting Area */}
+                            <main style={{ flex: 1, minWidth: 0 }}>
+                                {mockPositions.map((position) => (
+                                    <section key={position.id} style={{
+                                        background: theme.cardBg,
+                                        borderRadius: '16px',
+                                        padding: 'clamp(20px, 4vw, 32px)',
+                                        marginBottom: '20px',
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                        border: `1px solid ${theme.border}`,
+                                        opacity: submittedPositions[position.id] ? 0.6 : 1,
+                                        pointerEvents: submittedPositions[position.id] ? 'none' : 'auto'
                                     }}>
-                                        Make your voice heard! Cast your vote today.
-                                    </p>
+                                        <div style={{
+                                            background: submittedPositions[position.id]
+                                                ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
+                                                : 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                                            color: 'white',
+                                            padding: '16px 20px',
+                                            borderRadius: '12px',
+                                            marginBottom: '20px',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            flexWrap: 'wrap',
+                                            gap: '12px'
+                                        }}>
+                                            <div>
+                                                <h2 style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '800', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    {position.icon} {position.title.toUpperCase()}
+                                                </h2>
+                                                <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>
+                                                    {submittedPositions[position.id] ? '✓ Vote Submitted Successfully' : 'Click to select, double-click to unselect'}
+                                                </p>
+                                            </div>
+                                        </div>
 
-                                    {/* Election Title */}
-                                    <p style={{
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+                                            gap: '16px'
+                                        }}>
+                                            {position.candidates.map(candidate => {
+                                                const isSelected = selectedVotes[position.id] === candidate._id;
+                                                return (
+                                                    <motion.div
+                                                        key={candidate._id}
+                                                        whileHover={{ y: -4 }}
+                                                        onClick={(e) => {
+                                                            // Delay to check if it's a double-click
+                                                            if (e.detail === 1) {
+                                                                setTimeout(() => {
+                                                                    if (e.detail === 1) {
+                                                                        handleCandidateClick(position.id, candidate._id);
+                                                                    }
+                                                                }, 200);
+                                                            }
+                                                        }}
+                                                        onDoubleClick={() => handleCandidateDoubleClick(position.id, candidate._id)}
+                                                        style={{
+                                                            background: isSelected ? theme.selectedBg : theme.cardBg,
+                                                            border: isSelected ? `3px solid ${theme.primary}` : `2px solid ${theme.border}`,
+                                                            borderRadius: '16px',
+                                                            padding: '20px',
+                                                            cursor: submittedPositions[position.id] ? 'not-allowed' : 'pointer',
+                                                            transition: 'all 0.3s',
+                                                            position: 'relative',
+                                                            boxShadow: isSelected ? `0 8px 30px rgba(5,150,105,0.2)` : '0 2px 10px rgba(0,0,0,0.05)'
+                                                        }}
+                                                    >
+                                                        {isSelected && (
+                                                            <div style={{
+                                                                position: 'absolute',
+                                                                top: '12px',
+                                                                right: '12px',
+                                                                background: theme.primary,
+                                                                color: 'white',
+                                                                borderRadius: '50%',
+                                                                width: '28px',
+                                                                height: '28px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center'
+                                                            }}>
+                                                                <FaCheckCircle />
+                                                            </div>
+                                                        )}
+
+                                                        <div style={{
+                                                            width: '80px',
+                                                            height: '80px',
+                                                            borderRadius: '50%',
+                                                            background: isSelected ? theme.primary : theme.border,
+                                                            color: isSelected ? 'white' : theme.textSecondary,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '2rem',
+                                                            fontWeight: '800',
+                                                            margin: '0 auto 14px',
+                                                            border: `3px solid ${isSelected ? theme.primaryHover : theme.border}`
+                                                        }}>
+                                                            {candidate.name.split(' ').map(n => n[0]).join('')}
+                                                        </div>
+
+                                                        <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: theme.text, margin: '0 0 4px 0', textAlign: 'center' }}>
+                                                            {candidate.name}
+                                                        </h3>
+                                                        <p style={{ fontSize: '0.85rem', color: theme.textSecondary, margin: '0 0 10px 0', textAlign: 'center' }}>
+                                                            {candidate.department} • {candidate.year}
+                                                        </p>
+
+                                                        <p style={{ fontSize: '0.9rem', color: theme.text, fontStyle: 'italic', margin: '0 0 14px 0', textAlign: 'center', lineHeight: '1.4' }}>
+                                                            "{candidate.slogan}"
+                                                        </p>
+
+                                                        <div style={{ marginBottom: '14px' }}>
+                                                            {candidate.platform.map((item, i) => (
+                                                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', fontSize: '0.8rem', color: theme.text }}>
+                                                                    <FaCheckCircle style={{ color: theme.primary, flexShrink: 0, fontSize: '0.7rem' }} />
+                                                                    <span>{item}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+
+                                                        <div style={{ marginBottom: '12px' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', fontSize: '0.8rem' }}>
+                                                                <span style={{ color: theme.textSecondary }}>Support:</span>
+                                                                <span style={{ fontWeight: '700', color: theme.primary }}>{candidate.currentSupport}%</span>
+                                                            </div>
+                                                            <div style={{ width: '100%', height: '6px', background: theme.border, borderRadius: '3px', overflow: 'hidden' }}>
+                                                                <div style={{
+                                                                    width: `${candidate.currentSupport}%`,
+                                                                    height: '100%',
+                                                                    background: 'linear-gradient(90deg, #059669, #047857)',
+                                                                    transition: 'width 0.5s'
+                                                                }} />
+                                                            </div>
+                                                        </div>
+
+                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedCandidate(candidate);
+                                                                    setShowPlatformModal(true);
+                                                                }}
+                                                                style={{
+                                                                    padding: '8px 12px',
+                                                                    background: theme.primary,
+                                                                    border: 'none',
+                                                                    borderRadius: '8px',
+                                                                    fontSize: '0.75rem',
+                                                                    color: 'white',
+                                                                    cursor: 'pointer',
+                                                                    transition: 'all 0.2s',
+                                                                    fontWeight: '600'
+                                                                }}
+                                                                onMouseOver={(e) => e.target.style.background = theme.primaryHover}
+                                                                onMouseOut={(e) => e.target.style.background = theme.primary}
+                                                            >
+                                                                📋 Platform
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedCandidate(candidate);
+                                                                    setShowDetailModal(true);
+                                                                }}
+                                                                style={{
+                                                                    padding: '8px 12px',
+                                                                    background: 'transparent',
+                                                                    border: `2px solid ${theme.primary}`,
+                                                                    borderRadius: '8px',
+                                                                    fontSize: '0.75rem',
+                                                                    color: theme.primary,
+                                                                    cursor: 'pointer',
+                                                                    transition: 'all 0.2s',
+                                                                    fontWeight: '600'
+                                                                }}
+                                                                onMouseOver={(e) => {
+                                                                    e.target.style.background = theme.primary;
+                                                                    e.target.style.color = 'white';
+                                                                }}
+                                                                onMouseOut={(e) => {
+                                                                    e.target.style.background = 'transparent';
+                                                                    e.target.style.color = theme.primary;
+                                                                }}
+                                                            >
+                                                                👤 View Detail
+                                                            </button>
+                                                        </div>
+                                                    </motion.div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Beautiful Submit Button */}
+                                        {selectedVotes[position.id] && !submittedPositions[position.id] && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                style={{
+                                                    marginTop: '24px',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    gap: '12px'
+                                                }}
+                                            >
+                                                <div style={{
+                                                    textAlign: 'center',
+                                                    padding: '12px 20px',
+                                                    background: theme.selectedBg,
+                                                    borderRadius: '12px',
+                                                    border: `2px dashed ${theme.primary}`,
+                                                    width: '100%',
+                                                    maxWidth: '400px'
+                                                }}>
+                                                    <div style={{ fontSize: '0.9rem', color: theme.text, fontWeight: '600', marginBottom: '4px' }}>
+                                                        ✓ Selected: {mockPositions.find(p => p.id === position.id)?.candidates.find(c => c._id === selectedVotes[position.id])?.name}
+                                                    </div>
+                                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>
+                                                        Ready to submit your vote for {position.title}?
+                                                    </div>
+                                                </div>
+
+                                                <motion.button
+                                                    whileHover={{ scale: loading ? 1 : 1.05 }}
+                                                    whileTap={{ scale: loading ? 1 : 0.95 }}
+                                                    onClick={() => handleSubmitPosition(position.id)}
+                                                    disabled={loading}
+                                                    style={{
+                                                        width: '100%',
+                                                        maxWidth: '400px',
+                                                        padding: '16px 32px',
+                                                        background: loading ? '#9ca3af' : `linear-gradient(135deg, ${theme.primary} 0%, ${theme.primaryHover} 100%)`,
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '16px',
+                                                        fontSize: '1.1rem',
+                                                        fontWeight: '800',
+                                                        cursor: loading ? 'not-allowed' : 'pointer',
+                                                        transition: 'all 0.3s',
+                                                        boxShadow: loading ? 'none' : '0 8px 24px rgba(5,150,105,0.3)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '12px',
+                                                        textTransform: 'uppercase',
+                                                        letterSpacing: '0.5px'
+                                                    }}
+                                                >
+                                                    <FaVoteYea style={{ fontSize: '1.3rem' }} />
+                                                    {loading ? 'Submitting...' : `Submit My Vote for ${position.title}`}
+                                                </motion.button>
+
+                                                <div style={{
+                                                    fontSize: '0.75rem',
+                                                    color: theme.textSecondary,
+                                                    textAlign: 'center',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px'
+                                                }}>
+                                                    <FaLock /> This action is final and cannot be undone
+                                                </div>
+                                            </motion.div>
+                                        )}
+
+                                        {/* Success Message for Submitted Position */}
+                                        {submittedPositions[position.id] && (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                style={{
+                                                    marginTop: '24px',
+                                                    padding: '20px',
+                                                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                                    borderRadius: '16px',
+                                                    textAlign: 'center',
+                                                    color: 'white',
+                                                    boxShadow: '0 8px 24px rgba(5,150,105,0.3)'
+                                                }}
+                                            >
+                                                <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>✓</div>
+                                                <div style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '4px' }}>
+                                                    Vote Submitted Successfully!
+                                                </div>
+                                                <div style={{ fontSize: '0.85rem', opacity: 0.9 }}>
+                                                    Your vote for {position.title} has been recorded
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </section>
+                                ))}
+
+                                {error && (
+                                    <div style={{
+                                        padding: '14px',
+                                        marginBottom: '20px',
+                                        background: '#fee2e2',
+                                        border: '1px solid #fca5a5',
+                                        borderRadius: '12px',
+                                        color: '#dc2626',
                                         textAlign: 'center',
-                                        color: 'rgba(255, 255, 255, 0.7)',
-                                        fontSize: '1.1rem',
-                                        fontWeight: '500',
-                                        margin: 0
-                                    }}>{elections[0]?.title}</p>
+                                        fontSize: '0.9rem'
+                                    }}>
+                                        {error}
+                                    </div>
+                                )}
+                            </main>
+                        </div>
+
+                        {/* Footer */}
+                        <footer style={{
+                            background: theme.footerBg,
+                            color: '#f9fafb',
+                            padding: 'clamp(40px, 6vw, 60px) clamp(20px, 4vw, 40px) 30px',
+                            marginTop: '40px'
+                        }}>
+                            <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+                                    gap: 'clamp(24px, 4vw, 40px)',
+                                    marginBottom: '30px'
+                                }}>
+                                    <div>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '12px', color: theme.primary }}>
+                                            HUSUMS ELECTIONS
+                                        </h3>
+                                        <p style={{ fontSize: '0.85rem', color: '#9ca3af', lineHeight: '1.5' }}>
+                                            Empowering student voices through secure digital voting.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <h4 style={{ fontSize: '0.95rem', fontWeight: '700', marginBottom: '12px' }}>CONTACT</h4>
+                                        <div style={{ fontSize: '0.8rem', color: '#9ca3af', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <FaEnvelope /> elections@husums.edu
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <FaPhone /> +251 XXX XXX XXX
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h4 style={{ fontSize: '0.95rem', fontWeight: '700', marginBottom: '12px' }}>LINKS</h4>
+                                        <div style={{ fontSize: '0.8rem', color: '#9ca3af', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <Link to="/about" style={{ color: '#9ca3af', textDecoration: 'none' }}>About Us</Link>
+                                            <Link to="/faqs" style={{ color: '#9ca3af', textDecoration: 'none' }}>FAQs</Link>
+                                            <Link to="/rules" style={{ color: '#9ca3af', textDecoration: 'none' }}>Rules</Link>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h4 style={{ fontSize: '0.95rem', fontWeight: '700', marginBottom: '12px' }}>CONSTITUTIONAL</h4>
+                                        <div style={{ fontSize: '0.8rem', color: '#9ca3af', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <div>Article 11: Rights</div>
+                                            <div>Article 14: Vote</div>
+                                            <div>Article 67: Council</div>
+                                            <div>Article 68: Fair Elections</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ borderTop: '1px solid #374151', paddingTop: '20px', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '8px' }}>
+                                        © 2025 HUSUMS. All rights reserved.
+                                    </div>
+                                    <div style={{ fontSize: '0.85rem', color: theme.primary, fontStyle: 'italic', fontWeight: '600' }}>
+                                        "Your Vote, Your Voice, Your Union"
+                                    </div>
+                                </div>
+                            </div>
+                        </footer>
+                    </motion.div>
+                )}
+
+                {/* Step 3: Success Screen */}
+                {step === 3 && (
+                    <motion.div
+                        key="success"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        style={{
+                            minHeight: '100vh',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: darkMode ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                            padding: '20px'
+                        }}
+                    >
+                        <div style={{
+                            maxWidth: '600px',
+                            width: '100%',
+                            background: theme.cardBg,
+                            borderRadius: '24px',
+                            padding: 'clamp(40px, 6vw, 60px) clamp(24px, 4vw, 40px)',
+                            textAlign: 'center',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+                        }}>
+                            <div style={{ fontSize: 'clamp(3rem, 10vw, 5rem)', marginBottom: '20px' }}>✅</div>
+                            <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: '800', color: theme.text, marginBottom: '14px' }}>
+                                VOTE SUCCESSFULLY SUBMITTED!
+                            </h2>
+                            <p style={{ fontSize: 'clamp(1rem, 2.5vw, 1.1rem)', color: theme.textSecondary, marginBottom: '28px', lineHeight: '1.6' }}>
+                                🎉 Thank you for participating in student democracy!
+                            </p>
+
+                            <div style={{ background: theme.bg, borderRadius: '16px', padding: '20px', marginBottom: '28px', textAlign: 'left' }}>
+                                <h3 style={{ fontSize: '1rem', fontWeight: '700', color: theme.text, marginBottom: '14px' }}>
+                                    📋 Your Voting Receipt:
+                                </h3>
+                                <div style={{ fontSize: '0.85rem', color: theme.textSecondary, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Ballot ID:</span>
+                                        <span style={{ fontWeight: '600', color: theme.text }}>{ballotId}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Time:</span>
+                                        <span style={{ fontWeight: '600', color: theme.text }}>{new Date().toLocaleString()}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Status:</span>
+                                        <span style={{ fontWeight: '600', color: theme.primary }}>Confirmed</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Positions:</span>
+                                        <span style={{ fontWeight: '600', color: theme.text }}>{getTotalPositions()}/{getTotalPositions()}</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            {Object.entries(groupedCandidates).map(([position, candidates]) => (
-                                <div key={position} style={{
-                                    background: 'rgba(255, 255, 255, 0.05)',
-                                    backdropFilter: 'blur(10px)',
-                                    borderRadius: '20px',
-                                    padding: '30px',
-                                    marginBottom: '30px'
-                                }}>
-                                    {/* Position Header - Modern & Attractive */}
-                                    <div style={{
-                                        background: 'linear-gradient(135deg, rgba(22, 163, 74, 0.2), rgba(0, 255, 0, 0.1))',
-                                        borderRadius: '16px',
-                                        padding: '24px 30px',
-                                        marginBottom: '30px',
-                                        border: '1px solid rgba(0, 255, 0, 0.3)',
-                                        boxShadow: '0 4px 20px rgba(0, 255, 0, 0.1)'
-                                    }}>
-                                        <h3 style={{
-                                            fontSize: '2rem',
-                                            fontWeight: '800',
-                                            background: 'linear-gradient(135deg, #ffffff, #e0e0e0)',
-                                            WebkitBackgroundClip: 'text',
-                                            WebkitTextFillColor: 'transparent',
-                                            margin: 0,
-                                            textTransform: 'uppercase',
-                                            textAlign: 'center',
-                                            letterSpacing: '1px'
-                                        }}>{position}</h3>
+                            <div style={{ background: '#f0fdf4', borderRadius: '16px', padding: '18px', marginBottom: '28px', border: '1px solid #bbf7d0' }}>
+                                <h3 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#166534', marginBottom: '6px' }}>
+                                    📅 Results Announcement:
+                                </h3>
+                                <p style={{ fontSize: '1rem', fontWeight: '700', color: theme.primary, margin: 0 }}>
+                                    December 7, 2025 at 3:00 PM
+                                </p>
+                            </div>
+
+                            <Link to="/" style={{
+                                display: 'inline-block',
+                                width: '100%',
+                                padding: '14px',
+                                background: theme.primary,
+                                border: 'none',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                fontWeight: '600',
+                                color: 'white',
+                                textDecoration: 'none',
+                                textAlign: 'center'
+                            }}>
+                                <FaHome style={{ marginRight: '8px' }} />
+                                RETURN TO HOMEPAGE
+                            </Link>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Confirmation Modal */}
+            {showConfirmModal && confirmingPosition && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 9999,
+                    padding: '20px'
+                }}>
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        style={{
+                            background: theme.cardBg,
+                            borderRadius: '20px',
+                            padding: 'clamp(24px, 5vw, 40px)',
+                            maxWidth: '500px',
+                            width: '100%',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+                        }}
+                    >
+                        <h3 style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '800', color: theme.text, marginBottom: '20px', textAlign: 'center' }}>
+                            CONFIRM VOTE SUBMISSION
+                        </h3>
+                        <p style={{ fontSize: '0.95rem', color: theme.textSecondary, marginBottom: '20px', textAlign: 'center' }}>
+                            You are about to submit your vote for:
+                        </p>
+
+                        <div style={{ background: theme.bg, borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <span style={{ fontSize: '1.5rem' }}>
+                                    {mockPositions.find(p => p.id === confirmingPosition)?.icon}
+                                </span>
+                                <div>
+                                    <div style={{ fontSize: '0.8rem', color: theme.textSecondary }}>
+                                        {mockPositions.find(p => p.id === confirmingPosition)?.title}:
                                     </div>
-
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '25px' }}>
-                                        {candidates.map(candidate => {
-                                            const isSelected = selectedVotes[position]?.candidateId === candidate._id;
-                                            // Get first and last name for display in circle
-                                            const nameParts = candidate.name.split(' ');
-                                            const firstName = nameParts[0] || '';
-                                            const lastName = nameParts[nameParts.length - 1] || '';
-
-                                            return (
-                                                <div
-                                                    key={candidate._id}
-                                                    onDoubleClick={() => handleCandidateClick(elections[0]._id, candidate._id, position)}
-                                                    style={{
-                                                        background: isSelected
-                                                            ? 'linear-gradient(135deg, rgba(0, 255, 0, 0.25), rgba(0, 200, 0, 0.2))'
-                                                            : 'rgba(45, 55, 72, 0.9)',
-                                                        borderRadius: '16px',
-                                                        padding: '30px 20px',
-                                                        cursor: 'pointer',
-                                                        border: isSelected ? '4px solid #00ff00' : '2px solid rgba(71, 85, 105, 0.6)',
-                                                        transition: 'all 0.3s ease',
-                                                        position: 'relative',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'center',
-                                                        boxShadow: isSelected
-                                                            ? '0 8px 30px rgba(0, 255, 0, 0.5), inset 0 0 30px rgba(0, 255, 0, 0.15)'
-                                                            : '0 4px 15px rgba(0, 0, 0, 0.4)',
-                                                        transform: isSelected ? 'scale(1.05)' : 'scale(1)'
-                                                    }}
-                                                    onMouseOver={(e) => {
-                                                        if (!isSelected) {
-                                                            e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
-                                                            e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 255, 0, 0.2)';
-                                                            e.currentTarget.style.border = '2px solid rgba(0, 255, 0, 0.6)';
-                                                        }
-                                                    }}
-                                                    onMouseOut={(e) => {
-                                                        if (!isSelected) {
-                                                            e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                                                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.4)';
-                                                            e.currentTarget.style.border = '2px solid rgba(71, 85, 105, 0.6)';
-                                                        }
-                                                    }}
-                                                >
-                                                    {/* Checkmark in top-right corner */}
-                                                    {isSelected && (
-                                                        <CheckCircle style={{
-                                                            position: 'absolute',
-                                                            top: '15px',
-                                                            right: '15px',
-                                                            color: '#00ff00',
-                                                            filter: 'drop-shadow(0 0 8px rgba(0, 255, 0, 0.8))'
-                                                        }} size={32} />
-                                                    )}
-
-                                                    {/* Circular profile with name inside */}
-                                                    <div style={{
-                                                        width: '140px',
-                                                        height: '140px',
-                                                        borderRadius: '50%',
-                                                        border: isSelected ? '4px solid #00ff00' : '3px solid rgba(100, 116, 139, 0.7)',
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        marginBottom: '20px',
-                                                        background: isSelected ? 'rgba(0, 255, 0, 0.2)' : 'rgba(30, 41, 59, 0.9)',
-                                                        overflow: 'hidden',
-                                                        position: 'relative',
-                                                        boxShadow: isSelected ? '0 0 25px rgba(0, 255, 0, 0.6)' : '0 4px 10px rgba(0, 0, 0, 0.3)',
-                                                        transition: 'all 0.3s ease'
-                                                    }}>
-                                                        {/* If there's a photo, show it as background */}
-                                                        {candidate.photo && (
-                                                            <img
-                                                                src={candidate.photo}
-                                                                alt={candidate.name}
-                                                                style={{
-                                                                    position: 'absolute',
-                                                                    width: '100%',
-                                                                    height: '100%',
-                                                                    objectFit: 'cover',
-                                                                    opacity: 0.3
-                                                                }}
-                                                            />
-                                                        )}
-                                                        {/* Name inside circle */}
-                                                        <div style={{
-                                                            textAlign: 'center',
-                                                            zIndex: 1,
-                                                            padding: '10px'
-                                                        }}>
-                                                            <div style={{
-                                                                fontSize: '1.1rem',
-                                                                fontWeight: '600',
-                                                                color: 'white',
-                                                                lineHeight: '1.2'
-                                                            }}>{firstName}</div>
-                                                            <div style={{
-                                                                fontSize: '1.1rem',
-                                                                fontWeight: '600',
-                                                                color: 'white',
-                                                                lineHeight: '1.2'
-                                                            }}>{lastName}</div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Candidate name below circle */}
-                                                    <h4 style={{
-                                                        margin: '0 0 8px 0',
-                                                        fontSize: '1.3rem',
-                                                        fontWeight: '700',
-                                                        color: isSelected ? '#00ff00' : 'white',
-                                                        textAlign: 'center',
-                                                        textShadow: isSelected ? '0 0 15px rgba(0, 255, 0, 0.7)' : 'none',
-                                                        transition: 'all 0.3s ease'
-                                                    }}>{candidate.name}</h4>
-
-                                                    {/* Additional info */}
-                                                    <p style={{
-                                                        margin: 0,
-                                                        fontSize: '0.95rem',
-                                                        color: isSelected ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.6)',
-                                                        textAlign: 'center',
-                                                        transition: 'all 0.3s ease'
-                                                    }}>{candidate.description || '3rd Year, General'}</p>
-
-                                                    {/* Double-click hint for unselected cards */}
-                                                    {!isSelected && (
-                                                        <p style={{
-                                                            margin: '10px 0 0 0',
-                                                            fontSize: '0.75rem',
-                                                            color: 'rgba(255, 255, 255, 0.4)',
-                                                            textAlign: 'center',
-                                                            fontStyle: 'italic'
-                                                        }}>Double-click to select</p>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
+                                    <div style={{ fontSize: '1rem', fontWeight: '700', color: theme.text }}>
+                                        {getSelectedCandidateName(confirmingPosition)}
                                     </div>
                                 </div>
-                            ))}
+                            </div>
+                        </div>
 
-                            {error && (
-                                <div style={{
-                                    padding: '15px',
-                                    marginBottom: '20px',
-                                    background: 'rgba(220, 38, 38, 0.2)',
-                                    border: '1px solid rgba(220, 38, 38, 0.4)',
-                                    borderRadius: '10px',
-                                    color: '#fca5a5',
-                                    textAlign: 'center'
-                                }}>
-                                    {error}
-                                </div>
-                            )}
+                        <div style={{ background: '#fef3c7', borderRadius: '12px', padding: '14px', marginBottom: '20px', border: '1px solid #fde047' }}>
+                            <p style={{ fontSize: '0.85rem', color: '#92400e', margin: 0, lineHeight: '1.4' }}>
+                                ⚠️ <strong>Important:</strong> This action cannot be undone. Your vote will be recorded anonymously.
+                            </p>
+                        </div>
 
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                             <button
-                                onClick={handleSubmitVotes}
-                                disabled={loading || Object.keys(selectedVotes).length === 0}
+                                onClick={() => {
+                                    setShowConfirmModal(false);
+                                    setConfirmingPosition(null);
+                                }}
                                 style={{
-                                    width: '100%',
-                                    padding: '18px',
-                                    background: 'linear-gradient(135deg, #00cc00, #00ff00)',
-                                    color: 'white',
+                                    padding: '12px',
+                                    background: 'transparent',
+                                    border: `2px solid ${theme.border}`,
+                                    borderRadius: '12px',
+                                    fontSize: '0.95rem',
+                                    fontWeight: '600',
+                                    color: theme.text,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                CANCEL
+                            </button>
+                            <button
+                                onClick={confirmSubmitPosition}
+                                disabled={loading}
+                                style={{
+                                    padding: '12px',
+                                    background: theme.primary,
                                     border: 'none',
                                     borderRadius: '12px',
-                                    fontSize: '1.2rem',
-                                    fontWeight: '700',
-                                    cursor: loading || Object.keys(selectedVotes).length === 0 ? 'not-allowed' : 'pointer',
-                                    transition: 'all 0.3s',
-                                    boxShadow: '0 4px 15px rgba(0, 204, 0, 0.3)',
-                                    opacity: loading || Object.keys(selectedVotes).length === 0 ? 0.5 : 1
-                                }}
-                                onMouseOver={(e) => {
-                                    if (!loading && Object.keys(selectedVotes).length > 0) {
-                                        e.target.style.transform = 'translateY(-2px)';
-                                        e.target.style.boxShadow = '0 6px 20px rgba(0, 204, 0, 0.4)';
-                                    }
-                                }}
-                                onMouseOut={(e) => {
-                                    if (!loading && Object.keys(selectedVotes).length > 0) {
-                                        e.target.style.transform = 'translateY(0)';
-                                        e.target.style.boxShadow = '0 4px 15px rgba(0, 204, 0, 0.3)';
-                                    }
+                                    fontSize: '0.95rem',
+                                    fontWeight: '600',
+                                    color: 'white',
+                                    cursor: loading ? 'not-allowed' : 'pointer'
                                 }}
                             >
-                                {loading ? 'Submitting...' : 'Submit Votes'}
+                                {loading ? 'SUBMITTING...' : 'CONFIRM'}
                             </button>
-                        </motion.div>
-                    )}
+                        </div>
+                    </motion.div>
+                </div>
+            )}
 
-                    {step === 3 && (
-                        <motion.div
-                            key="success"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
+            {/* Platform Modal */}
+            {showPlatformModal && selectedCandidate && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10000,
+                    padding: '20px'
+                }}
+                    onClick={() => setShowPlatformModal(false)}
+                >
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: theme.cardBg,
+                            borderRadius: '24px',
+                            padding: '32px',
+                            maxWidth: '700px',
+                            width: '100%',
+                            maxHeight: '85vh',
+                            overflow: 'auto',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+                        }}
+                    >
+                        {/* Header */}
+                        <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '12px' }}>📋</div>
+                            <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: '0 0 8px 0', color: theme.text }}>
+                                Platform & Manifesto
+                            </h2>
+                            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', margin: '0 0 4px 0', color: theme.primary }}>
+                                {selectedCandidate.name}
+                            </h3>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: theme.textSecondary }}>
+                                {selectedCandidate.department} • {selectedCandidate.year}
+                            </p>
+                        </div>
+
+                        {/* Slogan */}
+                        <div style={{
+                            background: theme.selectedBg,
+                            padding: '16px',
+                            borderRadius: '12px',
+                            marginBottom: '24px',
+                            border: `2px solid ${theme.primary}`,
+                            textAlign: 'center'
+                        }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: theme.primary, marginBottom: '4px', textTransform: 'uppercase' }}>
+                                Campaign Slogan
+                            </div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.text }}>
+                                "{selectedCandidate.slogan}"
+                            </div>
+                        </div>
+
+                        {/* Key Points */}
+                        <div style={{ marginBottom: '24px' }}>
+                            <h4 style={{ fontSize: '1rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text }}>
+                                Key Platform Points
+                            </h4>
+                            <div style={{ display: 'grid', gap: '8px' }}>
+                                {selectedCandidate.platform.map((item, idx) => (
+                                    <div key={idx} style={{
+                                        padding: '12px 16px',
+                                        background: theme.bg,
+                                        borderRadius: '8px',
+                                        border: `1px solid ${theme.border}`,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px'
+                                    }}>
+                                        <span style={{ fontSize: '1.2rem', color: theme.primary, fontWeight: '700' }}>✓</span>
+                                        <span style={{ fontSize: '0.9rem', color: theme.text, fontWeight: '500' }}>{item}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Full Manifesto */}
+                        {selectedCandidate.manifesto && (
+                            <div style={{ marginBottom: '24px' }}>
+                                <h4 style={{ fontSize: '1rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text }}>
+                                    Complete Manifesto
+                                </h4>
+                                <div style={{
+                                    padding: '20px',
+                                    background: theme.bg,
+                                    borderRadius: '12px',
+                                    border: `1px solid ${theme.border}`,
+                                    whiteSpace: 'pre-wrap',
+                                    fontSize: '0.9rem',
+                                    lineHeight: '1.7',
+                                    color: theme.text
+                                }}>
+                                    {selectedCandidate.manifesto}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setShowPlatformModal(false)}
                             style={{
-                                textAlign: 'center',
-                                background: 'rgba(255, 255, 255, 0.1)',
-                                backdropFilter: 'blur(20px)',
-                                borderRadius: '20px',
-                                padding: '60px 40px',
-                                maxWidth: '500px'
+                                width: '100%',
+                                padding: '14px',
+                                background: theme.primary,
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
                             }}
                         >
-                            <CheckCircle size={80} style={{ color: '#00ff00', marginBottom: '20px' }} />
-                            <h2 style={{ fontSize: '2rem', marginBottom: '15px', color: 'white' }}>Vote Submitted Successfully!</h2>
-                            <p style={{ fontSize: '1.1rem', color: 'rgba(255, 255, 255, 0.8)', marginBottom: '30px' }}>
-                                Thank you for participating in the election. Your vote has been recorded.
-                            </p>
-                            <Link
-                                to="/"
-                                style={{
-                                    display: 'inline-block',
-                                    padding: '15px 40px',
-                                    background: 'linear-gradient(135deg, #00cc00, #00ff00)',
-                                    color: 'white',
-                                    textDecoration: 'none',
-                                    borderRadius: '10px',
-                                    fontSize: '1.1rem',
-                                    fontWeight: '600',
-                                    transition: 'all 0.3s'
-                                }}
-                                onMouseOver={(e) => {
-                                    e.target.style.transform = 'translateY(-2px)';
-                                    e.target.style.boxShadow = '0 6px 20px rgba(0, 204, 0, 0.4)';
-                                }}
-                                onMouseOut={(e) => {
-                                    e.target.style.transform = 'translateY(0)';
-                                    e.target.style.boxShadow = 'none';
-                                }}
-                            >
-                                Return to Home
-                            </Link>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
-
-            {/* Footer Section - Only show on steps 2 and 3 */}
-            {(step === 2 || step === 3) && (
-                <footer style={{
-                    background: 'rgba(0, 0, 0, 0.8)',
-                    backdropFilter: 'blur(10px)',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                    padding: '40px 20px',
-                    marginTop: '60px'
-                }}>
-                    <div style={{
-                        maxWidth: '1200px',
-                        margin: '0 auto',
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                        gap: '40px'
-                    }}>
-                        <div>
-                            <h3 style={{ color: '#00ff00', marginBottom: '15px', fontSize: '1.3rem' }}>HUSUMS Elections</h3>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.7)', lineHeight: '1.6' }}>
-                                Empowering student voices through secure and transparent digital voting. Making democracy accessible to everyone.
-                            </p>
-                        </div>
-                        <div>
-                            <h4 style={{ color: 'white', marginBottom: '15px' }}>Quick Links</h4>
-                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                                <li style={{ marginBottom: '10px' }}>
-                                    <a href="#" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.3s' }}
-                                        onMouseOver={(e) => e.target.style.color = '#00ff00'}
-                                        onMouseOut={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.7)'}>
-                                        About Us
-                                    </a>
-                                </li>
-                                <li style={{ marginBottom: '10px' }}>
-                                    <a href="#" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.3s' }}
-                                        onMouseOver={(e) => e.target.style.color = '#00ff00'}
-                                        onMouseOut={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.7)'}>
-                                        How to Vote
-                                    </a>
-                                </li>
-                                <li style={{ marginBottom: '10px' }}>
-                                    <a href="#" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.3s' }}
-                                        onMouseOver={(e) => e.target.style.color = '#00ff00'}
-                                        onMouseOut={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.7)'}>
-                                        Election Results
-                                    </a>
-                                </li>
-                                <li style={{ marginBottom: '10px' }}>
-                                    <a href="#" style={{ color: 'rgba(255, 255, 255, 0.7)', textDecoration: 'none', transition: 'color 0.3s' }}
-                                        onMouseOver={(e) => e.target.style.color = '#00ff00'}
-                                        onMouseOut={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.7)'}>
-                                        FAQs
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 style={{ color: 'white', marginBottom: '15px' }}>Contact Us</h4>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '10px' }}>📧 elections@husums.edu</p>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '10px' }}>📱 +251 XXX XXX XXX</p>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.7)' }}>📍 Haramaya University</p>
-                        </div>
-                    </div>
-                    <div style={{
-                        maxWidth: '1200px',
-                        margin: '30px auto 0',
-                        paddingTop: '20px',
-                        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                        textAlign: 'center',
-                        color: 'rgba(255, 255, 255, 0.5)',
-                        fontSize: '0.9rem'
-                    }}>
-                        <p>© 2025 HUSUMS. All rights reserved.</p>
-                        <div style={{ marginTop: '10px' }}>
-                            <a href="#" style={{ color: 'rgba(255, 255, 255, 0.5)', textDecoration: 'none', marginRight: '20px' }}>Privacy Policy</a>
-                            <a href="#" style={{ color: 'rgba(255, 255, 255, 0.5)', textDecoration: 'none' }}>Terms of Service</a>
-                        </div>
-                    </div>
-                </footer>
+                            Close
+                        </button>
+                    </motion.div>
+                </div>
             )}
+
+            {/* Detail Modal */}
+            {showDetailModal && selectedCandidate && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10000,
+                    padding: '20px'
+                }}
+                    onClick={() => setShowDetailModal(false)}
+                >
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: theme.cardBg,
+                            borderRadius: '24px',
+                            padding: '32px',
+                            maxWidth: '800px',
+                            width: '100%',
+                            maxHeight: '90vh',
+                            overflow: 'auto',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+                        }}
+                    >
+                        {/* Header */}
+                        <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '4rem', marginBottom: '16px' }}>👤</div>
+                            <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 8px 0', color: theme.text }}>
+                                {selectedCandidate.fullName || selectedCandidate.name}
+                            </h2>
+                            <div style={{ fontSize: '1.1rem', color: theme.primary, fontWeight: '600', marginBottom: '8px' }}>
+                                Candidate for {mockPositions.find(p => p.candidates.some(c => c._id === selectedCandidate._id))?.title || 'Position'}
+                            </div>
+                            <div style={{ fontSize: '0.95rem', color: theme.textSecondary }}>
+                                {selectedCandidate.department} • {selectedCandidate.year}
+                            </div>
+                        </div>
+
+                        {/* Contact Information */}
+                        <div style={{ marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 16px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                📞 Contact Information
+                            </h3>
+                            <div style={{ display: 'grid', gap: '12px' }}>
+                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Phone Number</div>
+                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.phone || 'Not provided'}</div>
+                                </div>
+                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Email Address</div>
+                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.email || 'Not provided'}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Location Information */}
+                        <div style={{ marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 16px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                📍 Location Information
+                            </h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Region</div>
+                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.region || 'Not provided'}</div>
+                                </div>
+                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Zone</div>
+                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.zone || 'Not provided'}</div>
+                                </div>
+                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Woreda</div>
+                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.woreda || 'Not provided'}</div>
+                                </div>
+                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>City</div>
+                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.city || 'Not provided'}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Background */}
+                        {selectedCandidate.background && (
+                            <div style={{ marginBottom: '24px' }}>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                    ✨ Background
+                                </h3>
+                                <div style={{
+                                    padding: '16px',
+                                    background: theme.bg,
+                                    borderRadius: '12px',
+                                    border: `1px solid ${theme.border}`,
+                                    fontSize: '0.95rem',
+                                    lineHeight: '1.6',
+                                    color: theme.text
+                                }}>
+                                    {selectedCandidate.background}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Education */}
+                        {selectedCandidate.education && (
+                            <div style={{ marginBottom: '24px' }}>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                    🎓 Educational Background
+                                </h3>
+                                <div style={{ display: 'grid', gap: '8px' }}>
+                                    {selectedCandidate.education.map((edu, idx) => (
+                                        <div key={idx} style={{
+                                            padding: '12px 16px',
+                                            background: theme.bg,
+                                            borderRadius: '8px',
+                                            border: `1px solid ${theme.border}`,
+                                            display: 'flex',
+                                            alignItems: 'start',
+                                            gap: '12px'
+                                        }}>
+                                            <span style={{ fontSize: '1.2rem', color: theme.primary }}>•</span>
+                                            <span style={{ fontSize: '0.9rem', color: theme.text, lineHeight: '1.5' }}>{edu}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Experience */}
+                        {selectedCandidate.experience && (
+                            <div style={{ marginBottom: '24px' }}>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                    💼 Experience
+                                </h3>
+                                <div style={{ display: 'grid', gap: '8px' }}>
+                                    {selectedCandidate.experience.map((exp, idx) => (
+                                        <div key={idx} style={{
+                                            padding: '12px 16px',
+                                            background: theme.bg,
+                                            borderRadius: '8px',
+                                            border: `1px solid ${theme.border}`,
+                                            display: 'flex',
+                                            alignItems: 'start',
+                                            gap: '12px'
+                                        }}>
+                                            <span style={{ fontSize: '1.2rem', color: theme.primary }}>•</span>
+                                            <span style={{ fontSize: '0.9rem', color: theme.text, lineHeight: '1.5' }}>{exp}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Achievements */}
+                        {selectedCandidate.achievements && (
+                            <div style={{ marginBottom: '24px' }}>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                    🏆 Achievements
+                                </h3>
+                                <div style={{ display: 'grid', gap: '8px' }}>
+                                    {selectedCandidate.achievements.map((achievement, idx) => (
+                                        <div key={idx} style={{
+                                            padding: '12px 16px',
+                                            background: theme.bg,
+                                            borderRadius: '8px',
+                                            border: `1px solid ${theme.border}`,
+                                            display: 'flex',
+                                            alignItems: 'start',
+                                            gap: '12px'
+                                        }}>
+                                            <span style={{ fontSize: '1.2rem', color: theme.primary }}>🌟</span>
+                                            <span style={{ fontSize: '0.9rem', color: theme.text, lineHeight: '1.5' }}>{achievement}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setShowDetailModal(false)}
+                            style={{
+                                width: '100%',
+                                padding: '14px',
+                                background: theme.primary,
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '12px',
+                                fontSize: '1rem',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            Close
+                        </button>
+                    </motion.div>
+                </div>
+            )}
+
+
+            {/* Responsive CSS */}
+            <style>{`
+                @media (max-width: 768px) {
+                    .grid-responsive {
+                        grid-template-columns: 1fr !important;
+                    }
+                }
+                @media (min-width: 769px) and (max-width: 1023px) {
+                    .grid-responsive {
+                        grid-template-columns: repeat(2, 1fr) !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
