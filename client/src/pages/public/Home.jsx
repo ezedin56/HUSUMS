@@ -14,6 +14,7 @@ import ezedinImg from '../../assets/images/ezedin_new.png';
 import sultanImg from '../../assets/images/sultan.png';
 import ConstitutionModal from '../../components/ConstitutionModal';
 import VotersGuideModal from '../../components/VotersGuideModal';
+import HowItWorksModal from '../../components/HowItWorksModal';
 
 const Home = () => {
     const [scrolled, setScrolled] = useState(false);
@@ -22,6 +23,8 @@ const Home = () => {
     const [activeDepartment, setActiveDepartment] = useState(0);
     const [constitutionModalOpen, setConstitutionModalOpen] = useState(false);
     const [votersGuideModalOpen, setVotersGuideModalOpen] = useState(false);
+    const [howItWorksModalOpen, setHowItWorksModalOpen] = useState(false);
+    const [howItWorksInitialTab, setHowItWorksInitialTab] = useState('eligibility');
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -600,8 +603,8 @@ const Home = () => {
                             Whether you want to run for office or simply cast your vote, your participation is what makes our union strong.
                         </p>
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <button style={{ padding: '0.8rem 2rem', borderRadius: '50px', background: theme.primary, color: '#000', fontWeight: '700', border: 'none', cursor: 'pointer' }}>Check Eligibility</button>
-                            <button style={{ padding: '0.8rem 2rem', borderRadius: '50px', background: 'rgba(255,255,255,0.1)', color: '#fff', fontWeight: '700', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer' }}>Contact Committee</button>
+                            <button onClick={() => { setHowItWorksInitialTab('eligibility'); setHowItWorksModalOpen(true); }} style={{ padding: '1.2rem 2.5rem', borderRadius: '50px', background: theme.primary, color: '#FFFFFF', fontWeight: '900', border: 'none', cursor: 'pointer', fontSize: '1.1rem', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)', letterSpacing: '0.5px', transition: 'all 0.2s' }} onMouseOver={e => e.target.style.transform = 'translateY(-2px)'} onMouseOut={e => e.target.style.transform = 'translateY(0)'}>Check Eligibility</button>
+                            <button onClick={() => { setHowItWorksInitialTab('contact'); setHowItWorksModalOpen(true); }} style={{ padding: '1.2rem 2.5rem', borderRadius: '50px', background: 'rgba(255,255,255,0.1)', color: '#fff', fontWeight: '700', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: '1.1rem', transition: 'all 0.2s' }} onMouseOver={e => { e.target.style.background = 'rgba(255,255,255,0.2)'; e.target.style.transform = 'translateY(-2px)'; }} onMouseOut={e => { e.target.style.background = 'rgba(255,255,255,0.1)'; e.target.style.transform = 'translateY(0)'; }}>Contact Committee</button>
                         </div>
                         <div style={{ marginTop: '2rem', fontSize: '0.85rem', color: '#94a3b8', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
@@ -995,6 +998,13 @@ const Home = () => {
                 isOpen={votersGuideModalOpen}
                 onClose={() => setVotersGuideModalOpen(false)}
                 onOpenConstitution={() => setConstitutionModalOpen(true)}
+            />
+
+            {/* How It Works Modal */}
+            <HowItWorksModal
+                isOpen={howItWorksModalOpen}
+                onClose={() => setHowItWorksModalOpen(false)}
+                initialTab={howItWorksInitialTab}
             />
         </div>
     );
