@@ -7,68 +7,84 @@ const User = require('./src/models/User');
 
 async function createTestElection() {
     try {
-        const mongoURI = process.env.MONGO_URI;
-        console.log('🔗 Connecting to Atlas...');
-        await mongoose.connect(mongoURI);
-        console.log('✅ Connected!');
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log('Connected to MongoDB');
 
-        // Check for active elections
-        const active = await Election.findOne({ isOpen: true, status: 'ongoing' });
-        if (active) {
-            console.log('✅ Active election already exists:', active.title);
-            process.exit(0);
+        // Find a user to be the creator
+        const adminUser = await User.findOne({ role: 'president' });
+        if (!adminUser) {
+            console.log('No admin user found. Creating one...');
+            return;
         }
 
-        console.log('ℹ️  No active election found. Creating one...');
+        // Check if there's already a public election
+        const existingElection = await Election.findOne({ electionType: 'public', isOpen: true });
+        if (existingElection) {
+            console.log('Public election already exists:', existingElection.title);
+            console.log('ID:', existingElection._id);
 
-        // Get secretary to be the creator
-        const secretary = await User.findOne({ role: 'secretary' });
-        if (!secretary) {
-            console.error('❌ No secretary found to create election');
-            process.exit(1);
-        }
-
-        // Create Election
-        const endDate = new Date();
-        endDate.setDate(endDate.getDate() + 7); // Ends in 7 days
-
-        const election = await Election.create({
-            title: '2025 Student Union General Election',
-            description: 'Vote for your next student representatives. Your voice matters!',
-            positions: ['President', 'Vice President', 'Secretary'],
-            startDate: new Date(),
-            endDate: endDate,
-            status: 'ongoing',
-            isOpen: true,
-            createdBy: secretary._id
-        });
-
-        console.log('✅ Created Election:', election.title);
-
-        // Create Candidates
-        // We'll use the test members as candidates
-        const members = await User.find({ role: 'member' }).limit(3);
-        const positions = ['President', 'Vice President', 'Secretary'];
-
-        for (let i = 0; i < members.length; i++) {
-            if (i >= positions.length) break;
-
-            await Candidate.create({
-                electionId: election._id,
-                userId: members[i]._id,
-                position: positions[i],
-                manifesto: `I promise to serve the students with integrity and dedication as your ${positions[i]}.`,
-                description: 'Experienced student leader.',
-                voteCount: 0
+            // Check candidates
+            const candidates = await Candidate.find({ electionId: existingElection._id })
+                .populate('userId', 'firstName lastName');
+            console.log(`\nCandidates: ${candidates.length}`);
+            candidates.forEach(c => {
+                console.log(`  - ${c.userId?.firstName} ${c.userId?.lastName} for ${c.position}`);
             });
 
-            console.log(`✅ Added Candidate: ${members[i].firstName} for ${positions[i]}`);
+            process.exit(0);
+            return;
         }
 
-        console.log('\n✨ Test election created successfully!');
+        // Create a new public election
+        const election = await Election.create({
+            title: 'HUSUMS Public Election 2025',
+            description: 'Student Union Leadership Elections',
+            positions: ['President', 'Vice President', 'Secretary'],
+            startDate: new Date(),
+            endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+            status: 'ongoing',
+            isOpen: true,
+            electionType: 'public',
+            createdBy: adminUser._id
+        });
+
+        console.log('Created election:', election.title);
+        console.log('Election ID:', election._id);
+
+        // Find some users to be candidates
+        const users = await User.find({ role: 'member' }).limit(6);
+
+        if (users.length < 3) {
+            console.log('Not enough users to create candidates');
+            process.exit(0);
+            return;
+        }
+
+        // Create candidates
+        const candidatesData = [
+            { userId: users[0]?._id, position: 'President', manifesto: 'Digital transformation of student services\n- 24/7 Library Access\n- Campus WiFi Expansion\n- Mental Health Support', description: 'Leading with innovation and technology' },
+            { userId: users[1]?._id, position: 'President', manifesto: 'Strengthening student rights\n- Student Legal Aid\n- Academic Grievance System\n- Internship Partnerships', description: 'Protecting student rights and welfare' },
+            { userId: users[2]?._id, position: 'Vice President', manifesto: 'Building bridges across departments\n- Inter-Department Events\n- Student Welfare Programs\n- Budget Transparency', description: 'Unity and collaboration' },
+            { userId: users[3]?._id, position: 'Vice President', manifesto: 'Health and wellness for all\n- Health Insurance Support\n- Fitness Programs\n- Mental Health Awareness', description: 'Student health and wellbeing' },
+            { userId: users[4]?._id, position: 'Secretary', manifesto: 'Efficient administration\n- Digital Record System\n- Faster Processing\n- Student Feedback Portal', description: 'Streamlined operations' },
+            { userId: users[5]?._id, position: 'Secretary', manifesto: 'Transparency and accountability\n- Open Budget Reports\n- Monthly Town Halls\n- Anonymous Suggestion Box', description: 'Open and transparent governance' }
+        ];
+
+        for (const candidateData of candidatesData) {
+            if (candidateData.userId) {
+                await Candidate.create({
+                    electionId: election._id,
+                    ...candidateData
+                });
+            }
+        }
+
+        console.log('Created candidates successfully!');
+        console.log('\nYou can now test the public voting at: http://localhost:5173/vote');
+
         process.exit(0);
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('Error:', error);
         process.exit(1);
     }
 }

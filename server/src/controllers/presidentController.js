@@ -126,7 +126,12 @@ const createElection = async (req, res) => {
 // @route   POST /api/president/elections/:id/candidates
 // @access  Private (President/VP)
 const addCandidate = async (req, res) => {
-    const { position, userId, manifesto, description } = req.body;
+    const {
+        position, userId, manifesto, description,
+        platform, phone, email,
+        region, zone, woreda, city,
+        background, education, experience, achievements, slogan
+    } = req.body;
     const { id } = req.params;
     const photo = req.file ? `/uploads/${req.file.filename}` : '';
 
@@ -137,7 +142,19 @@ const addCandidate = async (req, res) => {
             userId,
             manifesto: manifesto || '',
             description: description || '',
-            photo
+            photo,
+            platform: platform ? JSON.parse(platform) : [],
+            phone: phone || '',
+            email: email || '',
+            region: region || '',
+            zone: zone || '',
+            woreda: woreda || '',
+            city: city || '',
+            background: background || '',
+            education: education ? JSON.parse(education) : [],
+            experience: experience ? JSON.parse(experience) : [],
+            achievements: achievements ? JSON.parse(achievements) : [],
+            slogan: slogan || ''
         });
 
         // Log audit
@@ -166,7 +183,12 @@ const addCandidate = async (req, res) => {
 // @access  Private (President/VP/Public Admin)
 const updateCandidate = async (req, res) => {
     const { id } = req.params;
-    const { position, manifesto, description } = req.body;
+    const {
+        position, manifesto, description,
+        platform, phone, email,
+        region, zone, woreda, city,
+        background, education, experience, achievements, slogan
+    } = req.body;
     const photo = req.file ? `/uploads/${req.file.filename}` : undefined;
 
     try {
@@ -180,6 +202,18 @@ const updateCandidate = async (req, res) => {
         if (manifesto !== undefined) candidate.manifesto = manifesto;
         if (description !== undefined) candidate.description = description;
         if (photo) candidate.photo = photo;
+        if (platform !== undefined) candidate.platform = JSON.parse(platform);
+        if (phone !== undefined) candidate.phone = phone;
+        if (email !== undefined) candidate.email = email;
+        if (region !== undefined) candidate.region = region;
+        if (zone !== undefined) candidate.zone = zone;
+        if (woreda !== undefined) candidate.woreda = woreda;
+        if (city !== undefined) candidate.city = city;
+        if (background !== undefined) candidate.background = background;
+        if (education !== undefined) candidate.education = JSON.parse(education);
+        if (experience !== undefined) candidate.experience = JSON.parse(experience);
+        if (achievements !== undefined) candidate.achievements = JSON.parse(achievements);
+        if (slogan !== undefined) candidate.slogan = slogan;
 
         await candidate.save();
 

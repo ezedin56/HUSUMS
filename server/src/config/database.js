@@ -7,7 +7,7 @@ const connectDB = async () => {
         // Try connecting to MongoDB (Env or Local)
         const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/husums';
         const conn = await mongoose.connect(mongoURI, {
-            serverSelectionTimeoutMS: 2000 // Fail fast if not running
+            serverSelectionTimeoutMS: 10000 // Increased timeout for Atlas connections
         });
         console.log(`MongoDB Connected: ${conn.connection.host}`);
 

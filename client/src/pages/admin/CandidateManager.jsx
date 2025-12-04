@@ -3,7 +3,10 @@ import { api } from '../../utils/api';
 import {
     Plus,
     Search,
-    Upload
+    Upload,
+    X,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CandidateCard from '../../components/admin/CandidateCard';
@@ -18,13 +21,32 @@ const CandidateManager = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingCandidate, setEditingCandidate] = useState(null);
     const [userSearch, setUserSearch] = useState('');
+    const [expandedSections, setExpandedSections] = useState({
+        basic: true,
+        platform: false,
+        contact: false,
+        location: false,
+        background: false
+    });
 
     const [formData, setFormData] = useState({
         userId: '',
         position: '',
         manifesto: '',
         description: '',
-        photo: null
+        slogan: '',
+        photo: null,
+        platform: ['', '', ''],
+        phone: '',
+        email: '',
+        region: '',
+        zone: '',
+        woreda: '',
+        city: '',
+        background: '',
+        education: [''],
+        experience: [''],
+        achievements: ['']
     });
 
     useEffect(() => {
@@ -72,6 +94,28 @@ const CandidateManager = () => {
         }
     };
 
+    const toggleSection = (section) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
+    };
+
+    const updateArrayField = (field, index, value) => {
+        const newArray = [...formData[field]];
+        newArray[index] = value;
+        setFormData({ ...formData, [field]: newArray });
+    };
+
+    const addArrayItem = (field) => {
+        setFormData({ ...formData, [field]: [...formData[field], ''] });
+    };
+
+    const removeArrayItem = (field, index) => {
+        const newArray = formData[field].filter((_, i) => i !== index);
+        setFormData({ ...formData, [field]: newArray });
+    };
+
     const handleAddCandidate = async (e) => {
         e.preventDefault();
 
@@ -85,6 +129,23 @@ const CandidateManager = () => {
         data.append('position', formData.position);
         data.append('manifesto', formData.manifesto);
         data.append('description', formData.description);
+        data.append('slogan', formData.slogan);
+
+        // Add array fields as JSON strings
+        data.append('platform', JSON.stringify(formData.platform.filter(p => p.trim())));
+        data.append('education', JSON.stringify(formData.education.filter(e => e.trim())));
+        data.append('experience', JSON.stringify(formData.experience.filter(e => e.trim())));
+        data.append('achievements', JSON.stringify(formData.achievements.filter(a => a.trim())));
+
+        // Add contact and location fields
+        data.append('phone', formData.phone);
+        data.append('email', formData.email);
+        data.append('region', formData.region);
+        data.append('zone', formData.zone);
+        data.append('woreda', formData.woreda);
+        data.append('city', formData.city);
+        data.append('background', formData.background);
+
         if (formData.photo) {
             data.append('photo', formData.photo);
         }
@@ -94,9 +155,8 @@ const CandidateManager = () => {
 
             alert('Candidate added successfully');
             setShowAddModal(false);
-            setFormData({ userId: '', position: '', manifesto: '', description: '', photo: null });
-            setUserSearch('');
-            fetchElections(); // Refresh to get updated candidates
+            resetForm();
+            fetchElections();
         } catch (error) {
             alert('Error adding candidate: ' + error.message);
         }
@@ -110,7 +170,7 @@ const CandidateManager = () => {
         try {
             await api.delete(`/president/candidates/${candidateId}`);
             alert('Candidate deleted successfully');
-            fetchElections(); // Refresh to update candidates list
+            fetchElections();
         } catch (error) {
             alert('Error deleting candidate: ' + error.message);
         }
@@ -123,7 +183,19 @@ const CandidateManager = () => {
             position: candidate.position,
             manifesto: candidate.manifesto || '',
             description: candidate.description || '',
-            photo: null
+            slogan: candidate.slogan || '',
+            photo: null,
+            platform: candidate.platform && candidate.platform.length > 0 ? candidate.platform : ['', '', ''],
+            phone: candidate.phone || '',
+            email: candidate.email || '',
+            region: candidate.region || '',
+            zone: candidate.zone || '',
+            woreda: candidate.woreda || '',
+            city: candidate.city || '',
+            background: candidate.background || '',
+            education: candidate.education && candidate.education.length > 0 ? candidate.education : [''],
+            experience: candidate.experience && candidate.experience.length > 0 ? candidate.experience : [''],
+            achievements: candidate.achievements && candidate.achievements.length > 0 ? candidate.achievements : ['']
         });
         setShowEditModal(true);
     };
@@ -135,6 +207,23 @@ const CandidateManager = () => {
         data.append('position', formData.position);
         data.append('manifesto', formData.manifesto);
         data.append('description', formData.description);
+        data.append('slogan', formData.slogan);
+
+        // Add array fields as JSON strings
+        data.append('platform', JSON.stringify(formData.platform.filter(p => p.trim())));
+        data.append('education', JSON.stringify(formData.education.filter(e => e.trim())));
+        data.append('experience', JSON.stringify(formData.experience.filter(e => e.trim())));
+        data.append('achievements', JSON.stringify(formData.achievements.filter(a => a.trim())));
+
+        // Add contact and location fields
+        data.append('phone', formData.phone);
+        data.append('email', formData.email);
+        data.append('region', formData.region);
+        data.append('zone', formData.zone);
+        data.append('woreda', formData.woreda);
+        data.append('city', formData.city);
+        data.append('background', formData.background);
+
         if (formData.photo) {
             data.append('photo', formData.photo);
         }
@@ -144,14 +233,446 @@ const CandidateManager = () => {
             alert('Candidate updated successfully');
             setShowEditModal(false);
             setEditingCandidate(null);
-            setFormData({ userId: '', position: '', manifesto: '', description: '', photo: null });
+            resetForm();
             fetchElections();
         } catch (error) {
             alert('Error updating candidate: ' + error.message);
         }
     };
 
+    const resetForm = () => {
+        setFormData({
+            userId: '',
+            position: '',
+            manifesto: '',
+            description: '',
+            slogan: '',
+            photo: null,
+            platform: ['', '', ''],
+            phone: '',
+            email: '',
+            region: '',
+            zone: '',
+            woreda: '',
+            city: '',
+            background: '',
+            education: [''],
+            experience: [''],
+            achievements: ['']
+        });
+        setUserSearch('');
+    };
+
     const selectedElection = elections.find(e => e._id === selectedElectionId);
+
+    const renderForm = (isEdit = false) => (
+        <form onSubmit={isEdit ? handleUpdateCandidate : handleAddCandidate} className="space-y-4">
+            {/* Basic Information Section */}
+            <div className="border border-white/10 rounded-lg overflow-hidden">
+                <button
+                    type="button"
+                    onClick={() => toggleSection('basic')}
+                    className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                    <span className="font-semibold">Basic Information</span>
+                    {expandedSections.basic ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </button>
+                {expandedSections.basic && (
+                    <div className="p-4 space-y-4">
+                        {!isEdit && (
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Select User</label>
+                                <input
+                                    type="text"
+                                    className="input w-full bg-black/20 border-white/10 mb-2"
+                                    placeholder="Search user..."
+                                    value={userSearch}
+                                    onChange={e => setUserSearch(e.target.value)}
+                                />
+                                <select
+                                    className="input w-full bg-black/20 border-white/10"
+                                    value={formData.userId}
+                                    onChange={e => setFormData({ ...formData, userId: e.target.value })}
+                                    required
+                                    size={5}
+                                >
+                                    <option value="">-- Select a User --</option>
+                                    {users
+                                        .filter(u =>
+                                            u.firstName.toLowerCase().includes(userSearch.toLowerCase()) ||
+                                            u.lastName.toLowerCase().includes(userSearch.toLowerCase()) ||
+                                            u.studentId.includes(userSearch)
+                                        )
+                                        .map(user => (
+                                            <option key={user.id} value={user.id}>
+                                                {user.firstName} {user.lastName} ({user.studentId})
+                                            </option>
+                                        ))
+                                    }
+                                </select>
+                            </div>
+                        )}
+
+                        {isEdit && (
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Candidate</label>
+                                <div className="input w-full bg-black/20 border-white/10 opacity-50">
+                                    {editingCandidate?.User?.firstName} {editingCandidate?.User?.lastName}
+                                </div>
+                            </div>
+                        )}
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Position</label>
+                            <select
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.position}
+                                onChange={e => setFormData({ ...formData, position: e.target.value })}
+                                required
+                            >
+                                <option value="">Select Position</option>
+                                <option value="President">President</option>
+                                <option value="Vice President">Vice President</option>
+                                <option value="Secretary">Secretary</option>
+                                {selectedElection?.positions
+                                    ?.filter(pos => !['President', 'Vice President', 'Secretary'].includes(pos))
+                                    .map(pos => (
+                                        <option key={pos} value={pos}>{pos}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Slogan</label>
+                            <input
+                                type="text"
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.slogan}
+                                onChange={e => setFormData({ ...formData, slogan: e.target.value })}
+                                placeholder="Campaign slogan..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Description</label>
+                            <textarea
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.description}
+                                onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                rows={2}
+                                required
+                                placeholder="Brief description..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Manifesto</label>
+                            <textarea
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.manifesto}
+                                onChange={e => setFormData({ ...formData, manifesto: e.target.value })}
+                                rows={4}
+                                required
+                                placeholder="Full manifesto..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Photo (Optional)</label>
+                            <div className="border-2 border-dashed border-white/20 rounded-lg p-8 text-center cursor-pointer hover:border-[var(--primary)] transition-colors relative">
+                                <input
+                                    type="file"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    onChange={e => setFormData({ ...formData, photo: e.target.files[0] })}
+                                    accept="image/*"
+                                />
+                                <Upload className="mx-auto mb-2 text-gray-400" />
+                                <p className="text-sm text-gray-400">
+                                    {formData.photo ? formData.photo.name : 'Click or drag to upload photo'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Platform Points Section */}
+            <div className="border border-white/10 rounded-lg overflow-hidden">
+                <button
+                    type="button"
+                    onClick={() => toggleSection('platform')}
+                    className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                    <span className="font-semibold">Platform Points</span>
+                    {expandedSections.platform ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </button>
+                {expandedSections.platform && (
+                    <div className="p-4 space-y-2">
+                        {formData.platform.map((point, index) => (
+                            <div key={index} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    className="input flex-1 bg-black/20 border-white/10"
+                                    value={point}
+                                    onChange={e => updateArrayField('platform', index, e.target.value)}
+                                    placeholder={`Platform point ${index + 1}...`}
+                                />
+                                {formData.platform.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeArrayItem('platform', index)}
+                                        className="btn bg-red-500/20 hover:bg-red-500/30 text-red-400"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => addArrayItem('platform')}
+                            className="btn bg-white/10 hover:bg-white/20 w-full"
+                        >
+                            + Add Platform Point
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Contact Information Section */}
+            <div className="border border-white/10 rounded-lg overflow-hidden">
+                <button
+                    type="button"
+                    onClick={() => toggleSection('contact')}
+                    className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                    <span className="font-semibold">Contact Information</span>
+                    {expandedSections.contact ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </button>
+                {expandedSections.contact && (
+                    <div className="p-4 space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Phone</label>
+                            <input
+                                type="tel"
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.phone}
+                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                placeholder="+251 XXX XXX XXX"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Email</label>
+                            <input
+                                type="email"
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.email}
+                                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                placeholder="email@example.com"
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Location Information Section */}
+            <div className="border border-white/10 rounded-lg overflow-hidden">
+                <button
+                    type="button"
+                    onClick={() => toggleSection('location')}
+                    className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                    <span className="font-semibold">Location Information</span>
+                    {expandedSections.location ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </button>
+                {expandedSections.location && (
+                    <div className="p-4 grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Region</label>
+                            <input
+                                type="text"
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.region}
+                                onChange={e => setFormData({ ...formData, region: e.target.value })}
+                                placeholder="Region"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Zone</label>
+                            <input
+                                type="text"
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.zone}
+                                onChange={e => setFormData({ ...formData, zone: e.target.value })}
+                                placeholder="Zone"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Woreda</label>
+                            <input
+                                type="text"
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.woreda}
+                                onChange={e => setFormData({ ...formData, woreda: e.target.value })}
+                                placeholder="Woreda"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1">City</label>
+                            <input
+                                type="text"
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.city}
+                                onChange={e => setFormData({ ...formData, city: e.target.value })}
+                                placeholder="City"
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Background & Qualifications Section */}
+            <div className="border border-white/10 rounded-lg overflow-hidden">
+                <button
+                    type="button"
+                    onClick={() => toggleSection('background')}
+                    className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                    <span className="font-semibold">Background & Qualifications</span>
+                    {expandedSections.background ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </button>
+                {expandedSections.background && (
+                    <div className="p-4 space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-1">Background</label>
+                            <textarea
+                                className="input w-full bg-black/20 border-white/10"
+                                value={formData.background}
+                                onChange={e => setFormData({ ...formData, background: e.target.value })}
+                                rows={3}
+                                placeholder="Brief background..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Education</label>
+                            {formData.education.map((edu, index) => (
+                                <div key={index} className="flex gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        className="input flex-1 bg-black/20 border-white/10"
+                                        value={edu}
+                                        onChange={e => updateArrayField('education', index, e.target.value)}
+                                        placeholder="Education entry..."
+                                    />
+                                    {formData.education.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeArrayItem('education', index)}
+                                            className="btn bg-red-500/20 hover:bg-red-500/30 text-red-400"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => addArrayItem('education')}
+                                className="btn bg-white/10 hover:bg-white/20 w-full"
+                            >
+                                + Add Education
+                            </button>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Experience</label>
+                            {formData.experience.map((exp, index) => (
+                                <div key={index} className="flex gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        className="input flex-1 bg-black/20 border-white/10"
+                                        value={exp}
+                                        onChange={e => updateArrayField('experience', index, e.target.value)}
+                                        placeholder="Experience entry..."
+                                    />
+                                    {formData.experience.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeArrayItem('experience', index)}
+                                            className="btn bg-red-500/20 hover:bg-red-500/30 text-red-400"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => addArrayItem('experience')}
+                                className="btn bg-white/10 hover:bg-white/20 w-full"
+                            >
+                                + Add Experience
+                            </button>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-2">Achievements</label>
+                            {formData.achievements.map((achievement, index) => (
+                                <div key={index} className="flex gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        className="input flex-1 bg-black/20 border-white/10"
+                                        value={achievement}
+                                        onChange={e => updateArrayField('achievements', index, e.target.value)}
+                                        placeholder="Achievement..."
+                                    />
+                                    {formData.achievements.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeArrayItem('achievements', index)}
+                                            className="btn bg-red-500/20 hover:bg-red-500/30 text-red-400"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => addArrayItem('achievements')}
+                                className="btn bg-white/10 hover:bg-white/20 w-full"
+                            >
+                                + Add Achievement
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+                <button
+                    type="button"
+                    onClick={() => {
+                        if (isEdit) {
+                            setShowEditModal(false);
+                            setEditingCandidate(null);
+                        } else {
+                            setShowAddModal(false);
+                        }
+                        resetForm();
+                    }}
+                    className="btn bg-white/10 hover:bg-white/20"
+                >
+                    Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                    {isEdit ? 'Update Candidate' : 'Add Candidate'}
+                </button>
+            </div>
+        </form>
+    );
 
     return (
         <div className="space-y-6">
@@ -206,116 +727,10 @@ const CandidateManager = () => {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#1e293b] p-6 rounded-xl w-full max-w-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
+                            className="bg-[#1e293b] p-6 rounded-xl w-full max-w-3xl border border-white/10 max-h-[90vh] overflow-y-auto"
                         >
                             <h2 className="text-xl font-bold mb-4">Add Candidate to {selectedElection?.title}</h2>
-                            <form onSubmit={handleAddCandidate} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Select User</label>
-                                    <input
-                                        type="text"
-                                        className="input w-full bg-black/20 border-white/10 mb-2"
-                                        placeholder="Search user..."
-                                        value={userSearch}
-                                        onChange={e => setUserSearch(e.target.value)}
-                                    />
-                                    <select
-                                        className="input w-full bg-black/20 border-white/10"
-                                        value={formData.userId}
-                                        onChange={e => setFormData({ ...formData, userId: e.target.value })}
-                                        required
-                                        size={5}
-                                    >
-                                        <option value="">-- Select a User --</option>
-                                        {users
-                                            .filter(u =>
-                                                u.firstName.toLowerCase().includes(userSearch.toLowerCase()) ||
-                                                u.lastName.toLowerCase().includes(userSearch.toLowerCase()) ||
-                                                u.studentId.includes(userSearch)
-                                            )
-                                            .map(user => (
-                                                <option key={user.id} value={user.id}>
-                                                    {user.firstName} {user.lastName} ({user.studentId})
-                                                </option>
-                                            ))
-                                        }
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Position</label>
-                                    <select
-                                        className="input w-full bg-black/20 border-white/10"
-                                        value={formData.position}
-                                        onChange={e => setFormData({ ...formData, position: e.target.value })}
-                                        required
-                                    >
-                                        <option value="">Select Position</option>
-                                        {/* Default positions */}
-                                        <option value="President">President</option>
-                                        <option value="Vice President">Vice President</option>
-                                        <option value="Secretary">Secretary</option>
-                                        {/* Additional positions from election if any */}
-                                        {selectedElection?.positions
-                                            ?.filter(pos => !['President', 'Vice President', 'Secretary'].includes(pos))
-                                            .map(pos => (
-                                                <option key={pos} value={pos}>{pos}</option>
-                                            ))
-                                        }
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Description</label>
-                                    <textarea
-                                        className="input w-full bg-black/20 border-white/10"
-                                        value={formData.description}
-                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                        rows={2}
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Manifesto</label>
-                                    <textarea
-                                        className="input w-full bg-black/20 border-white/10"
-                                        value={formData.manifesto}
-                                        onChange={e => setFormData({ ...formData, manifesto: e.target.value })}
-                                        rows={4}
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Photo (Optional)</label>
-                                    <div className="border-2 border-dashed border-white/20 rounded-lg p-8 text-center cursor-pointer hover:border-[var(--primary)] transition-colors relative">
-                                        <input
-                                            type="file"
-                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                            onChange={e => setFormData({ ...formData, photo: e.target.files[0] })}
-                                            accept="image/*"
-                                        />
-                                        <Upload className="mx-auto mb-2 text-gray-400" />
-                                        <p className="text-sm text-gray-400">
-                                            {formData.photo ? formData.photo.name : 'Click or drag to upload photo'}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end gap-3 mt-6">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowAddModal(false)}
-                                        className="btn bg-white/10 hover:bg-white/20"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button type="submit" className="btn btn-primary">
-                                        Add Candidate
-                                    </button>
-                                </div>
-                            </form>
+                            {renderForm(false)}
                         </motion.div>
                     </div>
                 )}
@@ -329,92 +744,10 @@ const CandidateManager = () => {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#1e293b] p-6 rounded-xl w-full max-w-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
+                            className="bg-[#1e293b] p-6 rounded-xl w-full max-w-3xl border border-white/10 max-h-[90vh] overflow-y-auto"
                         >
                             <h2 className="text-xl font-bold mb-4">Edit Candidate</h2>
-                            <form onSubmit={handleUpdateCandidate} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Candidate</label>
-                                    <div className="input w-full bg-black/20 border-white/10 opacity-50">
-                                        {editingCandidate?.User?.firstName} {editingCandidate?.User?.lastName}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Position</label>
-                                    <select
-                                        className="input w-full bg-black/20 border-white/10"
-                                        value={formData.position}
-                                        onChange={e => setFormData({ ...formData, position: e.target.value })}
-                                        required
-                                    >
-                                        <option value="">Select Position</option>
-                                        <option value="President">President</option>
-                                        <option value="Vice President">Vice President</option>
-                                        <option value="Secretary">Secretary</option>
-                                        {selectedElection?.positions
-                                            ?.filter(pos => !['President', 'Vice President', 'Secretary'].includes(pos))
-                                            .map(pos => (
-                                                <option key={pos} value={pos}>{pos}</option>
-                                            ))
-                                        }
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Description</label>
-                                    <textarea
-                                        className="input w-full bg-black/20 border-white/10"
-                                        value={formData.description}
-                                        onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                        rows={2}
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Manifesto</label>
-                                    <textarea
-                                        className="input w-full bg-black/20 border-white/10"
-                                        value={formData.manifesto}
-                                        onChange={e => setFormData({ ...formData, manifesto: e.target.value })}
-                                        rows={4}
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Photo (Optional)</label>
-                                    <div className="border-2 border-dashed border-white/20 rounded-lg p-8 text-center cursor-pointer hover:border-[var(--primary)] transition-colors relative">
-                                        <input
-                                            type="file"
-                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                            onChange={e => setFormData({ ...formData, photo: e.target.files[0] })}
-                                            accept="image/*"
-                                        />
-                                        <Upload className="mx-auto mb-2 text-gray-400" />
-                                        <p className="text-sm text-gray-400">
-                                            {formData.photo ? formData.photo.name : 'Click or drag to upload new photo'}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end gap-3 mt-6">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setShowEditModal(false);
-                                            setEditingCandidate(null);
-                                        }}
-                                        className="btn bg-white/10 hover:bg-white/20"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button type="submit" className="btn btn-primary">
-                                        Update Candidate
-                                    </button>
-                                </div>
-                            </form>
+                            {renderForm(true)}
                         </motion.div>
                     </div>
                 )}

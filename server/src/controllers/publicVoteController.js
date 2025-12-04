@@ -33,7 +33,20 @@ const getActiveElections = async (req, res) => {
                         position: c.position,
                         manifesto: c.manifesto,
                         description: c.description,
-                        photo: c.photo
+                        photo: c.photo,
+                        // New comprehensive fields
+                        slogan: c.slogan || '',
+                        platform: c.platform || [],
+                        phone: c.phone || '',
+                        email: c.email || '',
+                        region: c.region || '',
+                        zone: c.zone || '',
+                        woreda: c.woreda || '',
+                        city: c.city || '',
+                        background: c.background || '',
+                        education: c.education || [],
+                        experience: c.experience || [],
+                        achievements: c.achievements || []
                     }))
                 };
             })

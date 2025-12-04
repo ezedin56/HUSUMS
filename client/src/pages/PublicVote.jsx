@@ -51,203 +51,6 @@ const PublicVote = () => {
         hoverBg: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)'
     };
 
-    // Mock data for demonstration
-    const mockPositions = [
-        {
-            id: 'president',
-            title: 'President',
-            icon: '🏛️',
-            candidates: [
-                {
-                    _id: '1',
-                    name: 'Ezedin Aliyi',
-                    fullName: 'Ezedin Aliyi Mohammed',
-                    department: 'Software Engineering',
-                    year: 'Year 3',
-                    slogan: 'Digital transformation of student services',
-                    platform: ['24/7 Library Access', 'Campus WiFi Expansion', 'Mental Health Support'],
-                    currentSupport: 45,
-                    // Detailed Information
-                    phone: '+251 912 345 678',
-                    email: 'ezedin.aliyi@student.haramaya.edu.et',
-                    region: 'Oromia',
-                    zone: 'East Hararghe',
-                    woreda: 'Haramaya',
-                    city: 'Harar',
-                    background: 'Passionate technology enthusiast with a vision to modernize student union operations through digital innovation.',
-                    education: [
-                        'BSc in Software Engineering (Ongoing) - Haramaya University',
-                        'High School Diploma - Harar Secondary School (2021)'
-                    ],
-                    experience: [
-                        'Class Representative - Software Engineering Department (2023-2024)',
-                        'Member of Computer Science Club (2022-Present)',
-                        'Volunteer at University IT Support Center'
-                    ],
-                    achievements: [
-                        'Led initiative to digitize class attendance system',
-                        'Organized 3 successful tech workshops for students',
-                        'Dean\'s List - Academic Year 2023'
-                    ],
-                    manifesto: `My vision is to transform our student union into a modern, technology-driven organization that serves every student efficiently. 
-
-Key Initiatives:
-1. Digital Student Services Platform
-   - Online request submission for documents
-   - Real-time tracking of applications
-   - Mobile app for union services
-
-2. 24/7 Library Access System
-   - Digital entry cards for students
-   - Extended library hours with security
-   - Online resource booking
-
-3. Campus-Wide WiFi Expansion
-   - Partner with university IT to increase coverage
-   - Free WiFi in all dormitories
-   - Faster internet speeds in common areas
-
-4. Mental Health Support Program
-   - Establish peer counseling network
-   - Monthly mental health awareness sessions
-   - Anonymous support hotline
-
-5. Transparent Budget Management
-   - Monthly financial reports
-   - Online voting for major budget decisions
-   - Open budget dashboard
-
-Together, we can build a union that truly serves every student!`
-                },
-                {
-                    _id: '2',
-                    name: 'Fenet Abdurahman',
-                    fullName: 'Fenet Abdurahman Ahmed',
-                    department: 'Law',
-                    year: 'Year 5',
-                    slogan: 'Strengthening student rights protection',
-                    platform: ['Student Legal Aid Clinic', 'Academic Grievance System', 'Internship Partnerships'],
-                    currentSupport: 55,
-                    // Detailed Information
-                    phone: '+251 923 456 789',
-                    email: 'fenet.abdurahman@student.haramaya.edu.et',
-                    region: 'Oromia',
-                    zone: 'West Hararghe',
-                    woreda: 'Chiro',
-                    city: 'Chiro',
-                    background: 'Dedicated law student with deep understanding of student rights and administrative procedures, committed to ensuring fair treatment for all students.',
-                    education: [
-                        'LLB in Law (Final Year) - Haramaya University',
-                        'High School Diploma - Chiro Preparatory School (2019)'
-                    ],
-                    experience: [
-                        'President of Law Students Association (2023-2024)',
-                        'Legal Aid Volunteer - University Legal Clinic',
-                        'Student Representative - University Disciplinary Committee',
-                        'Intern at Regional Court - Summer 2023'
-                    ],
-                    achievements: [
-                        'Successfully mediated 15+ student-administration disputes',
-                        'Established free legal consultation service for students',
-                        'Won Best Moot Court Competition - National Level',
-                        'Published article on Student Rights in Ethiopian Law Journal'
-                    ],
-                    manifesto: `My commitment is to protect and advance student rights through legal frameworks and advocacy.
-
-Core Pillars:
-1. Student Legal Aid Clinic
-   - Free legal consultation for all students
-   - Assistance with academic appeals
-   - Support for disciplinary hearings
-   - Rights education workshops
-
-2. Comprehensive Academic Grievance System
-   - Clear appeal procedures for grades
-   - Fair hearing process for disciplinary cases
-   - Student representation in administrative decisions
-   - Protection against arbitrary decisions
-
-3. Internship & Career Partnerships
-   - Build relationships with law firms and companies
-   - Secure internship opportunities for all departments
-   - Career guidance and mentorship program
-   - Graduate employment support
-
-4. Student Rights Charter
-   - Document all student rights and responsibilities
-   - Ensure university policies respect student rights
-   - Regular training for union representatives
-
-5. Advocacy & Representation
-   - Strong voice in university senate
-   - Regular feedback sessions with administration
-   - Protection of student interests
-
-Your rights matter. Let's protect them together!`
-                }
-            ]
-        },
-        {
-            id: 'vicePresident',
-            title: 'Vice President',
-            icon: '🤝',
-            candidates: [
-                {
-                    _id: '3',
-                    name: 'Oliyad ayano',
-                    department: 'Information System',
-                    year: 'Year 3',
-                    slogan: 'Building bridges across departments',
-                    platform: ['Inter-Department Events', 'Student Welfare Programs', 'Budget Transparency'],
-                    currentSupport: 60
-                },
-                {
-                    _id: '4',
-                    name: 'Maria Solomon',
-                    department: 'Medicine',
-                    year: 'Year 4',
-                    slogan: 'Health and wellness for all',
-                    platform: ['Health Insurance Support', 'Fitness Programs', 'Mental Health Awareness'],
-                    currentSupport: 40
-                }
-            ]
-        },
-        {
-            id: 'generalSecretary',
-            title: 'General Secretary',
-            icon: '📝',
-            candidates: [
-                {
-                    _id: '5',
-                    name: 'Nuhamin ',
-                    department: 'Software Engineering',
-                    year: 'Year 3',
-                    slogan: 'Efficient administration for better service',
-                    platform: ['Digital Record System', 'Faster Processing', 'Student Feedback Portal'],
-                    currentSupport: 40
-                },
-                {
-                    _id: '6',
-                    name: 'Fenet Tasmesgen',
-                    department: 'Software Engineering',
-                    year: 'Year 3',
-                    slogan: 'Transparency and accountability',
-                    platform: ['Open Budget Reports', 'Monthly Town Halls', 'Anonymous Suggestion Box'],
-                    currentSupport: 60
-                },
-                {
-                    _id: '7',
-                    name: 'Sultan adinan',
-                    department: 'Software Engineering',
-                    year: 'Year 3',
-                    slogan: 'Transparency and accountability',
-                    platform: ['Open Budget Reports', 'Monthly Town Halls', 'Anonymous Suggestion Box'],
-                    currentSupport: 60
-                }
-            ]
-        }
-    ];
-
     useEffect(() => {
         const savedStudentId = localStorage.getItem('husums_student_id');
         const savedFullName = localStorage.getItem('husums_full_name');
@@ -279,11 +82,75 @@ Your rights matter. Let's protect them together!`
     const fetchElections = async () => {
         try {
             const response = await fetch(`${API_URL}/public/elections/active`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch elections');
+            }
             const data = await response.json();
-            setElections(data);
+
+            // Transform API data to match component structure
+            // Group candidates by position
+            const positionsMap = {};
+
+            data.forEach(election => {
+                election.candidates.forEach(candidate => {
+                    const position = candidate.position;
+
+                    if (!positionsMap[position]) {
+                        positionsMap[position] = {
+                            id: position.toLowerCase().replace(/\s+/g, ''),
+                            title: position,
+                            icon: getPositionIcon(position),
+                            electionId: election.id,
+                            candidates: []
+                        };
+                    }
+
+                    // Transform candidate data
+                    positionsMap[position].candidates.push({
+                        _id: candidate.id,
+                        name: candidate.name,
+                        fullName: candidate.name,
+                        department: 'Student',
+                        year: '',
+                        slogan: candidate.slogan || candidate.description || 'Vote for change',
+                        platform: candidate.platform && candidate.platform.length > 0
+                            ? candidate.platform
+                            : (candidate.manifesto ? candidate.manifesto.split('\n').filter(line => line.trim().startsWith('-')).map(line => line.trim().substring(1).trim()).slice(0, 3) : ['Leadership', 'Innovation', 'Service']),
+                        currentSupport: 0,
+                        photo: candidate.photo,
+                        manifesto: candidate.manifesto || '',
+                        description: candidate.description || '',
+                        // New detailed fields
+                        phone: candidate.phone || '',
+                        email: candidate.email || '',
+                        region: candidate.region || '',
+                        zone: candidate.zone || '',
+                        woreda: candidate.woreda || '',
+                        city: candidate.city || '',
+                        background: candidate.background || '',
+                        education: candidate.education || [],
+                        experience: candidate.experience || [],
+                        achievements: candidate.achievements || []
+                    });
+                });
+            });
+
+            const positions = Object.values(positionsMap);
+            setElections(positions);
         } catch (err) {
-            console.log('Using mock data for demonstration');
+            console.error('Error fetching elections:', err);
+            setError('Failed to load elections. Please try again later.');
         }
+    };
+
+    // Helper function to get icon for position
+    const getPositionIcon = (position) => {
+        const positionLower = position.toLowerCase();
+        if (positionLower.includes('president') && !positionLower.includes('vice')) return '🏛️';
+        if (positionLower.includes('vice')) return '🤝';
+        if (positionLower.includes('secretary')) return '📝';
+        if (positionLower.includes('treasurer')) return '💰';
+        return '👤';
     };
 
     const handleVerify = async (e) => {
@@ -362,8 +229,28 @@ Your rights matter. Let's protect them together!`
         setError('');
 
         try {
-            // In production, submit to API
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const position = elections.find(p => p.id === confirmingPosition);
+            const candidateId = selectedVotes[confirmingPosition];
+
+            // Submit vote to API
+            const response = await fetch(`${API_URL}/public/vote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    studentId,
+                    fullName,
+                    votes: [{
+                        electionId: position.electionId,
+                        candidateId: candidateId
+                    }]
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to submit vote');
+            }
 
             setSubmittedPositions(prev => ({
                 ...prev,
@@ -374,7 +261,7 @@ Your rights matter. Let's protect them together!`
             setConfirmingPosition(null);
 
             // Check if all positions are submitted
-            const allSubmitted = mockPositions.every(p => submittedPositions[p.id] || p.id === confirmingPosition);
+            const allSubmitted = elections.every(p => submittedPositions[p.id] || p.id === confirmingPosition);
             if (allSubmitted) {
                 localStorage.removeItem('husums_student_id');
                 localStorage.removeItem('husums_full_name');
@@ -389,14 +276,14 @@ Your rights matter. Let's protect them together!`
     };
 
     const getSelectedCandidateName = (positionId) => {
-        const position = mockPositions.find(p => p.id === positionId);
+        const position = elections.find(p => p.id === positionId);
         const candidateId = selectedVotes[positionId];
         const candidate = position?.candidates.find(c => c._id === candidateId);
         return candidate?.name || 'Not Selected';
     };
 
     const getSubmittedCount = () => Object.keys(submittedPositions).length;
-    const getTotalPositions = () => mockPositions.length;
+    const getTotalPositions = () => elections.length;
 
     return (
         <div style={{ minHeight: '100vh', background: theme.bg, fontFamily: "'Inter', sans-serif", transition: 'background 0.3s' }}>
@@ -674,7 +561,7 @@ Your rights matter. Let's protect them together!`
                                         <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: theme.text, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                             📋 BALLOT PROGRESS
                                         </h4>
-                                        {mockPositions.map(position => (
+                                        {elections.map(position => (
                                             <div key={position.id} style={{ marginBottom: '10px', fontSize: '0.85rem' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: theme.text }}>
                                                     <span style={{ color: theme.textSecondary }}>{position.icon} {position.title}:</span>
@@ -720,7 +607,7 @@ Your rights matter. Let's protect them together!`
 
                             {/* Main Voting Area */}
                             <main style={{ flex: 1, minWidth: 0 }}>
-                                {mockPositions.map((position) => (
+                                {elections.map((position) => (
                                     <section key={position.id} style={{
                                         background: theme.cardBg,
                                         borderRadius: '16px',
@@ -810,7 +697,7 @@ Your rights matter. Let's protect them together!`
                                                             width: '80px',
                                                             height: '80px',
                                                             borderRadius: '50%',
-                                                            background: isSelected ? theme.primary : theme.border,
+                                                            backgroundColor: isSelected ? theme.primary : theme.border,
                                                             color: isSelected ? 'white' : theme.textSecondary,
                                                             display: 'flex',
                                                             alignItems: 'center',
@@ -818,9 +705,13 @@ Your rights matter. Let's protect them together!`
                                                             fontSize: '2rem',
                                                             fontWeight: '800',
                                                             margin: '0 auto 14px',
-                                                            border: `3px solid ${isSelected ? theme.primaryHover : theme.border}`
+                                                            border: `3px solid ${isSelected ? theme.primaryHover : theme.border}`,
+                                                            overflow: 'hidden',
+                                                            backgroundImage: candidate.photo ? `url(http://localhost:5000${candidate.photo})` : 'none',
+                                                            backgroundSize: 'cover',
+                                                            backgroundPosition: 'center'
                                                         }}>
-                                                            {candidate.name.split(' ').map(n => n[0]).join('')}
+                                                            {!candidate.photo && candidate.name.split(' ').map(n => n[0]).join('')}
                                                         </div>
 
                                                         <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: theme.text, margin: '0 0 4px 0', textAlign: 'center' }}>
@@ -936,7 +827,7 @@ Your rights matter. Let's protect them together!`
                                                     maxWidth: '400px'
                                                 }}>
                                                     <div style={{ fontSize: '0.9rem', color: theme.text, fontWeight: '600', marginBottom: '4px' }}>
-                                                        ✓ Selected: {mockPositions.find(p => p.id === position.id)?.candidates.find(c => c._id === selectedVotes[position.id])?.name}
+                                                        ✓ Selected: {elections.find(p => p.id === position.id)?.candidates.find(c => c._id === selectedVotes[position.id])?.name}
                                                     </div>
                                                     <div style={{ fontSize: '0.75rem', color: theme.textSecondary }}>
                                                         Ready to submit your vote for {position.title}?
@@ -1221,11 +1112,11 @@ Your rights matter. Let's protect them together!`
                         <div style={{ background: theme.bg, borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <span style={{ fontSize: '1.5rem' }}>
-                                    {mockPositions.find(p => p.id === confirmingPosition)?.icon}
+                                    {elections.find(p => p.id === confirmingPosition)?.icon}
                                 </span>
                                 <div>
                                     <div style={{ fontSize: '0.8rem', color: theme.textSecondary }}>
-                                        {mockPositions.find(p => p.id === confirmingPosition)?.title}:
+                                        {elections.find(p => p.id === confirmingPosition)?.title}:
                                     </div>
                                     <div style={{ fontSize: '1rem', fontWeight: '700', color: theme.text }}>
                                         {getSelectedCandidateName(confirmingPosition)}
@@ -1448,7 +1339,7 @@ Your rights matter. Let's protect them together!`
                                 {selectedCandidate.fullName || selectedCandidate.name}
                             </h2>
                             <div style={{ fontSize: '1.1rem', color: theme.primary, fontWeight: '600', marginBottom: '8px' }}>
-                                Candidate for {mockPositions.find(p => p.candidates.some(c => c._id === selectedCandidate._id))?.title || 'Position'}
+                                Candidate for {elections.find(p => p.candidates.some(c => c._id === selectedCandidate._id))?.title || 'Position'}
                             </div>
                             <div style={{ fontSize: '0.95rem', color: theme.textSecondary }}>
                                 {selectedCandidate.department} • {selectedCandidate.year}
