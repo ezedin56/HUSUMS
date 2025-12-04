@@ -23,9 +23,13 @@ const Elections = () => {
             const electionsWithStatus = await Promise.all(res.map(async (election) => {
                 try {
                     const status = await api.get(`/vote/status/${election._id}`);
-                    return { ...election, hasVoted: status.hasVoted };
+                    return {
+                        ...election,
+                        hasVoted: status.hasVoted,
+                        votedPositions: status.votedPositions || []
+                    };
                 } catch (err) {
-                    return { ...election, hasVoted: false };
+                    return { ...election, hasVoted: false, votedPositions: [] };
                 }
             }));
             setActiveElections(electionsWithStatus);
@@ -37,7 +41,8 @@ const Elections = () => {
     };
 
     const handleVoteClick = async (election) => {
-        if (election.hasVoted) return;
+        // Allow entry if not all positions are voted (logic can be refined if we know total positions, 
+        // but for now we allow entry unless explicitly blocked by backend or UI logic)
         setSelectedElection(election);
         try {
             const res = await api.get(`/candidates/${election._id}`);
@@ -56,18 +61,31 @@ const Elections = () => {
                 candidateId: selectedCandidate._id
             });
             setVoteSuccess(true);
+
+            // Update local state to reflect the new vote immediately
+            const updatedVotedPositions = [...(selectedElection.votedPositions || []), selectedCandidate.position];
+            setSelectedElection(prev => ({
+                ...prev,
+                votedPositions: updatedVotedPositions
+            }));
+
             setTimeout(() => {
                 setVoteSuccess(false);
-                setSelectedElection(null);
                 setSelectedCandidate(null);
-                fetchElections(); // Refresh status
-            }, 3000);
+                // Don't close the election view immediately, let them vote for others
+                // But refresh the election list in background
+                fetchElections();
+            }, 2000);
         } catch (error) {
             alert(error.response?.data?.message || 'Failed to submit vote');
         } finally {
             setSubmitting(false);
         }
     };
+
+    // Helper to check if all positions in the current candidate list are voted
+    const allPositionsVoted = selectedElection && candidates.length > 0 &&
+        [...new Set(candidates.map(c => c.position))].every(pos => selectedElection.votedPositions?.includes(pos));
 
     return (
         <div className="relative min-h-screen p-6 overflow-hidden">
@@ -105,7 +123,7 @@ const Elections = () => {
                         <Clock className="text-blue-500" />
                         Active Elections
                     </h2>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                         {loading ? (
                             <div className="col-span-full text-center py-12 text-gray-500">Loading elections...</div>
@@ -129,7 +147,7 @@ const Elections = () => {
                                             Live
                                         </span>
                                     </div>
-                                    
+
                                     <h3 className="text-xl font-bold mb-2 pr-16">{election.title}</h3>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 line-clamp-2">
                                         {election.description}
@@ -140,18 +158,20 @@ const Elections = () => {
                                             <Calendar size={16} className="text-blue-500" />
                                             <span>Ends: {new Date(election.endDate).toLocaleDateString()}</span>
                                         </div>
+                                        {election.votedPositions && election.votedPositions.length > 0 && (
+                                            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+                                                <CheckCircle size={16} className="text-green-500" />
+                                                <span>Voted for: {election.votedPositions.join(', ')}</span>
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <button 
+                                    <button
                                         onClick={() => handleVoteClick(election)}
-                                        disabled={election.hasVoted}
                                         className={`w-full py-3 px-4 rounded-xl font-medium transition-all transform active:scale-95
-                                            ${election.hasVoted 
-                                                ? 'bg-gray-100 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' 
-                                                : 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50'
-                                            }`}
+                                            bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50`}
                                     >
-                                        {election.hasVoted ? 'Voted' : 'Vote Now'}
+                                        {election.hasVoted ? 'Continue Voting' : 'Vote Now'}
                                     </button>
                                 </motion.div>
                             ))
@@ -164,7 +184,7 @@ const Elections = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="max-w-4xl mx-auto"
                 >
-                    <button 
+                    <button
                         onClick={() => setSelectedElection(null)}
                         className="mb-6 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center gap-2"
                     >
@@ -173,7 +193,7 @@ const Elections = () => {
                     </button>
 
                     {voteSuccess ? (
-                        <motion.div 
+                        <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className="text-center py-20 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-3xl border border-green-200 dark:border-green-900"
@@ -182,40 +202,67 @@ const Elections = () => {
                                 <CheckCircle size={40} className="text-green-500" />
                             </div>
                             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Vote Submitted!</h2>
-                            <p className="text-gray-500 dark:text-gray-400">Thank you for participating in this election.</p>
+                            <p className="text-gray-500 dark:text-gray-400">Your vote has been recorded.</p>
                         </motion.div>
                     ) : (
                         <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-md rounded-3xl p-8 border border-gray-200 dark:border-gray-700 shadow-xl">
                             <h2 className="text-2xl font-bold mb-2">{selectedElection.title}</h2>
                             <p className="text-gray-500 dark:text-gray-400 mb-8">Select your preferred candidate below.</p>
 
+                            {allPositionsVoted && (
+                                <div className="mb-6 p-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-xl flex items-center gap-3">
+                                    <CheckCircle size={24} />
+                                    <span>You have voted for all available positions in this election.</span>
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                {candidates.map((candidate) => (
-                                    <motion.div
-                                        key={candidate._id}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => setSelectedCandidate(candidate)}
-                                        className={`cursor-pointer p-6 rounded-2xl border-2 transition-all
-                                            ${selectedCandidate?._id === candidate._id 
-                                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                                                : 'border-transparent bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xl font-bold">
-                                                {candidate.user?.firstName?.[0]}
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-lg">{candidate.user?.firstName} {candidate.user?.lastName}</h3>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">{candidate.manifesto || 'No manifesto provided'}</p>
-                                            </div>
-                                            {selectedCandidate?._id === candidate._id && (
-                                                <CheckCircle className="ml-auto text-blue-500" size={24} />
+                                {candidates.map((candidate) => {
+                                    const isVotedPosition = selectedElection.votedPositions?.includes(candidate.position);
+                                    const isSelected = selectedCandidate?._id === candidate._id;
+
+                                    return (
+                                        <motion.div
+                                            key={candidate._id}
+                                            whileHover={!isVotedPosition ? { scale: 1.02 } : {}}
+                                            whileTap={!isVotedPosition ? { scale: 0.98 } : {}}
+                                            onClick={() => !isVotedPosition && setSelectedCandidate(candidate)}
+                                            className={`relative p-6 rounded-2xl border-2 transition-all
+                                                ${isVotedPosition
+                                                    ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800'
+                                                    : 'cursor-pointer'
+                                                }
+                                                ${isSelected
+                                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                                    : !isVotedPosition && 'border-transparent bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                                                }`}
+                                        >
+                                            {isVotedPosition && (
+                                                <div className="absolute top-4 right-4 px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs font-bold text-gray-500">
+                                                    VOTED
+                                                </div>
                                             )}
-                                        </div>
-                                    </motion.div>
-                                ))}
+
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xl font-bold">
+                                                    {candidate.user?.firstName?.[0]}
+                                                </div>
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <h3 className="font-bold text-lg">{candidate.user?.firstName} {candidate.user?.lastName}</h3>
+                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                                            {candidate.position}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{candidate.manifesto || 'No manifesto provided'}</p>
+                                                </div>
+                                                {isSelected && (
+                                                    <CheckCircle className="ml-auto text-blue-500" size={24} />
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
                             </div>
 
                             <div className="flex justify-end">

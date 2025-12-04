@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, CheckCircle, XCircle, Search, Filter, Download, User, Clock, AlertTriangle, CheckSquare, FileText } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Search, Filter, Download, User, Clock, AlertTriangle, CheckSquare, FileText, Play, Square, Timer } from 'lucide-react';
 import { api } from '../../../utils/api';
+import SessionTimer from '../../../components/attendance/SessionTimer';
+import { useToast, ToastContainer } from '../../../components/Toast';
 
 const Attendance = () => {
     const [attendanceData, setAttendanceData] = useState([]);
@@ -10,14 +12,76 @@ const Attendance = () => {
     const [departmentFilter, setDepartmentFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-    
+
+    // Session State
+    const [activeSession, setActiveSession] = useState(null);
+    const [showStartModal, setShowStartModal] = useState(false);
+    const [newSessionData, setNewSessionData] = useState({ title: '', endTime: '' });
+    const toast = useToast();
+
     // Confirmation Modal State
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [pendingAction, setPendingAction] = useState(null);
 
     useEffect(() => {
         fetchAttendance();
+        fetchActiveSession();
     }, [selectedDate]);
+
+    const fetchActiveSession = async () => {
+        try {
+            const res = await api.get('/attendance/sessions/active');
+            setActiveSession(res);
+        } catch (error) {
+            if (error.response?.status !== 404) {
+                console.error('Error fetching active session:', error);
+            }
+            setActiveSession(null);
+        }
+    };
+
+    const handleStartSession = async () => {
+        if (!newSessionData.title || !newSessionData.endTime) {
+            toast.error('Please fill in all fields');
+            return;
+        }
+
+        try {
+            const today = new Date();
+            const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+            await api.post('/attendance/sessions', {
+                title: newSessionData.title,
+                endTime: newSessionData.endTime,
+                startTime: today.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+                scheduledDay: days[today.getDay()],
+                date: today.toISOString().split('T')[0]
+            });
+
+            toast.success('Session started successfully');
+            setShowStartModal(false);
+            setNewSessionData({ title: '', endTime: '' });
+            fetchActiveSession();
+            fetchAttendance(); // Refresh to link records
+        } catch (error) {
+            console.error('Error starting session:', error);
+            toast.error(error.response?.data?.message || 'Failed to start session');
+        }
+    };
+
+    const handleEndSession = async () => {
+        if (!window.confirm('Are you sure you want to end the current session?')) return;
+
+        try {
+            await api.patch(`/attendance/sessions/${activeSession._id}/close`);
+            toast.success('Session ended successfully');
+            setActiveSession(null);
+            fetchAttendance(); // Refresh to show updated stats
+        } catch (error) {
+            console.error('Error ending session:', error);
+            toast.error('Failed to end session');
+        }
+    };
 
     const fetchAttendance = async () => {
         try {
@@ -48,11 +112,11 @@ const Attendance = () => {
                 date: selectedDate
             });
             // Optimistic update
-            setAttendanceData(prev => prev.map(item => 
-                item._id === userId ? { 
-                    ...item, 
-                    status, 
-                    checkInTime: ['present', 'late', 'permission'].includes(status) ? new Date().toLocaleTimeString('en-US', { hour12: false }) : null 
+            setAttendanceData(prev => prev.map(item =>
+                item._id === userId ? {
+                    ...item,
+                    status,
+                    checkInTime: ['present', 'late', 'permission'].includes(status) ? new Date().toLocaleTimeString('en-US', { hour12: false }) : null
                 } : item
             ));
             setShowConfirmModal(false);
@@ -108,7 +172,7 @@ const Attendance = () => {
 
     const filteredData = attendanceData.filter(record => {
         const matchesSearch = (record.firstName + ' ' + record.lastName).toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            record.studentId.toLowerCase().includes(searchTerm.toLowerCase());
+            record.studentId.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesFilter = filter === 'all' || record.status === filter;
         const matchesDepartment = departmentFilter === 'all' || record.department === departmentFilter;
         return matchesSearch && matchesFilter && matchesDepartment;
@@ -150,6 +214,62 @@ const Attendance = () => {
                 <p className="text-gray-500 dark:text-gray-400">
                     Mark and monitor member attendance.
                 </p>
+            </motion.div>
+
+            <ToastContainer toasts={toast.toasts} removeToast={toast.removeToast} />
+
+            {/* Active Session Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-8 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl p-6"
+            >
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className={`p-4 rounded-full ${activeSession ? 'bg-green-500/10 text-green-500' : 'bg-gray-500/10 text-gray-500'}`}>
+                            <Timer size={32} className={activeSession ? 'animate-pulse' : ''} />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                {activeSession ? activeSession.title : 'No Active Session'}
+                            </h2>
+                            <p className="text-gray-500 dark:text-gray-400">
+                                {activeSession
+                                    ? `Started at ${activeSession.startTime} • Ends at ${activeSession.endTime}`
+                                    : 'Start a session to track attendance automatically.'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        {activeSession ? (
+                            <>
+                                <SessionTimer
+                                    endTime={activeSession.endTime}
+                                    onExpire={() => {
+                                        toast.info('Session time expired. Closing session...');
+                                        fetchActiveSession();
+                                    }}
+                                />
+                                <button
+                                    onClick={handleEndSession}
+                                    className="flex items-center gap-2 px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20"
+                                >
+                                    <Square size={20} fill="currentColor" />
+                                    End Session
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => setShowStartModal(true)}
+                                className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all shadow-lg shadow-green-500/20"
+                            >
+                                <Play size={20} fill="currentColor" />
+                                Start New Session
+                            </button>
+                        )}
+                    </div>
+                </div>
             </motion.div>
 
             {/* Stats Cards */}
@@ -196,13 +316,13 @@ const Attendance = () => {
                     />
                 </div>
                 <div className="flex flex-wrap gap-3 items-center justify-end w-full lg:w-auto">
-                    <input 
-                        type="date" 
+                    <input
+                        type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         className="px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 outline-none"
                     />
-                    <select 
+                    <select
                         value={departmentFilter}
                         onChange={(e) => setDepartmentFilter(e.target.value)}
                         className="px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 outline-none"
@@ -212,7 +332,7 @@ const Attendance = () => {
                             <option key={dept} value={dept}>{dept}</option>
                         ))}
                     </select>
-                    <select 
+                    <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                         className="px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 outline-none"
@@ -286,9 +406,9 @@ const Attendance = () => {
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
                                                 ${record.status === 'present' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                                                record.status === 'permission' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                                                record.status === 'absent' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                                                'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400'}`}>
+                                                    record.status === 'permission' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                                                        record.status === 'absent' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                                            'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400'}`}>
                                                 {record.status === 'present' && <CheckCircle size={12} />}
                                                 {record.status === 'permission' && <AlertTriangle size={12} />}
                                                 {record.status === 'absent' && <XCircle size={12} />}
@@ -300,21 +420,21 @@ const Attendance = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex gap-2">
-                                                <button 
+                                                <button
                                                     onClick={() => initiateMarkAttendance(record._id, 'present')}
                                                     className={`p-2 rounded-lg transition-colors ${record.status === 'present' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-green-100 hover:text-green-600 dark:bg-gray-700 dark:hover:bg-green-900/30'}`}
                                                     title="Mark Present"
                                                 >
                                                     <CheckCircle size={18} />
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={() => initiateMarkAttendance(record._id, 'permission')}
                                                     className={`p-2 rounded-lg transition-colors ${record.status === 'permission' ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-yellow-100 hover:text-yellow-600 dark:bg-gray-700 dark:hover:bg-yellow-900/30'}`}
                                                     title="Mark Permission"
                                                 >
                                                     <AlertTriangle size={18} />
                                                 </button>
-                                                <button 
+                                                <button
                                                     onClick={() => initiateMarkAttendance(record._id, 'absent')}
                                                     className={`p-2 rounded-lg transition-colors ${record.status === 'absent' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-red-100 hover:text-red-600 dark:bg-gray-700 dark:hover:bg-red-900/30'}`}
                                                     title="Mark Absent"
@@ -368,6 +488,69 @@ const Attendance = () => {
                                     className="px-4 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-600 transition-colors"
                                 >
                                     Confirm Update
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Start Session Modal */}
+            <AnimatePresence>
+                {showStartModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-xl border border-gray-200 dark:border-gray-700"
+                        >
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Start New Session</h3>
+                                <button onClick={() => setShowStartModal(false)} className="text-gray-500 hover:text-gray-700">
+                                    <XCircle size={24} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4 mb-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Session Title</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g., Weekly Meeting"
+                                        value={newSessionData.title}
+                                        onChange={(e) => setNewSessionData({ ...newSessionData, title: e.target.value })}
+                                        className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Time</label>
+                                    <input
+                                        type="time"
+                                        value={newSessionData.endTime}
+                                        onChange={(e) => setNewSessionData({ ...newSessionData, endTime: e.target.value })}
+                                        className="w-full px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setShowStartModal(false)}
+                                    className="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleStartSession}
+                                    className="px-6 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors font-medium"
+                                >
+                                    Start Session
                                 </button>
                             </div>
                         </motion.div>

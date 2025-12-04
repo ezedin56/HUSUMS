@@ -74,6 +74,11 @@ const CandidateManager = () => {
     const handleAddCandidate = async (e) => {
         e.preventDefault();
 
+        if (!formData.userId) {
+            alert('Please select a user');
+            return;
+        }
+
         const data = new FormData();
         data.append('userId', formData.userId);
         data.append('position', formData.position);
@@ -89,9 +94,24 @@ const CandidateManager = () => {
             alert('Candidate added successfully');
             setShowAddModal(false);
             setFormData({ userId: '', position: '', manifesto: '', description: '', photo: null });
+            setUserSearch('');
             fetchElections(); // Refresh to get updated candidates
         } catch (error) {
             alert('Error adding candidate: ' + error.message);
+        }
+    };
+
+    const handleDeleteCandidate = async (candidateId) => {
+        if (!window.confirm('Are you sure you want to delete this candidate?')) {
+            return;
+        }
+
+        try {
+            await api.delete(`/president/candidates/${candidateId}`);
+            alert('Candidate deleted successfully');
+            fetchElections(); // Refresh to update candidates list
+        } catch (error) {
+            alert('Error deleting candidate: ' + error.message);
         }
     };
 
@@ -157,9 +177,12 @@ const CandidateManager = () => {
                                 <p className="text-sm text-gray-400 line-clamp-3 mb-4">
                                     {candidate.description}
                                 </p>
-                                {/* <button className="mt-auto btn btn-sm bg-red-500/20 text-red-400 hover:bg-red-500/30 w-full flex items-center justify-center gap-2">
+                                <button
+                                    onClick={() => handleDeleteCandidate(candidate.id)}
+                                    className="mt-auto btn btn-sm bg-red-500/20 text-red-400 hover:bg-red-500/30 w-full flex items-center justify-center gap-2"
+                                >
                                     <Trash2 size={16} /> Remove
-                                </button> */}
+                                </button>
                             </motion.div>
                         ))
                     )}
@@ -194,6 +217,7 @@ const CandidateManager = () => {
                                         required
                                         size={5}
                                     >
+                                        <option value="">-- Select a User --</option>
                                         {users
                                             .filter(u =>
                                                 u.firstName.toLowerCase().includes(userSearch.toLowerCase()) ||
@@ -218,9 +242,17 @@ const CandidateManager = () => {
                                         required
                                     >
                                         <option value="">Select Position</option>
-                                        {selectedElection?.positions.map(pos => (
-                                            <option key={pos} value={pos}>{pos}</option>
-                                        ))}
+                                        {/* Default positions */}
+                                        <option value="President">President</option>
+                                        <option value="Vice President">Vice President</option>
+                                        <option value="Secretary">Secretary</option>
+                                        {/* Additional positions from election if any */}
+                                        {selectedElection?.positions
+                                            ?.filter(pos => !['President', 'Vice President', 'Secretary'].includes(pos))
+                                            .map(pos => (
+                                                <option key={pos} value={pos}>{pos}</option>
+                                            ))
+                                        }
                                     </select>
                                 </div>
 

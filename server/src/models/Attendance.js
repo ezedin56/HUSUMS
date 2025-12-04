@@ -6,6 +6,10 @@ const attendanceSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    sessionId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AttendanceSession'
+    },
     date: {
         type: Date,
         required: true

@@ -1,0 +1,19 @@
+/* Override for President Dashboard - Make election cards visible */
+.card {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.card h4,
+.card h3,
+.card p,
+.card span {
+    color: #000000 !important;
+}
+
+/* Make sure text in cards is black */
+.card .text-\[var\(--text-secondary\)\] {
+    color: #4b5563 !important;
+}

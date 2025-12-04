@@ -11,7 +11,8 @@ import {
     EyeOff,
     ChevronDown,
     ChevronUp,
-    User
+    User,
+    Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GridBackground from '../../components/GridBackground';
@@ -95,6 +96,20 @@ const ElectionManager = () => {
             ...prev,
             [electionId]: !prev[electionId]
         }));
+    };
+
+    const handleDeleteElection = async (electionId) => {
+        if (!window.confirm('Are you sure you want to delete this election? This will delete all candidates and votes permanently.')) {
+            return;
+        }
+
+        try {
+            await api.delete(`/president/elections/${electionId}`);
+            alert('Election deleted successfully');
+            fetchElections();
+        } catch (error) {
+            alert('Error deleting election: ' + error.message);
+        }
     };
 
     return (
@@ -220,6 +235,15 @@ const ElectionManager = () => {
                                                 {expandedElections[election._id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                                                 {expandedElections[election._id] ? 'Hide' : 'View'} Candidates
                                             </button>
+
+                                            {election.status === 'completed' && (
+                                                <button
+                                                    onClick={() => handleDeleteElection(election._id)}
+                                                    className="btn btn-sm bg-red-500/20 text-red-400 hover:bg-red-500/30 flex items-center justify-center gap-2"
+                                                >
+                                                    <Trash2 size={16} /> Delete
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

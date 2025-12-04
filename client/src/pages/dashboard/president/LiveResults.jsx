@@ -10,7 +10,7 @@ const LiveResults = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (electionId) {
+        if (electionId && electionId !== 'undefined') {
             fetchResults();
             fetchAnalytics();
             // Refresh every 10 seconds for live updates
@@ -19,6 +19,8 @@ const LiveResults = () => {
                 fetchAnalytics();
             }, 10000);
             return () => clearInterval(interval);
+        } else {
+            setLoading(false);
         }
     }, [electionId]);
 
