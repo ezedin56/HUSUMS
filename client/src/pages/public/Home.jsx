@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    FaUniversity, FaVoteYea, FaCalendarAlt, FaUsers, FaBook, FaMoon, FaSun,
+    FaUniversity, FaVoteYea, FaCalendarAlt, FaUsers, FaBook,
     FaFacebook, FaTwitter, FaInstagram, FaTelegram, FaEnvelope, FaPhone, FaMapMarkerAlt,
     FaHandshake, FaBullhorn, FaGavel, FaUserTie, FaCode, FaGithub, FaLinkedin,
     FaScroll, FaChartBar, FaSearch, FaCheckCircle, FaBalanceScale, FaGraduationCap,
@@ -10,16 +10,12 @@ import {
 } from 'react-icons/fa';
 import { SiReact, SiNodedotjs, SiMongodb, SiExpress, SiTailwindcss } from 'react-icons/si';
 import loginBg from '../../assets/images/login-bg.jpg';
-import ezedinImg from '../../assets/images/ezedin.jpg';
+import ezedinImg from '../../assets/images/ezedin_new.png';
 import sultanImg from '../../assets/images/sultan.png';
 
 const Home = () => {
-    const [darkMode, setDarkMode] = useState(() => {
-        const savedTheme = localStorage.getItem('theme');
-        return savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    });
-
     const [scrolled, setScrolled] = useState(false);
+    const darkMode = true;
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeDepartment, setActiveDepartment] = useState(0);
 
@@ -30,24 +26,18 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-        if (darkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, [darkMode]);
-
-    const toggleTheme = () => setDarkMode(!darkMode);
+        // Force dark mode always
+        document.documentElement.classList.add('dark');
+    }, []);
 
     const theme = {
-        bg: darkMode ? '#0f172a' : '#f8fafc',
-        text: darkMode ? '#f1f5f9' : '#1e293b',
+        bg: '#0f172a',
+        text: '#f1f5f9',
         primary: '#00ff00',
         secondary: '#00aaff',
-        cardBg: darkMode ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.8)',
-        navBg: darkMode ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-        border: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+        cardBg: 'rgba(30, 41, 59, 0.7)',
+        navBg: 'rgba(15, 23, 42, 0.9)',
+        border: 'rgba(255, 255, 255, 0.1)'
     };
 
     const sections = [
@@ -139,9 +129,7 @@ const Home = () => {
                             {item.label}
                         </a>
                     ))}
-                    <button onClick={toggleTheme} style={{ background: 'none', border: 'none', color: theme.text, cursor: 'pointer', fontSize: '1.2rem' }}>
-                        {darkMode ? <FaSun /> : <FaMoon />}
-                    </button>
+
                     <Link to="/login" style={{
                         padding: '0.5rem 1.5rem', borderRadius: '50px', background: theme.primary, color: '#000', fontWeight: '700', textDecoration: 'none', transition: 'transform 0.2s'
                     }} onMouseOver={e => e.target.style.transform = 'scale(1.05)'} onMouseOut={e => e.target.style.transform = 'scale(1)'}>
@@ -245,29 +233,6 @@ const Home = () => {
                                     </a>
                                 ))}
                             </div>
-
-                            {/* Theme Toggle */}
-                            <button
-                                onClick={toggleTheme}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.8rem 1rem',
-                                    borderRadius: '10px',
-                                    background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                                    border: 'none',
-                                    color: theme.text,
-                                    fontSize: '1rem',
-                                    fontWeight: '600',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '0.5rem',
-                                    marginBottom: '1rem'
-                                }}
-                            >
-                                {darkMode ? <><FaSun /> Light Mode</> : <><FaMoon /> Dark Mode</>}
-                            </button>
 
                             {/* Login Button */}
                             <Link
