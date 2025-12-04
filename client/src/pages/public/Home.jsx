@@ -12,12 +12,16 @@ import { SiReact, SiNodedotjs, SiMongodb, SiExpress, SiTailwindcss } from 'react
 import loginBg from '../../assets/images/login-bg.jpg';
 import ezedinImg from '../../assets/images/ezedin_new.png';
 import sultanImg from '../../assets/images/sultan.png';
+import ConstitutionModal from '../../components/ConstitutionModal';
+import VotersGuideModal from '../../components/VotersGuideModal';
 
 const Home = () => {
     const [scrolled, setScrolled] = useState(false);
     const darkMode = true;
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeDepartment, setActiveDepartment] = useState(0);
+    const [constitutionModalOpen, setConstitutionModalOpen] = useState(false);
+    const [votersGuideModalOpen, setVotersGuideModalOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -274,20 +278,20 @@ const Home = () => {
                     </p>
                     <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                         <Link to="/public-vote" style={{
-                            padding: '1rem 2.5rem', borderRadius: '50px', background: 'linear-gradient(90deg, #00ff00, #00cc00)', color: '#fff', fontWeight: '700', textDecoration: 'none', fontSize: '1.1rem', transition: 'transform 0.2s', boxShadow: '0 0 20px rgba(0, 255, 0, 0.4)', border: 'none'
+                            padding: '1rem 2.5rem', borderRadius: '50px', background: 'linear-gradient(90deg, #00ff00, #00cc00)', color: '#FFFFFF', fontWeight: '900', textDecoration: 'none', fontSize: '1.3rem', transition: 'all 0.3s', boxShadow: '0 0 20px rgba(0, 255, 0, 0.4)', border: 'none', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.5)', letterSpacing: '0.5px'
                         }} onMouseOver={e => { e.target.style.transform = 'translateY(-3px)'; e.target.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.6)' }} onMouseOut={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.4)' }}>
                             Vote Now
                         </Link>
                         <a href="#about" style={{
-                            padding: '1rem 2.5rem', borderRadius: '50px', background: theme.primary, color: '#000', fontWeight: '700', textDecoration: 'none', fontSize: '1.1rem', transition: 'transform 0.2s'
-                        }} onMouseOver={e => e.target.style.transform = 'translateY(-3px)'} onMouseOut={e => e.target.style.transform = 'translateY(0)'}>
+                            padding: '1rem 2.5rem', borderRadius: '50px', background: theme.primary, color: '#FFFFFF', fontWeight: '900', textDecoration: 'none', fontSize: '1.3rem', transition: 'all 0.3s', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.5)', letterSpacing: '0.5px'
+                        }} onMouseOver={e => { e.target.style.transform = 'translateY(-3px)' }} onMouseOut={e => { e.target.style.transform = 'translateY(0)' }}>
                             Explore Our Union
                         </a>
-                        <a href="#" style={{
-                            padding: '1rem 2.5rem', borderRadius: '50px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(5px)', fontWeight: '700', textDecoration: 'none', fontSize: '1.1rem', transition: 'all 0.2s'
+                        <button onClick={() => setConstitutionModalOpen(true)} style={{
+                            padding: '1rem 2.5rem', borderRadius: '50px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(5px)', fontWeight: '700', fontSize: '1.1rem', transition: 'all 0.2s', cursor: 'pointer'
                         }} onMouseOver={e => { e.target.style.background = 'rgba(255,255,255,0.2)'; e.target.style.transform = 'translateY(-3px)' }} onMouseOut={e => { e.target.style.background = 'rgba(255,255,255,0.1)'; e.target.style.transform = 'translateY(0)' }}>
                             Read Constitution
-                        </a>
+                        </button>
                     </div>
                 </motion.div>
             </section>
@@ -444,7 +448,8 @@ const Home = () => {
                                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><FaCheckCircle size={12} color={theme.primary} /> Real-time Results</li>
                             </ul>
 
-                            <Link to="/public-vote" style={{ display: 'block', textAlign: 'center', marginTop: '1.5rem', background: theme.primary, color: '#000', padding: '0.8rem 1rem', borderRadius: '50px', fontWeight: '700', textDecoration: 'none', boxShadow: '0 5px 15px rgba(0,255,0,0.3)', transition: 'transform 0.2s' }} onMouseOver={e => e.target.style.transform = 'scale(1.02)'} onMouseOut={e => e.target.style.transform = 'scale(1)'}>
+
+                            <Link to="/public-vote" style={{ display: 'block', textAlign: 'center', marginTop: '1.5rem', background: theme.primary, color: '#FFFFFF', padding: '0.8rem 1rem', borderRadius: '50px', fontWeight: '900', textDecoration: 'none', boxShadow: '0 5px 15px rgba(0,255,0,0.3)', transition: 'transform 0.2s', fontSize: '1.1rem', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.5)', letterSpacing: '0.5px' }} onMouseOver={e => e.target.style.transform = 'scale(1.02)'} onMouseOut={e => e.target.style.transform = 'scale(1)'}>
                                 VOTE NOW →
                             </Link>
                         </motion.div>
@@ -482,7 +487,7 @@ const Home = () => {
                                     <li>Vote confirmation</li>
                                 </ol>
                             </div>
-                            <button style={{ marginTop: '1.5rem', background: 'none', border: `1px solid ${theme.secondary}`, color: theme.secondary, padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer', fontWeight: '600', width: '100%', transition: 'all 0.2s' }} className="hover:bg-blue-500 hover:text-white">
+                            <button onClick={() => setVotersGuideModalOpen(true)} style={{ marginTop: '1.5rem', background: 'none', border: `1px solid ${theme.secondary}`, color: theme.secondary, padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer', fontWeight: '600', width: '100%', transition: 'all 0.2s' }} onMouseOver={e => { e.target.style.background = theme.secondary; e.target.style.color = '#fff' }} onMouseOut={e => { e.target.style.background = 'none'; e.target.style.color = theme.secondary }}>
                                 DOWNLOAD GUIDE →
                             </button>
                         </motion.div>
@@ -978,6 +983,19 @@ const Home = () => {
           .mobile-toggle { display: block !important; }
         }
       `}</style>
+
+            {/* Constitution Modal */}
+            <ConstitutionModal
+                isOpen={constitutionModalOpen}
+                onClose={() => setConstitutionModalOpen(false)}
+            />
+
+            {/* Voters Guide Modal */}
+            <VotersGuideModal
+                isOpen={votersGuideModalOpen}
+                onClose={() => setVotersGuideModalOpen(false)}
+                onOpenConstitution={() => setConstitutionModalOpen(true)}
+            />
         </div>
     );
 };
