@@ -200,7 +200,7 @@ const Elections = () => {
 
         try {
             const token = JSON.parse(localStorage.getItem('user')).token;
-            const res = await fetch(`http://localhost:5000/api/president/elections/${selectedElection._id}/candidates`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}/api/president/elections/${selectedElection._id}/candidates`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -345,7 +345,7 @@ const Elections = () => {
                                                             >
                                                                 <div className="w-16 h-16 rounded-full bg-gray-200 overflow-hidden">
                                                                     {candidate.photoUrl ? (
-                                                                        <img src={`http://localhost:5000${candidate.photoUrl}`} alt={candidate.name} className="w-full h-full object-cover" />
+                                                                        <img src={`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${candidate.photoUrl}`} alt={candidate.name} className="w-full h-full object-cover" />
                                                                     ) : (
                                                                         <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold text-xl">
                                                                             {candidate.name[0]}
@@ -728,7 +728,7 @@ const Elections = () => {
                                             <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[#FFD700] shadow-md">
                                                 {winner.photo ? (
                                                     <img
-                                                        src={`http://localhost:5000${winner.photo}`}
+                                                        src={`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${winner.photo}`}
                                                         alt={winner.name}
                                                         className="w-full h-full object-cover"
                                                     />

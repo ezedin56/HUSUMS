@@ -13,8 +13,8 @@ const Events = () => {
             const token = localStorage.getItem('token');
             const headers = { Authorization: `Bearer ${token}` };
 
-            const eventsRes = await axios.get('http://localhost:5000/api/president/events', { headers });
-            const rsvpsRes = await axios.get('http://localhost:5000/api/rsvp/my-rsvps', { headers }).catch(() => ({ data: [] }));
+            const eventsRes = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/president/events`, { headers });
+            const rsvpsRes = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/rsvp/my-rsvps`, { headers }).catch(() => ({ data: [] }));
 
             const rsvpMap = {};
             (rsvpsRes.data || []).forEach(rsvp => {

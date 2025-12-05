@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fa';
 import { ToastContainer, useToast } from '../components/Toast';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`;
 
 const PublicVote = () => {
     const { toasts, success: showSuccess, error: showError, warning: showWarning, removeToast } = useToast();

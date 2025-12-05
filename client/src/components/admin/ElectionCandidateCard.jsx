@@ -14,7 +14,7 @@ const ElectionCandidateCard = memo(({ candidate }) => {
                 <div className="w-16 h-16 rounded-full bg-gray-700 overflow-hidden border-2 border-white/10 flex-shrink-0">
                     {candidate.photoUrl ? (
                         <img
-                            src={`http://localhost:5000${candidate.photoUrl}`}
+                            src={`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${candidate.photoUrl}`}
                             alt={`${candidate.User?.firstName} ${candidate.User?.lastName}`}
                             className="w-full h-full object-cover"
                         />

@@ -157,7 +157,7 @@ const ResponsiveNavbar = ({ user, navItems, onLogout }) => {
                             boxShadow: '0 0 20px rgba(0, 255, 0, 0.3)'
                         }}>
                             {user.profilePicture ? (
-                                <img src={`http://localhost:5000${user.profilePicture}`} alt="Profile" style={{
+                                <img src={`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${user.profilePicture}`} alt="Profile" style={{
                                     width: '100%',
                                     height: '100%',
                                     objectFit: 'cover'
@@ -376,7 +376,7 @@ const ResponsiveNavbar = ({ user, navItems, onLogout }) => {
                         boxShadow: '0 0 24px rgba(0, 255, 0, 0.3)'
                     }}>
                         {user.profilePicture ? (
-                            <img src={`http://localhost:5000${user.profilePicture}`} alt="Profile" style={{
+                            <img src={`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${user.profilePicture}`} alt="Profile" style={{
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'cover'

@@ -12,7 +12,7 @@ const CandidateCard = memo(({ candidate, onEdit, onDelete }) => {
             <div className="w-24 h-24 rounded-full bg-gray-700 mb-4 overflow-hidden border-4 border-white/10">
                 {candidate.photoUrl ? (
                     <img
-                        src={candidate.photoUrl.startsWith('data:') ? candidate.photoUrl : `http://localhost:5000${candidate.photoUrl}`}
+                        src={candidate.photoUrl.startsWith('data:') ? candidate.photoUrl : `${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${candidate.photoUrl}`}
                         alt="Candidate"
                         className="w-full h-full object-cover"
                     />

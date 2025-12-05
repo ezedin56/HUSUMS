@@ -32,7 +32,7 @@ const ResetPassword = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post(`http://localhost:5000/api/auth/reset-password/${token}`, { password });
+            const response = await axios.post(`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}/api/auth/reset-password/${token}`, { password });
             setMessage(response.data.message);
             setTimeout(() => {
                 navigate('/login');

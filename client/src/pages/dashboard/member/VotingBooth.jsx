@@ -287,7 +287,7 @@ const VotingBooth = () => {
                                                 <div className="candidate-photo-container">
                                                     {candidate.photo ? (
                                                         <img
-                                                            src={`http://localhost:5000${candidate.photo}`}
+                                                            src={`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${candidate.photo}`}
                                                             alt={getCandidateName(candidate)}
                                                             className="candidate-photo"
                                                         />
@@ -369,7 +369,7 @@ const VotingBooth = () => {
                             <div className="modal-photo-container">
                                 {profileCandidate.photo ? (
                                     <img
-                                        src={`http://localhost:5000${profileCandidate.photo}`}
+                                        src={`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${profileCandidate.photo}`}
                                         alt={getCandidateName(profileCandidate)}
                                         className="modal-photo"
                                     />

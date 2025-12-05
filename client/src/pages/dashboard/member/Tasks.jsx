@@ -192,7 +192,7 @@ const Tasks = () => {
 
                                         {task.reportUrl && (
                                             <a
-                                                href={`http://localhost:5000${task.reportUrl}`}
+                                                href={`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${task.reportUrl}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="view-report-btn"

@@ -47,8 +47,8 @@ const MemberManagement = () => {
             if (filter.search) params.append('search', filter.search);
 
             const [resMembers, resAnalytics] = await Promise.all([
-                axios.get(`http://localhost:5000/api/president/members?${params.toString()}`, { headers }),
-                axios.get('http://localhost:5000/api/president/analytics/members', { headers })
+                axios.get(`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}/api/president/members?${params.toString()}`, { headers }),
+                axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/president/analytics/members`, { headers })
             ]);
 
             setMembers(resMembers.data);
@@ -63,7 +63,7 @@ const MemberManagement = () => {
     const handleStatusUpdate = async (id, status) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:5000/api/president/members/${id}/status`, { status }, {
+            await axios.put(`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}/api/president/members/${id}/status`, { status }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchData(); // Refresh data

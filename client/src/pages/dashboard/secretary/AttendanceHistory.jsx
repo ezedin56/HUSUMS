@@ -86,7 +86,7 @@ const AttendanceHistory = () => {
 
             // Create a proper download link
             const token = localStorage.getItem('token');
-            const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/attendance/export?startDate=${startDate}&endDate=${endDate}`;
+            const url = `${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}/api/attendance/export?startDate=${startDate}&endDate=${endDate}`;
 
             // Create temporary link and trigger download
             const link = document.createElement('a');

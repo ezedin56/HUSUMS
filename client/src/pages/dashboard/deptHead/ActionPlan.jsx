@@ -20,7 +20,7 @@ const ActionPlan = () => {
             // Note: Our api utility handles JSON. For FormData, we need to use fetch directly or modify api utility.
             // Let's use fetch directly here for simplicity as we need to omit Content-Type header to let browser set boundary.
             const user = JSON.parse(localStorage.getItem('user'));
-            const response = await fetch('http://localhost:5000/api/departments/action-plan', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/departments/action-plan`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${user.token}`
