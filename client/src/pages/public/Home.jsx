@@ -10,8 +10,8 @@ import {
 } from 'react-icons/fa';
 import { SiReact, SiNodedotjs, SiMongodb, SiExpress, SiTailwindcss } from 'react-icons/si';
 import loginBg from '../../assets/images/login-bg.jpg';
-import ezedinImg from '../../assets/images/ezedin_new.png';
-import sultanImg from '../../assets/images/sultan.png';
+import ezedinImg from '../../assets/images/ezedin_updated.png';
+import sultanImg from '../../assets/images/sultan_final.png';
 import ConstitutionModal from '../../components/ConstitutionModal';
 import VotersGuideModal from '../../components/VotersGuideModal';
 import HowItWorksModal from '../../components/HowItWorksModal';
@@ -451,8 +451,8 @@ const Home = () => {
                             </ul>
 
 
-                            <Link to="/public-vote" style={{ display: 'block', textAlign: 'center', marginTop: '1.5rem', background: theme.primary, color: '#FFFFFF', padding: '0.8rem 1rem', borderRadius: '50px', fontWeight: '900', textDecoration: 'none', boxShadow: '0 5px 15px rgba(0,255,0,0.3)', transition: 'transform 0.2s', fontSize: '1.1rem', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.5)', letterSpacing: '0.5px' }} onMouseOver={e => e.target.style.transform = 'scale(1.02)'} onMouseOut={e => e.target.style.transform = 'scale(1)'}>
-                                VOTE NOW →
+                            <Link to="/public-vote" style={{ display: 'block', textAlign: 'center', marginTop: '1.5rem', background: theme.primary, padding: '0.8rem 1rem', borderRadius: '50px', fontWeight: '900', textDecoration: 'none', boxShadow: '0 5px 15px rgba(0,255,0,0.3)', transition: 'transform 0.2s', fontSize: '1.1rem', letterSpacing: '0.5px' }} onMouseOver={e => e.target.style.transform = 'scale(1.02)'} onMouseOut={e => e.target.style.transform = 'scale(1)'}>
+                                <span style={{ color: '#ffffff' }}>VOTE NOW →</span>
                             </Link>
                         </motion.div>
 
@@ -490,7 +490,7 @@ const Home = () => {
                                 </ol>
                             </div>
                             <button onClick={() => setVotersGuideModalOpen(true)} style={{ marginTop: '1.5rem', background: 'none', border: `1px solid ${theme.secondary}`, color: theme.secondary, padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer', fontWeight: '600', width: '100%', transition: 'all 0.2s' }} onMouseOver={e => { e.target.style.background = theme.secondary; e.target.style.color = '#fff' }} onMouseOut={e => { e.target.style.background = 'none'; e.target.style.color = theme.secondary }}>
-                                DOWNLOAD GUIDE →
+                                <span>DOWNLOAD GUIDE →</span>
                             </button>
                         </motion.div>
                     </div>
@@ -688,8 +688,8 @@ const Home = () => {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaClock /> {events[0].time}</div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaMapMarkerAlt /> {events[0].location}</div>
                                 </div>
-                                <button style={{ alignSelf: 'start', padding: '0.8rem 2rem', borderRadius: '50px', background: theme.primary, color: '#000', fontWeight: '700', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    Event Details <FaArrowRight />
+                                <button onClick={() => alert(`Event: ${events[0].title}\n\nDate: ${events[0].date}\nTime: ${events[0].time}\nLocation: ${events[0].location}\n\nDescription: ${events[0].description}`)} style={{ alignSelf: 'start', padding: '0.8rem 2rem', borderRadius: '50px', background: theme.primary, fontWeight: '700', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <span style={{ color: '#ffffff' }}>Event Details</span> <FaArrowRight style={{ color: '#ffffff' }} />
                                 </button>
                             </div>
                         </motion.div>
@@ -769,7 +769,7 @@ const Home = () => {
                         {[
                             {
                                 name: "Ezedin Aliyi",
-                                role: "Lead Developer",
+                                role: "LEAD & FULL-STACK DEVELOPER",
                                 studentRole: "Software Engineering Student",
                                 techRole: "Full-Stack Developer",
                                 skills: ['React', 'Node.js', 'MongoDB', 'UI/UX Design'],
@@ -806,11 +806,11 @@ const Home = () => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    padding: '1.5rem'
+                                    padding: '2rem 1.5rem'
                                 }}>
                                     <div style={{
-                                        width: '100px',
-                                        height: '100px',
+                                        width: '150px',
+                                        height: '150px',
                                         borderRadius: '50%',
                                         background: theme.primary,
                                         display: 'flex',
@@ -821,7 +821,7 @@ const Home = () => {
                                         overflow: 'hidden'
                                     }}>
                                         {dev.image ? (
-                                            <img src={dev.image} alt={dev.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <img src={dev.image} alt={dev.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
                                         ) : (
                                             <FaUserTie size={50} color="#000" />
                                         )}
