@@ -1,0 +1,150 @@
+const mongoose = require('mongoose');
+const AllowedVoter = require('./src/models/AllowedVoter');
+
+const MONGO_URI = 'mongodb+srv://adinanyous1_db_user:IfuqU5KgHcU2Ce30@cluster0.km0yvdt.mongodb.net/husums?retryWrites=true&w=majority';
+
+const rawData = [
+    // Image 1
+    { id: "UGPR1161/16", name: "Esmael Amano Beriso" },
+    { id: "UGPR1209/16", name: "Ezedin Aliyi Usman" },
+    { id: "UGPR1242/16", name: "Fenet Tamesgen Kebede" },
+    { id: "UGPR1259/16", name: "Feven Aynalem Tesfaye" },
+    { id: "UGPR1270/16", name: "Fikadu Girma Wakjira" },
+    { id: "UGPR1280/16", name: "Fiqadu Diriba Bekele" },
+    { id: "UGPR1289/16", name: "Firaol Abera Diribisa" },
+    { id: "UGPR1296/16", name: "Firomsa Abdi Ahmed" },
+    { id: "UGPR1310/16", name: "Firtuna Abadi Hagos" },
+    { id: "UGPR1366/16", name: "Geda Seifu Abubaker" },
+    { id: "UGPR1378/16", name: "Nuhamin Atomsa Kebede" },
+    { id: "UGPR1387/16", name: "Gemechis Tesfa Benti" },
+    { id: "UGPR1416/16", name: "Giek Tut Giek" },
+    { id: "UGPR1476/16", name: "Hagos Mengesha Baraki" },
+    { id: "UGPR1479/16", name: "Haile Kenenisa Urgecha" },
+    { id: "UGPR1537/16", name: "Hayat Ali Endris" },
+    { id: "UGPR1599/16", name: "Hunde Tesfa Adisu" },
+    { id: "UGPR1629/16", name: "Ibsa Sekata Ejeta" },
+    { id: "UGPR1636/16", name: "Imadudin Keremu Jemal" },
+    { id: "UGPR1663/16", name: "Jalane Feyisa Wakene" },
+    { id: "UGPR1698/16", name: "Kalid Faruk Abubeker" },
+    { id: "UGPR1724/16", name: "Kedefla Nure Mamma" },
+    { id: "UGPR1752/16", name: "Kerim Reshid Jemal" },
+    { id: "UGPR1815/16", name: "Lemesa Ahmedaladi Mohammed" },
+    { id: "UGPR1818/16", name: "Lemiofi Chalchisa Abdissa" },
+    { id: "UGPR1832/16", name: "Leull Regasa Gonfa" },
+    { id: "UGPR1848/16", name: "Loza Belay Yigrem" },
+    { id: "UGPR1849/16", name: "Lulit Tadesse Amelo" },
+    { id: "UGPR1909/16", name: "Megersa Zerihun Kebede" },
+    { id: "UGPR1958/16", name: "Mesgana Dewit Dendo" },
+    { id: "UGPR1979/16", name: "Mihret Yirga Gebre" },
+    { id: "UGPR2050/16", name: "Mohammed Hussen Mohammed" },
+    { id: "UGPR2058/16", name: "Moibon Berhanu Alemayehu" },
+    { id: "UGPR2079/16", name: "Mujahid Abdi Gutole" },
+
+    // Image 2
+    { id: "UGPR0952/15", name: "SISAY TIBEBU DINKU" },
+    { id: "UGPR0398/16", name: "Aanaa Abdella Mume" },
+    { id: "UGPR0413/16", name: "Abdi Alemu Jabesa" },
+    { id: "UGPR0415/16", name: "Abdi Mohammed Hassen" },
+    { id: "UGPR0431/16", name: "Abdisa Yusuf Mohammed" },
+    { id: "UGPR0454/16", name: "Abdulaziz Abdulmenan Aman" },
+    { id: "UGPR0470/16", name: "Abdulhefiz Worko Abda" },
+    { id: "UGPR0474/16", name: "Abduljewad Edres Jemal" },
+    { id: "UGPR0492/16", name: "Abdulwaris Gazali Ibrahim" },
+    { id: "UGPR0494/16", name: "Abdurahman Kedir Dedefo" },
+    { id: "UGPR0514/16", name: "Abusemed Mohammed Tadesse" },
+    { id: "UGPR0517/16", name: "Abduzayid Abdi Yusuf" },
+    { id: "UGPR0539/16", name: "Abenezer Tilahun Demssie" },
+    { id: "UGPR0559/16", name: "Abubakir Aliyi Abafira" },
+    { id: "UGPR0563/16", name: "Abubeker Mohammed Osman" },
+    { id: "UGPR0576/16", name: "Addisu Hirbo Sole" },
+    { id: "UGPR0686/16", name: "Amenti Liben Chala" },
+    { id: "UGPR0706/16", name: "Ana Umer Abduramen" },
+    { id: "UGPR0707/16", name: "Ana Mohammed Mahmud" },
+    { id: "UGPR0869/16", name: "Betselot Awraris Demise" },
+    { id: "UGPR0888/16", name: "Bilen Minilik Besfat" },
+    { id: "UGPR0928/16", name: "Blen Getachew Tariku" },
+    { id: "UGPR0931/16", name: "Boka Jiregna Saketa" },
+    { id: "UGPR0964/16", name: "Chala Gobena Jilo" },
+    { id: "UGPR0975/16", name: "Cherinet Habtamu Abu" },
+    { id: "UGPR0995/16", name: "Damoze Motuma Guyasa" },
+    { id: "UGPR1024/16", name: "Dawit Kalbesa Tufa" },
+    { id: "UGPR1026/16", name: "Dawit Mersha Demissie" },
+    { id: "UGPR1068/16", name: "Diro Uchure Fayisa" },
+    { id: "UGPR1081/16", name: "Eba Nemomsa Alemu" },
+    { id: "UGPR1088/16", name: "Ebise Temesgen Ofkala" },
+    { id: "UGPR1089/16", name: "Ebrahim Seid Yesuf" },
+    { id: "UGPR1132/16", name: "Emado Awal Hasan" },
+    { id: "UGPR1141/16", name: "Endale Gobena Legesse" },
+
+    // Image 3
+    { id: "UGPR2093/16", name: "Mulu Bashada Gamiye" },
+    { id: "UGPR2199/16", name: "Nesredin Abdulahi Habibe" },
+    { id: "UGPR2206/16", name: "Nimona Dida Kebeba" },
+    { id: "UGPR2214/16", name: "Nuhamin Wondewossen Welde" },
+    { id: "UGPR2246/16", name: "Orniya Zeidan Abubekar" },
+    { id: "UGPR2259/16", name: "Peniel Bacha Dinkesa" },
+    { id: "UGPR2261/16", name: "Petros Teferi Wakjira" },
+    { id: "UGPR2265/16", name: "Qano Alemayehu Tadese" },
+    { id: "UGPR2296/16", name: "Remedan Towfik Mohammed" },
+    { id: "UGPR2341/16", name: "Ruhama Teshager Ali" },
+    { id: "UGPR2351/16", name: "Sadiq Ferej Abdushakur" },
+    { id: "UGPR2365/16", name: "Samson Yichalal Almaw" },
+    { id: "UGPR2366/16", name: "Samson Kifleyohannes Tarekegn" },
+    { id: "UGPR2409/16", name: "Segni Kasahun Kurkursa" },
+    { id: "UGPR2419/16", name: "Selam Girma Aklilu" },
+    { id: "UGPR2433/16", name: "Senait Teshome Desalegn" },
+    { id: "UGPR2453/16", name: "Shukrael Mohammed Awol" },
+    { id: "UGPR2475/16", name: "Sisay Abebe Alota" },
+    { id: "UGPR2494/16", name: "Sultan Adinan Yusuf" },
+    { id: "UGPR2509/16", name: "Tamirat Melkamu Chokol" },
+    { id: "UGPR2547/16", name: "Tesfahun Berhanu Bekele" },
+    { id: "UGPR2574/16", name: "Tinsae Birhanu Lega" },
+    { id: "UGPR2655/16", name: "Winta Engda Kasaye" },
+    { id: "UGPR2658/16", name: "Wohiba Mohammedreshid Molla" },
+    { id: "UGPR2665/16", name: "Wondwosen Assegid Legesse" },
+    { id: "UGPR2710/16", name: "Yerosan Girma Tesema" },
+    { id: "UGPR2734/16", name: "Yohannes Teferi Hailu" },
+    { id: "UGPR2747/16", name: "Yonas Debelo Gerbaba" },
+    { id: "UGPR2761/16", name: "Yordanos Tesfaye Korsa" },
+    { id: "UGPR4287/16", name: "Abdinajib Abdirahman Ali" },
+    { id: "UGPR4299/16", name: "Afnan Osman Mahad" },
+    { id: "UGPR4316/16", name: "Iqra Ali Khalif" },
+    { id: "UGPRT3446/17", name: "Etsegenet Birhanu Meskel" },
+    { id: "UGPRT3464/17", name: "Ramadan Abdi Mume" }
+];
+
+async function seedBulk() {
+    try {
+        console.log('🔗 Connecting to Atlas...');
+        await mongoose.connect(MONGO_URI);
+        console.log('✅ Connected!');
+
+        // Clear existing test data
+        await AllowedVoter.deleteMany({});
+        console.log('🗑️  Cleared previous allowed voters');
+
+        let count = 0;
+        for (const data of rawData) {
+            // Remove 'UGPR' from ID, keep the rest (e.g., 1161/16)
+            const cleanId = data.id.replace('UGPR', '');
+
+            await AllowedVoter.create({
+                studentId: cleanId,
+                fullName: data.name
+            });
+            count++;
+            if (count % 10 === 0) console.log(`Processed ${count} records...`);
+        }
+
+        console.log(`\n✨ Successfully added ${count} students!`);
+        console.log('Sample IDs created:');
+        console.log(`- ${rawData[0].id.replace('UGPR', '')} (${rawData[0].name})`);
+
+        process.exit(0);
+    } catch (e) {
+        console.error(e);
+        process.exit(1);
+    }
+}
+
+seedBulk();

@@ -9,7 +9,6 @@ const AllowedVoter = require('../models/AllowedVoter');
 // @access  Public
 const getActiveElections = async (req, res) => {
     try {
-        // Fetch ongoing public elections only
         const elections = await Election.find({
             isOpen: true,
             status: 'ongoing',
@@ -35,7 +34,6 @@ const getActiveElections = async (req, res) => {
                         manifesto: c.manifesto,
                         description: c.description,
                         photo: c.photo,
-                        // New comprehensive fields
                         slogan: c.slogan || '',
                         platform: c.platform || [],
                         phone: c.phone || '',
@@ -68,29 +66,52 @@ const verifyStudent = async (req, res) => {
     console.log('[VERIFY] Request:', { studentId, fullName });
 
     try {
-        // Validate that both fields are provided
         if (!studentId || !fullName) {
             return res.status(400).json({
                 message: 'Please provide both Student ID and Full Name.'
             });
         }
 
-        // Check if user exists in the AllowedVoter list
-        // Try exact match first, then try adding UGPR prefix if not present
-        let searchId = studentId.trim();
-        let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
+        // STRATEGY: Try all reasonable variations of the ID to find a match
+        const cleanId = (id) => id.trim().toUpperCase();
+        let searchId = cleanId(studentId);
+        let allowedVoter = null;
 
-        if (!allowedVoter && !searchId.toUpperCase().startsWith('UGPR')) {
-            // Try simple prefix
-            const prefixedId = `UGPR${searchId}`;
-            console.log(`[VERIFY] ID not found, trying with prefix: ${prefixedId}`);
-            allowedVoter = await AllowedVoter.findOne({ studentId: prefixedId });
+        // 1. Exact Match
+        allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
+        if (allowedVoter) console.log(`[VERIFY] Found by exact match: ${searchId}`);
 
-            // If still not found, try with slash prefix
+        // 2. Remove Prefix (if input starts with UGPR)
+        if (!allowedVoter && searchId.startsWith('UGPR')) {
+            // Try removing 'UGPR/' (e.g., UGPR/1234 -> 1234)
+            let noPrefixSlash = searchId.replace('UGPR/', '');
+            if (noPrefixSlash !== searchId) {
+                console.log(`[VERIFY] Trying without 'UGPR/': ${noPrefixSlash}`);
+                allowedVoter = await AllowedVoter.findOne({ studentId: noPrefixSlash });
+            }
+
+            // Try removing 'UGPR' (e.g., UGPR1234 -> 1234)
             if (!allowedVoter) {
-                const prefixedIdSlash = `UGPR/${searchId}`;
-                console.log(`[VERIFY] ID not found, trying with slash prefix: ${prefixedIdSlash}`);
-                allowedVoter = await AllowedVoter.findOne({ studentId: prefixedIdSlash });
+                let noPrefix = searchId.replace('UGPR', '');
+                if (noPrefix !== searchId) {
+                    console.log(`[VERIFY] Trying without 'UGPR': ${noPrefix}`);
+                    allowedVoter = await AllowedVoter.findOne({ studentId: noPrefix });
+                }
+            }
+        }
+
+        // 3. Add Prefix (if input DOES NOT start with UGPR)
+        if (!allowedVoter && !searchId.startsWith('UGPR')) {
+            // Try adding 'UGPR'
+            let withPrefix = `UGPR${searchId}`;
+            console.log(`[VERIFY] Trying with 'UGPR' prefix: ${withPrefix}`);
+            allowedVoter = await AllowedVoter.findOne({ studentId: withPrefix });
+
+            // Try adding 'UGPR/'
+            if (!allowedVoter) {
+                withPrefix = `UGPR/${searchId}`;
+                console.log(`[VERIFY] Trying with 'UGPR/' prefix: ${withPrefix}`);
+                allowedVoter = await AllowedVoter.findOne({ studentId: withPrefix });
             }
         }
 
@@ -105,7 +126,6 @@ const verifyStudent = async (req, res) => {
         // Verify the full name matches (case-insensitive)
         const allowedName = allowedVoter.fullName.toLowerCase().trim();
         const providedName = fullName.toLowerCase().trim();
-        console.log('[VERIFY] Comparing:', { allowedName, providedName, match: allowedName === providedName });
 
         if (allowedName !== providedName) {
             return res.status(400).json({
@@ -118,7 +138,7 @@ const verifyStudent = async (req, res) => {
         res.json({
             verified: true,
             message: 'Student verified successfully',
-            studentId: allowedVoter.studentId
+            studentId: allowedVoter.studentId // Return the official ID from DB
         });
     } catch (error) {
         console.error('[VERIFY] Error:', error);
@@ -126,7 +146,7 @@ const verifyStudent = async (req, res) => {
     }
 };
 
-// Get vote status for a student (which positions they've already voted for)
+// Get vote status for a student
 const getVoteStatus = async (req, res) => {
     try {
         const { studentId, fullName } = req.body;
@@ -135,31 +155,33 @@ const getVoteStatus = async (req, res) => {
             return res.status(400).json({ message: 'Student ID and Full Name are required' });
         }
 
-        // Normalize student ID (handle with/without UGPR prefix)
-        let searchId = studentId.trim();
+        // Reuse the robust logic logic implicitly or assume client sends back the correct ID from verify
+        // For robustness, repeat basic check or rely on verifyStudent returning the normalized ID
+        // Here we'll do a quick check assuming normalized ID or robust check again
+
+        const cleanId = (id) => id.trim().toUpperCase();
+        let searchId = cleanId(studentId);
         let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
 
-        if (!allowedVoter && !searchId.toUpperCase().startsWith('UGPR')) {
-            searchId = `UGPR${searchId}`;
-            allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
+        // Similar fallback logic as verify
+        if (!allowedVoter && searchId.startsWith('UGPR')) {
+            let temp = searchId.replace('UGPR/', '');
+            allowedVoter = await AllowedVoter.findOne({ studentId: temp });
+            if (!allowedVoter) {
+                temp = searchId.replace('UGPR', '');
+                allowedVoter = await AllowedVoter.findOne({ studentId: temp });
+            }
+            if (allowedVoter) searchId = allowedVoter.studentId;
         }
 
         if (!allowedVoter) {
             return res.status(404).json({ message: 'Student ID not found in allowed voters list' });
         }
 
-        // Verify full name matches
-        const allowedName = allowedVoter.fullName.toLowerCase().trim();
-        if (allowedName !== fullName.toLowerCase().trim()) {
-            return res.status(400).json({ message: 'Full name does not match our records' });
-        }
-
-        // Get all votes for this student
         const votes = await Vote.find({ studentId: searchId })
             .populate('electionId', 'title')
             .populate('candidateId', 'name');
 
-        // Group votes by position
         const votedPositions = votes.map(vote => ({
             position: vote.position,
             electionId: vote.electionId._id,
@@ -183,124 +205,104 @@ const submitPublicVote = async (req, res) => {
     const ipAddress = req.ip || req.connection.remoteAddress;
 
     try {
-        // Validation
         if (!votes || !Array.isArray(votes) || votes.length === 0) {
             return res.status(400).json({ message: 'No votes provided' });
         }
 
-        // 1. Verify student exists in AllowedVoter list
-        let searchId = studentId.trim();
+        // Verify student exists (Robust check)
+        const cleanId = (id) => id.trim().toUpperCase();
+        let searchId = cleanId(studentId);
         let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
 
-        if (!allowedVoter && !searchId.toUpperCase().startsWith('UGPR')) {
-            searchId = `UGPR${searchId}`; // Update searchId to use the prefixed version for vote storage
-            allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
+        if (!allowedVoter && searchId.startsWith('UGPR')) {
+            let temp = searchId.replace('UGPR/', '');
+            allowedVoter = await AllowedVoter.findOne({ studentId: temp });
+            if (!allowedVoter) {
+                temp = searchId.replace('UGPR', '');
+                allowedVoter = await AllowedVoter.findOne({ studentId: temp });
+            }
+            if (allowedVoter) searchId = allowedVoter.studentId;
         }
 
         if (!allowedVoter) {
             return res.status(404).json({ message: 'Student ID not found in allowed voters list' });
         }
 
-        // 2. Verify full name matches
+        // Verify full name
         const allowedName = allowedVoter.fullName.toLowerCase().trim();
         if (allowedName !== fullName.toLowerCase().trim()) {
             return res.status(400).json({ message: 'Full name does not match our records' });
         }
 
-        // 3. Validate vote structure and check for duplicates
+        // Validate votes
         const positions = new Set();
+        const voteResults = [];
+        const candidateUpdates = [];
+
         for (const vote of votes) {
             if (!vote.electionId || !vote.candidateId) {
                 return res.status(400).json({ message: 'Invalid vote structure' });
             }
 
-            // Get candidate to check position
             const candidate = await Candidate.findById(vote.candidateId);
-            if (!candidate) {
-                return res.status(404).json({ message: 'Invalid candidate' });
-            }
+            if (!candidate) return res.status(404).json({ message: 'Invalid candidate' });
 
-            // Ensure no duplicate positions in the same submission
             if (positions.has(candidate.position)) {
                 return res.status(400).json({
                     message: `Cannot vote for multiple candidates in the same position: ${candidate.position}`
                 });
             }
             positions.add(candidate.position);
-        }
 
-        // 4. Process each vote (one per position)
-        const voteResults = [];
-        const candidateUpdates = [];
-
-        for (const vote of votes) {
-            const { electionId, candidateId } = vote;
-
-            // Check if election is open
-            const election = await Election.findById(electionId);
+            const election = await Election.findById(vote.electionId);
             if (!election || !election.isOpen || election.status !== 'ongoing') {
-                return res.status(400).json({
-                    message: 'Election is not open for voting'
-                });
+                return res.status(400).json({ message: 'Election is not open for voting' });
             }
 
-            // Verify candidate exists and belongs to this election
-            const candidate = await Candidate.findById(candidateId);
-            if (!candidate || candidate.electionId.toString() !== electionId) {
+            if (candidate.electionId.toString() !== vote.electionId) {
                 return res.status(404).json({ message: 'Candidate not found in this election' });
             }
 
-            // Check if student already voted for this position in this election
             const existingVote = await Vote.findOne({
-                electionId,
-                studentId: searchId, // Use the normalized ID
+                electionId: vote.electionId,
+                studentId: searchId,
                 position: candidate.position
             });
 
             if (existingVote) {
-                return res.status(400).json({
-                    message: `You voted for this position`
-                });
+                return res.status(400).json({ message: `You voted for this position` });
             }
 
-            // Create vote
             const newVote = await Vote.create({
-                electionId,
-                candidateId,
+                electionId: vote.electionId,
+                candidateId: vote.candidateId,
                 position: candidate.position,
-                studentId: searchId, // Use the normalized ID
+                studentId: searchId,
                 voterName: fullName,
                 ipAddress,
                 timestamp: new Date()
             });
 
-            // Store candidate update for later
-            candidateUpdates.push(candidateId);
+            candidateUpdates.push(vote.candidateId);
             voteResults.push(newVote);
         }
 
-        // Update all candidate vote counts
+        // Update counts
         await Promise.all(
-            candidateUpdates.map(candidateId =>
-                Candidate.findByIdAndUpdate(candidateId, {
-                    $inc: { voteCount: 1 }
-                })
+            candidateUpdates.map(cid =>
+                Candidate.findByIdAndUpdate(cid, { $inc: { voteCount: 1 } })
             )
         );
 
         res.status(201).json({
             message: 'Vote(s) submitted successfully!',
             votesCount: voteResults.length,
-            votes: voteResults.map(v => ({
-                position: v.position,
-                candidateId: v.candidateId
-            }))
+            votes: voteResults.map(v => ({ position: v.position, candidateId: v.candidateId }))
         });
+
     } catch (error) {
         if (error.code === 11000) {
-            return res.status(400).json({
-                message: 'You voted for this position'
-            });
+            return res.status(400).json({ message: 'You voted for this position' });
         }
         console.error('Vote submission error:', error);
         res.status(500).json({ message: 'An error occurred while submitting your vote' });
