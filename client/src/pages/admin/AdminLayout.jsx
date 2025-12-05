@@ -50,22 +50,30 @@ const AdminLayout = () => {
         <div style={{ display: 'flex', minHeight: '100vh', background: '#0f172a', color: 'white', position: 'relative' }}>
             <style>{`
                 @media (min-width: 1024px) {
-                    .mobile-menu-btn { display: none !important; }
-                    .desktop-sidebar { display: flex !important; }
+                    .admin-mobile-header { display: none !important; }
+                    .desktop-sidebar { 
+                        display: flex !important; 
+                        transform: none !important;
+                        padding-top: 2rem !important;
+                    }
                 }
                 @media (max-width: 1023px) {
-                    .desktop-sidebar { display: none !important; }
+                    .desktop-sidebar { 
+                        /* Ensure sidebar is visible for transition but positioned off-screen */
+                        display: flex !important;
+                        padding-top: 90px !important; /* Space for header */
+                    }
                 }
             `}</style>
 
             {/* Mobile Header with Hamburger */}
-            <div className="mobile-menu-btn" style={{
+            <div className="admin-mobile-header" style={{
                 position: 'fixed',
                 top: 0,
                 left: 0,
                 right: 0,
                 height: '70px',
-                background: 'rgba(0, 0, 0, 0.95)',
+                background: 'rgba(15, 23, 42, 0.95)',
                 backdropFilter: 'blur(20px)',
                 borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                 zIndex: 1000,
@@ -102,7 +110,8 @@ const AdminLayout = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        transition: 'all 0.3s'
+                        transition: 'all 0.3s',
+                        zIndex: 1001
                     }}
                 >
                     {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -129,7 +138,7 @@ const AdminLayout = () => {
             {/* Sidebar - Desktop (always visible) and Mobile (slide-out) */}
             <aside className="desktop-sidebar" style={{
                 width: '250px',
-                background: 'rgba(30, 41, 59, 0.5)',
+                background: 'rgba(30, 41, 59, 0.95)',
                 borderRight: '1px solid rgba(255, 255, 255, 0.1)',
                 padding: '2rem',
                 display: 'flex',
@@ -178,6 +187,7 @@ const AdminLayout = () => {
                                         border: isActive ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid transparent',
                                         transition: 'all 0.3s'
                                     })}
+                                    onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {item.icon}
                                     <span>{item.label}</span>
