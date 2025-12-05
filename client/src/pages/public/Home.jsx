@@ -398,8 +398,8 @@ const Home = () => {
                                     <li>Senate Member Elections</li>
                                 </ol>
                             </div>
-                            <button style={{ marginTop: '1.5rem', background: 'none', border: `1px solid ${theme.primary}`, color: theme.primary, padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer', fontWeight: '600', width: '100%', transition: 'all 0.2s' }} className="hover:bg-green-500 hover:text-white">
-                                READ ELECTION CONSTITUTION →
+                            <button onClick={() => setConstitutionModalOpen(true)} style={{ marginTop: '1.5rem', background: 'none', border: `1px solid ${theme.primary}`, color: theme.primary, padding: '0.5rem 1rem', borderRadius: '50px', cursor: 'pointer', fontWeight: '600', width: '100%', transition: 'all 0.2s' }} className="hover:bg-green-500 hover:text-white">
+                                <span>READ ELECTION CONSTITUTION →</span>
                             </button>
                         </motion.div>
 
