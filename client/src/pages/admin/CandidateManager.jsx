@@ -487,7 +487,7 @@ const CandidateManager = () => {
                     {expandedSections.location ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                 </button>
                 {expandedSections.location && (
-                    <div className="p-4 grid grid-cols-2 gap-4">
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium mb-1">Region</label>
                             <input
@@ -676,11 +676,11 @@ const CandidateManager = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Candidate Management</h1>
-                <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h1 className="text-2xl sm:text-3xl font-bold text-center sm:text-left">Candidate Management</h1>
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <select
-                        className="input bg-black/20 border-white/10 min-w-[200px]"
+                        className="input bg-black/20 border-white/10 min-w-[200px] w-full sm:w-auto"
                         value={selectedElectionId}
                         onChange={(e) => setSelectedElectionId(e.target.value)}
                     >
@@ -690,7 +690,7 @@ const CandidateManager = () => {
                     </select>
                     <button
                         onClick={() => setShowAddModal(true)}
-                        className="btn btn-primary flex items-center gap-2"
+                        className="btn btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
                         disabled={!selectedElectionId}
                     >
                         <Plus size={20} /> Add Candidate

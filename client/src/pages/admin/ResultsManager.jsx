@@ -79,11 +79,11 @@ const ResultsManager = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Results Management</h1>
-                <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h1 className="text-2xl sm:text-3xl font-bold text-center sm:text-left">Results Management</h1>
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                     <select
-                        className="input bg-black/20 border-white/10 min-w-[200px]"
+                        className="input bg-black/20 border-white/10 min-w-[200px] w-full sm:w-auto"
                         value={selectedElectionId}
                         onChange={(e) => setSelectedElectionId(e.target.value)}
                     >
@@ -95,17 +95,17 @@ const ResultsManager = () => {
             </div>
 
             {selectedElection && (
-                <div className="card bg-white/5 border border-white/10 p-6 rounded-xl mb-6 flex justify-between items-center">
-                    <div>
+                <div className="card bg-white/5 border border-white/10 p-6 rounded-xl mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="text-center sm:text-left w-full sm:w-auto">
                         <h2 className="text-xl font-bold mb-1">{selectedElection.title}</h2>
                         <p className="text-gray-400">
                             Status: <span className="text-white font-bold">{selectedElection.status.toUpperCase()}</span>
                         </p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                         <button
                             onClick={toggleAnnounce}
-                            className={`btn flex items-center gap-2 ${selectedElection.resultsAnnounced
+                            className={`btn flex items-center justify-center gap-2 w-full sm:w-auto ${selectedElection.resultsAnnounced
                                 ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
                                 : 'bg-gray-700 hover:bg-gray-600'
                                 }`}
@@ -116,7 +116,7 @@ const ResultsManager = () => {
                         {(selectedElection.status === 'completed' || selectedElection.resultsAnnounced) && (
                             <button
                                 onClick={handleDelete}
-                                className="btn bg-red-500/20 text-red-400 hover:bg-red-500/30 flex items-center gap-2"
+                                className="btn bg-red-500/20 text-red-400 hover:bg-red-500/30 flex items-center justify-center gap-2 w-full sm:w-auto"
                             >
                                 <Trash2 size={20} />
                                 Delete Election

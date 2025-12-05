@@ -231,14 +231,15 @@ const Login = () => {
                                 width: '100%',
                                 height: '48px',
                                 background: 'linear-gradient(135deg, #00cc00, #00ff00)',
-                                color: 'white',
+                                color: '#fff',
                                 border: 'none',
                                 borderRadius: '12px',
                                 fontSize: '1rem',
-                                fontWeight: '600',
+                                fontWeight: '700',
                                 cursor: 'pointer',
                                 transition: 'all 0.3s',
-                                boxShadow: '0 4px 12px rgba(0, 204, 0, 0.2)'
+                                boxShadow: '0 4px 12px rgba(0, 204, 0, 0.2)',
+                                textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 1px 4px rgba(0, 0, 0, 0.9), 1px 1px 2px rgba(0, 0, 0, 1), -1px -1px 2px rgba(0, 0, 0, 1)'
                             }}
                             onMouseOver={(e) => {
                                 e.target.style.transform = 'translateY(-2px)';
