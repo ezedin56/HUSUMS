@@ -81,9 +81,17 @@ const verifyStudent = async (req, res) => {
         let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
 
         if (!allowedVoter && !searchId.toUpperCase().startsWith('UGPR')) {
+            // Try simple prefix
             const prefixedId = `UGPR${searchId}`;
             console.log(`[VERIFY] ID not found, trying with prefix: ${prefixedId}`);
             allowedVoter = await AllowedVoter.findOne({ studentId: prefixedId });
+
+            // If still not found, try with slash prefix
+            if (!allowedVoter) {
+                const prefixedIdSlash = `UGPR/${searchId}`;
+                console.log(`[VERIFY] ID not found, trying with slash prefix: ${prefixedIdSlash}`);
+                allowedVoter = await AllowedVoter.findOne({ studentId: prefixedIdSlash });
+            }
         }
 
         console.log('[VERIFY] AllowedVoter found:', allowedVoter ? `Yes (${allowedVoter.fullName})` : 'No');
