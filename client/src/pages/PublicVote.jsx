@@ -39,18 +39,20 @@ const PublicVote = () => {
     }, [darkMode]);
 
     const theme = {
-        bg: darkMode ? '#0f172a' : '#f9fafb',
-        cardBg: darkMode ? '#1e293b' : '#ffffff',
-        text: darkMode ? '#f1f5f9' : '#111827',
-        textSecondary: darkMode ? '#cbd5e1' : '#6b7280',
-        border: darkMode ? '#334155' : '#e5e7eb',
-        primary: '#059669',
-        primaryHover: '#047857',
-        headerBg: darkMode ? '#1e293b' : '#059669',
-        footerBg: darkMode ? '#0f172a' : '#111827',
-        sidebarBg: darkMode ? '#1e293b' : '#ffffff',
-        selectedBg: darkMode ? 'rgba(5, 150, 105, 0.2)' : '#f0fdf4',
-        hoverBg: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)'
+        bg: '#0f172a',
+        cardBg: 'rgba(30, 41, 59, 0.7)',
+        text: '#f1f5f9',
+        textSecondary: '#cbd5e1',
+        border: 'rgba(255, 255, 255, 0.1)',
+        primary: '#00ff00',
+        primaryHover: '#00cc00',
+        secondary: '#00aaff',
+        headerBg: '#1e293b',
+        footerBg: '#0f172a',
+        sidebarBg: '#1e293b',
+        selectedBg: 'rgba(0, 255, 0, 0.2)',
+        hoverBg: 'rgba(255, 255, 255, 0.05)',
+        navBg: 'rgba(15, 23, 42, 0.9)'
     };
 
     useEffect(() => {
@@ -351,18 +353,22 @@ const PublicVote = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            background: darkMode ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                            padding: '20px'
+                            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                            padding: '20px',
+                            position: 'relative'
                         }}
                     >
                         <div style={{
-                            width: '100%',
-                            maxWidth: '400px',
-                            background: theme.cardBg,
-                            borderRadius: '20px',
+                            width: '420px',
                             padding: '40px',
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-                            position: 'relative'
+                            background: 'rgba(255, 255, 255, 0.2)',
+                            backdropFilter: 'blur(20px) saturate(180%)',
+                            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                            borderRadius: '20px',
+                            border: '1px solid rgba(255, 255, 255, 0.4)',
+                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+                            position: 'relative',
+                            zIndex: 1
                         }}>
                             {/* Theme Toggle */}
                             <button
@@ -400,72 +406,114 @@ const PublicVote = () => {
                                 <FaArrowLeft /> Back to Home
                             </Link>
 
-                            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                                <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🗳️</div>
-                                <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: theme.text, marginBottom: '8px' }}>
-                                    Verify Your Identity
+                            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                                <div style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '800',
+                                    color: theme.primary,
+                                    marginBottom: '20px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    <FaUniversity /> HUSUMS VOTING
+                                </div>
+                                <h2 style={{
+                                    fontSize: '2.2rem',
+                                    fontWeight: '800',
+                                    color: theme.text,
+                                    marginBottom: '12px',
+                                    lineHeight: '1.2'
+                                }}>
+                                    Student Verification
                                 </h2>
-                                <p style={{ color: theme.textSecondary, fontSize: '0.95rem' }}>
-                                    Enter your Student ID and Full Name to continue
+                                <p style={{
+                                    color: theme.textSecondary,
+                                    fontSize: '1.05rem',
+                                    fontWeight: '400',
+                                    lineHeight: '1.6'
+                                }}>
+                                    Exercise Your Democratic Right
                                 </p>
                             </div>
 
                             <form onSubmit={handleVerify}>
-                                <div style={{ marginBottom: '20px' }}>
+                                <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
                                     <input
                                         type="text"
                                         value={studentId}
                                         onChange={(e) => setStudentId(e.target.value)}
-                                        placeholder="Student ID"
+                                        placeholder="Enter Student ID (e.g., 2494/16)"
                                         required
                                         style={{
-                                            width: '100%',
-                                            padding: '14px 16px',
-                                            fontSize: '1rem',
-                                            border: `2px solid ${theme.border}`,
+                                            width: '350px',
+                                            height: '48px',
+                                            padding: '0 16px',
+                                            fontSize: '0.95rem',
+                                            border: '1px solid #16a34a',
                                             borderRadius: '12px',
                                             outline: 'none',
-                                            transition: 'all 0.3s',
-                                            background: theme.bg,
-                                            color: theme.text
+                                            transition: 'all 0.3s ease',
+                                            boxSizing: 'border-box',
+                                            background: 'rgba(0, 0, 0, 0.4)',
+                                            backdropFilter: 'blur(10px)',
+                                            color: '#fff',
+                                            boxShadow: '0 0 10px rgba(22, 163, 74, 0.1)'
                                         }}
-                                        onFocus={(e) => e.target.style.borderColor = theme.primary}
-                                        onBlur={(e) => e.target.style.borderColor = theme.border}
+                                        onFocus={(e) => {
+                                            e.target.style.boxShadow = '0 0 20px rgba(22, 163, 74, 0.4), inset 0 0 10px rgba(22, 163, 74, 0.2)';
+                                            e.target.style.background = 'rgba(0, 0, 0, 0.6)';
+                                        }}
+                                        onBlur={(e) => {
+                                            e.target.style.boxShadow = '0 0 10px rgba(22, 163, 74, 0.1)';
+                                            e.target.style.background = 'rgba(0, 0, 0, 0.4)';
+                                        }}
                                     />
                                 </div>
 
-                                <div style={{ marginBottom: '20px' }}>
+                                <div style={{ marginBottom: '28px', display: 'flex', justifyContent: 'center' }}>
                                     <input
                                         type="text"
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
-                                        placeholder="Full Name"
+                                        placeholder="Enter Full Name"
                                         required
                                         style={{
-                                            width: '100%',
-                                            padding: '14px 16px',
-                                            fontSize: '1rem',
-                                            border: `2px solid ${theme.border}`,
+                                            width: '350px',
+                                            height: '48px',
+                                            padding: '0 16px',
+                                            fontSize: '0.95rem',
+                                            border: '1px solid #16a34a',
                                             borderRadius: '12px',
                                             outline: 'none',
-                                            transition: 'all 0.3s',
-                                            background: theme.bg,
-                                            color: theme.text
+                                            transition: 'all 0.3s ease',
+                                            boxSizing: 'border-box',
+                                            background: 'rgba(0, 0, 0, 0.4)',
+                                            backdropFilter: 'blur(10px)',
+                                            color: '#fff',
+                                            boxShadow: '0 0 10px rgba(22, 163, 74, 0.1)'
                                         }}
-                                        onFocus={(e) => e.target.style.borderColor = theme.primary}
-                                        onBlur={(e) => e.target.style.borderColor = theme.border}
+                                        onFocus={(e) => {
+                                            e.target.style.boxShadow = '0 0 20px rgba(22, 163, 74, 0.4), inset 0 0 10px rgba(22, 163, 74, 0.2)';
+                                            e.target.style.background = 'rgba(0, 0, 0, 0.6)';
+                                        }}
+                                        onBlur={(e) => {
+                                            e.target.style.boxShadow = '0 0 10px rgba(22, 163, 74, 0.1)';
+                                            e.target.style.background = 'rgba(0, 0, 0, 0.4)';
+                                        }}
                                     />
                                 </div>
 
-                                <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                                     <input
                                         type="checkbox"
                                         id="rememberMe"
                                         checked={rememberMe}
                                         onChange={(e) => setRememberMe(e.target.checked)}
-                                        style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: theme.primary }}
+                                        style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: theme.primary }}
                                     />
-                                    <label htmlFor="rememberMe" style={{ color: theme.text, fontSize: '0.95rem', cursor: 'pointer' }}>
+                                    <label htmlFor="rememberMe" style={{ color: theme.textSecondary, fontSize: '0.95rem', cursor: 'pointer', userSelect: 'none' }}>
                                         Remember me
                                     </label>
                                 </div>
@@ -476,35 +524,44 @@ const PublicVote = () => {
                                         marginBottom: '20px',
                                         background: '#fee2e2',
                                         border: '1px solid #fca5a5',
-                                        borderRadius: '8px',
+                                        borderRadius: '15px',
                                         color: '#dc2626',
                                         fontSize: '0.9rem',
-                                        textAlign: 'center'
+                                        textAlign: 'center',
+                                        maxWidth: '350px',
+                                        margin: '0 auto 20px'
                                     }}>
                                         {error}
                                     </div>
                                 )}
 
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    style={{
-                                        width: '100%',
-                                        padding: '14px',
-                                        background: theme.primary,
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '12px',
-                                        fontSize: '1.05rem',
-                                        fontWeight: '600',
-                                        cursor: loading ? 'not-allowed' : 'pointer',
-                                        transition: 'all 0.3s'
-                                    }}
-                                    onMouseOver={(e) => !loading && (e.target.style.background = theme.primaryHover)}
-                                    onMouseOut={(e) => !loading && (e.target.style.background = theme.primary)}
-                                >
-                                    {loading ? 'Verifying...' : 'Continue to Vote'}
-                                </button>
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        style={{
+                                            width: '350px',
+                                            height: '48px',
+                                            padding: '16px',
+                                            background: loading ? '#666' : 'linear-gradient(135deg, #00cc00, #00ff00)',
+                                            color: '#ffffff',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            fontSize: '1rem',
+                                            fontWeight: '700',
+                                            cursor: loading ? 'not-allowed' : 'pointer',
+                                            transition: 'all 0.3s',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.5px',
+                                            boxShadow: loading ? 'none' : '0 4px 12px rgba(0, 204, 0, 0.2)',
+                                            textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 1px 4px rgba(0, 0, 0, 0.9), 1px 1px 2px rgba(0, 0, 0, 1), -1px -1px 2px rgba(0, 0, 0, 1)'
+                                        }}
+                                        onMouseOver={(e) => !loading && (e.target.style.transform = 'translateY(-2px)', e.target.style.boxShadow = '0 6px 20px rgba(0, 204, 0, 0.3)')}
+                                        onMouseOut={(e) => !loading && (e.target.style.transform = 'translateY(0)', e.target.style.boxShadow = '0 4px 12px rgba(0, 204, 0, 0.2)')}
+                                    >
+                                        {loading ? 'Verifying...' : 'Continue to Vote'}
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </motion.div>
@@ -1134,434 +1191,440 @@ const PublicVote = () => {
             </AnimatePresence>
 
             {/* Confirmation Modal */}
-            {showConfirmModal && confirmingPosition && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.7)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 9999,
-                    padding: '20px'
-                }}>
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        style={{
-                            background: theme.cardBg,
-                            borderRadius: '20px',
-                            padding: 'clamp(24px, 5vw, 40px)',
-                            maxWidth: '500px',
-                            width: '100%',
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-                        }}
-                    >
-                        <h3 style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '800', color: theme.text, marginBottom: '20px', textAlign: 'center' }}>
-                            CONFIRM VOTE SUBMISSION
-                        </h3>
-                        <p style={{ fontSize: '0.95rem', color: theme.textSecondary, marginBottom: '20px', textAlign: 'center' }}>
-                            You are about to submit your vote for:
-                        </p>
+            {
+                showConfirmModal && confirmingPosition && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.7)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 9999,
+                        padding: '20px'
+                    }}>
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            style={{
+                                background: theme.cardBg,
+                                borderRadius: '20px',
+                                padding: 'clamp(24px, 5vw, 40px)',
+                                maxWidth: '500px',
+                                width: '100%',
+                                boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+                            }}
+                        >
+                            <h3 style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '800', color: theme.text, marginBottom: '20px', textAlign: 'center' }}>
+                                CONFIRM VOTE SUBMISSION
+                            </h3>
+                            <p style={{ fontSize: '0.95rem', color: theme.textSecondary, marginBottom: '20px', textAlign: 'center' }}>
+                                You are about to submit your vote for:
+                            </p>
 
-                        <div style={{ background: theme.bg, borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <span style={{ fontSize: '1.5rem' }}>
-                                    {elections.find(p => p.id === confirmingPosition)?.icon}
-                                </span>
-                                <div>
-                                    <div style={{ fontSize: '0.8rem', color: theme.textSecondary }}>
-                                        {elections.find(p => p.id === confirmingPosition)?.title}:
-                                    </div>
-                                    <div style={{ fontSize: '1rem', fontWeight: '700', color: theme.text }}>
-                                        {getSelectedCandidateName(confirmingPosition)}
+                            <div style={{ background: theme.bg, borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <span style={{ fontSize: '1.5rem' }}>
+                                        {elections.find(p => p.id === confirmingPosition)?.icon}
+                                    </span>
+                                    <div>
+                                        <div style={{ fontSize: '0.8rem', color: theme.textSecondary }}>
+                                            {elections.find(p => p.id === confirmingPosition)?.title}:
+                                        </div>
+                                        <div style={{ fontSize: '1rem', fontWeight: '700', color: theme.text }}>
+                                            {getSelectedCandidateName(confirmingPosition)}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div style={{ background: '#fef3c7', borderRadius: '12px', padding: '14px', marginBottom: '20px', border: '1px solid #fde047' }}>
-                            <p style={{ fontSize: '0.85rem', color: '#92400e', margin: 0, lineHeight: '1.4' }}>
-                                ⚠️ <strong>Important:</strong> This action cannot be undone. Your vote will be recorded anonymously.
-                            </p>
-                        </div>
+                            <div style={{ background: '#fef3c7', borderRadius: '12px', padding: '14px', marginBottom: '20px', border: '1px solid #fde047' }}>
+                                <p style={{ fontSize: '0.85rem', color: '#92400e', margin: 0, lineHeight: '1.4' }}>
+                                    ⚠️ <strong>Important:</strong> This action cannot be undone. Your vote will be recorded anonymously.
+                                </p>
+                            </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                            <button
-                                onClick={() => {
-                                    setShowConfirmModal(false);
-                                    setConfirmingPosition(null);
-                                }}
-                                style={{
-                                    padding: '12px',
-                                    background: 'transparent',
-                                    border: `2px solid ${theme.border}`,
-                                    borderRadius: '12px',
-                                    fontSize: '0.95rem',
-                                    fontWeight: '600',
-                                    color: theme.text,
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                CANCEL
-                            </button>
-                            <button
-                                onClick={confirmSubmitPosition}
-                                disabled={loading}
-                                style={{
-                                    padding: '12px',
-                                    background: theme.primary,
-                                    border: 'none',
-                                    borderRadius: '12px',
-                                    fontSize: '0.95rem',
-                                    fontWeight: '600',
-                                    color: 'white',
-                                    cursor: loading ? 'not-allowed' : 'pointer'
-                                }}
-                            >
-                                {loading ? 'SUBMITTING...' : 'CONFIRM'}
-                            </button>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                <button
+                                    onClick={() => {
+                                        setShowConfirmModal(false);
+                                        setConfirmingPosition(null);
+                                    }}
+                                    style={{
+                                        padding: '12px',
+                                        background: 'transparent',
+                                        border: `2px solid ${theme.border}`,
+                                        borderRadius: '12px',
+                                        fontSize: '0.95rem',
+                                        fontWeight: '600',
+                                        color: theme.text,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    CANCEL
+                                </button>
+                                <button
+                                    onClick={confirmSubmitPosition}
+                                    disabled={loading}
+                                    style={{
+                                        padding: '12px',
+                                        background: theme.primary,
+                                        border: 'none',
+                                        borderRadius: '12px',
+                                        fontSize: '0.95rem',
+                                        fontWeight: '600',
+                                        color: 'white',
+                                        cursor: loading ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    {loading ? 'SUBMITTING...' : 'CONFIRM'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )
+            }
 
             {/* Platform Modal */}
-            {showPlatformModal && selectedCandidate && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.7)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 10000,
-                    padding: '20px'
-                }}
-                    onClick={() => setShowPlatformModal(false)}
-                >
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                            background: theme.cardBg,
-                            borderRadius: '24px',
-                            padding: '32px',
-                            maxWidth: '700px',
-                            width: '100%',
-                            maxHeight: '85vh',
-                            overflow: 'auto',
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-                        }}
+            {
+                showPlatformModal && selectedCandidate && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.7)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 10000,
+                        padding: '20px'
+                    }}
+                        onClick={() => setShowPlatformModal(false)}
                     >
-                        {/* Header */}
-                        <div style={{ marginBottom: '24px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '3rem', marginBottom: '12px' }}>📋</div>
-                            <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: '0 0 8px 0', color: theme.text }}>
-                                Platform & Manifesto
-                            </h2>
-                            <h3 style={{ fontSize: '1.3rem', fontWeight: '700', margin: '0 0 4px 0', color: theme.primary }}>
-                                {selectedCandidate.name}
-                            </h3>
-                            <p style={{ margin: 0, fontSize: '0.9rem', color: theme.textSecondary }}>
-                                {selectedCandidate.department} • {selectedCandidate.year}
-                            </p>
-                        </div>
-
-                        {/* Slogan */}
-                        <div style={{
-                            background: theme.selectedBg,
-                            padding: '16px',
-                            borderRadius: '12px',
-                            marginBottom: '24px',
-                            border: `2px solid ${theme.primary}`,
-                            textAlign: 'center'
-                        }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: theme.primary, marginBottom: '4px', textTransform: 'uppercase' }}>
-                                Campaign Slogan
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                background: theme.cardBg,
+                                borderRadius: '24px',
+                                padding: '32px',
+                                maxWidth: '700px',
+                                width: '100%',
+                                maxHeight: '85vh',
+                                overflow: 'auto',
+                                boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+                            }}
+                        >
+                            {/* Header */}
+                            <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>📋</div>
+                                <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: '0 0 8px 0', color: theme.text }}>
+                                    Platform & Manifesto
+                                </h2>
+                                <h3 style={{ fontSize: '1.3rem', fontWeight: '700', margin: '0 0 4px 0', color: theme.primary }}>
+                                    {selectedCandidate.name}
+                                </h3>
+                                <p style={{ margin: 0, fontSize: '0.9rem', color: theme.textSecondary }}>
+                                    {selectedCandidate.department} • {selectedCandidate.year}
+                                </p>
                             </div>
-                            <div style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.text }}>
-                                "{selectedCandidate.slogan}"
-                            </div>
-                        </div>
 
-                        {/* Key Points */}
-                        <div style={{ marginBottom: '24px' }}>
-                            <h4 style={{ fontSize: '1rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text }}>
-                                Key Platform Points
-                            </h4>
-                            <div style={{ display: 'grid', gap: '8px' }}>
-                                {selectedCandidate.platform.map((item, idx) => (
-                                    <div key={idx} style={{
-                                        padding: '12px 16px',
-                                        background: theme.bg,
-                                        borderRadius: '8px',
-                                        border: `1px solid ${theme.border}`,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '12px'
-                                    }}>
-                                        <span style={{ fontSize: '1.2rem', color: theme.primary, fontWeight: '700' }}>✓</span>
-                                        <span style={{ fontSize: '0.9rem', color: theme.text, fontWeight: '500' }}>{item}</span>
-                                    </div>
-                                ))}
+                            {/* Slogan */}
+                            <div style={{
+                                background: theme.selectedBg,
+                                padding: '16px',
+                                borderRadius: '12px',
+                                marginBottom: '24px',
+                                border: `2px solid ${theme.primary}`,
+                                textAlign: 'center'
+                            }}>
+                                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: theme.primary, marginBottom: '4px', textTransform: 'uppercase' }}>
+                                    Campaign Slogan
+                                </div>
+                                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: theme.text }}>
+                                    "{selectedCandidate.slogan}"
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Full Manifesto */}
-                        {selectedCandidate.manifesto && (
+                            {/* Key Points */}
                             <div style={{ marginBottom: '24px' }}>
                                 <h4 style={{ fontSize: '1rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text }}>
-                                    Complete Manifesto
+                                    Key Platform Points
                                 </h4>
-                                <div style={{
-                                    padding: '20px',
-                                    background: theme.bg,
-                                    borderRadius: '12px',
-                                    border: `1px solid ${theme.border}`,
-                                    whiteSpace: 'pre-wrap',
-                                    fontSize: '0.9rem',
-                                    lineHeight: '1.7',
-                                    color: theme.text
-                                }}>
-                                    {selectedCandidate.manifesto}
+                                <div style={{ display: 'grid', gap: '8px' }}>
+                                    {selectedCandidate.platform.map((item, idx) => (
+                                        <div key={idx} style={{
+                                            padding: '12px 16px',
+                                            background: theme.bg,
+                                            borderRadius: '8px',
+                                            border: `1px solid ${theme.border}`,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '12px'
+                                        }}>
+                                            <span style={{ fontSize: '1.2rem', color: theme.primary, fontWeight: '700' }}>✓</span>
+                                            <span style={{ fontSize: '0.9rem', color: theme.text, fontWeight: '500' }}>{item}</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        )}
 
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setShowPlatformModal(false)}
-                            style={{
-                                width: '100%',
-                                padding: '14px',
-                                background: theme.primary,
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '12px',
-                                fontSize: '1rem',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            Close
-                        </button>
-                    </motion.div>
-                </div>
-            )}
+                            {/* Full Manifesto */}
+                            {selectedCandidate.manifesto && (
+                                <div style={{ marginBottom: '24px' }}>
+                                    <h4 style={{ fontSize: '1rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text }}>
+                                        Complete Manifesto
+                                    </h4>
+                                    <div style={{
+                                        padding: '20px',
+                                        background: theme.bg,
+                                        borderRadius: '12px',
+                                        border: `1px solid ${theme.border}`,
+                                        whiteSpace: 'pre-wrap',
+                                        fontSize: '0.9rem',
+                                        lineHeight: '1.7',
+                                        color: theme.text
+                                    }}>
+                                        {selectedCandidate.manifesto}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setShowPlatformModal(false)}
+                                style={{
+                                    width: '100%',
+                                    padding: '14px',
+                                    background: theme.primary,
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '12px',
+                                    fontSize: '1rem',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                Close
+                            </button>
+                        </motion.div>
+                    </div>
+                )
+            }
 
             {/* Detail Modal */}
-            {showDetailModal && selectedCandidate && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.7)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 10000,
-                    padding: '20px'
-                }}
-                    onClick={() => setShowDetailModal(false)}
-                >
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                            background: theme.cardBg,
-                            borderRadius: '24px',
-                            padding: '32px',
-                            maxWidth: '800px',
-                            width: '100%',
-                            maxHeight: '90vh',
-                            overflow: 'auto',
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-                        }}
+            {
+                showDetailModal && selectedCandidate && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.7)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 10000,
+                        padding: '20px'
+                    }}
+                        onClick={() => setShowDetailModal(false)}
                     >
-                        {/* Header */}
-                        <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '4rem', marginBottom: '16px' }}>👤</div>
-                            <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 8px 0', color: theme.text }}>
-                                {selectedCandidate.fullName || selectedCandidate.name}
-                            </h2>
-                            <div style={{ fontSize: '1.1rem', color: theme.primary, fontWeight: '600', marginBottom: '8px' }}>
-                                Candidate for {elections.find(p => p.candidates.some(c => c._id === selectedCandidate._id))?.title || 'Position'}
-                            </div>
-                            <div style={{ fontSize: '0.95rem', color: theme.textSecondary }}>
-                                {selectedCandidate.department} • {selectedCandidate.year}
-                            </div>
-                        </div>
-
-                        {/* Contact Information */}
-                        <div style={{ marginBottom: '24px' }}>
-                            <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 16px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
-                                📞 Contact Information
-                            </h3>
-                            <div style={{ display: 'grid', gap: '12px' }}>
-                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
-                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Phone Number</div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.phone || 'Not provided'}</div>
-                                </div>
-                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
-                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Email Address</div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.email || 'Not provided'}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Location Information */}
-                        <div style={{ marginBottom: '24px' }}>
-                            <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 16px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
-                                📍 Location Information
-                            </h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
-                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Region</div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.region || 'Not provided'}</div>
-                                </div>
-                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
-                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Zone</div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.zone || 'Not provided'}</div>
-                                </div>
-                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
-                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Woreda</div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.woreda || 'Not provided'}</div>
-                                </div>
-                                <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
-                                    <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>City</div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.city || 'Not provided'}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Background */}
-                        {selectedCandidate.background && (
-                            <div style={{ marginBottom: '24px' }}>
-                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
-                                    ✨ Background
-                                </h3>
-                                <div style={{
-                                    padding: '16px',
-                                    background: theme.bg,
-                                    borderRadius: '12px',
-                                    border: `1px solid ${theme.border}`,
-                                    fontSize: '0.95rem',
-                                    lineHeight: '1.6',
-                                    color: theme.text
-                                }}>
-                                    {selectedCandidate.background}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Education */}
-                        {selectedCandidate.education && (
-                            <div style={{ marginBottom: '24px' }}>
-                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
-                                    🎓 Educational Background
-                                </h3>
-                                <div style={{ display: 'grid', gap: '8px' }}>
-                                    {selectedCandidate.education.map((edu, idx) => (
-                                        <div key={idx} style={{
-                                            padding: '12px 16px',
-                                            background: theme.bg,
-                                            borderRadius: '8px',
-                                            border: `1px solid ${theme.border}`,
-                                            display: 'flex',
-                                            alignItems: 'start',
-                                            gap: '12px'
-                                        }}>
-                                            <span style={{ fontSize: '1.2rem', color: theme.primary }}>•</span>
-                                            <span style={{ fontSize: '0.9rem', color: theme.text, lineHeight: '1.5' }}>{edu}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Experience */}
-                        {selectedCandidate.experience && (
-                            <div style={{ marginBottom: '24px' }}>
-                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
-                                    💼 Experience
-                                </h3>
-                                <div style={{ display: 'grid', gap: '8px' }}>
-                                    {selectedCandidate.experience.map((exp, idx) => (
-                                        <div key={idx} style={{
-                                            padding: '12px 16px',
-                                            background: theme.bg,
-                                            borderRadius: '8px',
-                                            border: `1px solid ${theme.border}`,
-                                            display: 'flex',
-                                            alignItems: 'start',
-                                            gap: '12px'
-                                        }}>
-                                            <span style={{ fontSize: '1.2rem', color: theme.primary }}>•</span>
-                                            <span style={{ fontSize: '0.9rem', color: theme.text, lineHeight: '1.5' }}>{exp}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Achievements */}
-                        {selectedCandidate.achievements && (
-                            <div style={{ marginBottom: '24px' }}>
-                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
-                                    🏆 Achievements
-                                </h3>
-                                <div style={{ display: 'grid', gap: '8px' }}>
-                                    {selectedCandidate.achievements.map((achievement, idx) => (
-                                        <div key={idx} style={{
-                                            padding: '12px 16px',
-                                            background: theme.bg,
-                                            borderRadius: '8px',
-                                            border: `1px solid ${theme.border}`,
-                                            display: 'flex',
-                                            alignItems: 'start',
-                                            gap: '12px'
-                                        }}>
-                                            <span style={{ fontSize: '1.2rem', color: theme.primary }}>🌟</span>
-                                            <span style={{ fontSize: '0.9rem', color: theme.text, lineHeight: '1.5' }}>{achievement}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setShowDetailModal(false)}
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            onClick={(e) => e.stopPropagation()}
                             style={{
+                                background: theme.cardBg,
+                                borderRadius: '24px',
+                                padding: '32px',
+                                maxWidth: '800px',
                                 width: '100%',
-                                padding: '14px',
-                                background: theme.primary,
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '12px',
-                                fontSize: '1rem',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
+                                maxHeight: '90vh',
+                                overflow: 'auto',
+                                boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
                             }}
                         >
-                            Close
-                        </button>
-                    </motion.div>
-                </div>
-            )}
+                            {/* Header */}
+                            <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '4rem', marginBottom: '16px' }}>👤</div>
+                                <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 8px 0', color: theme.text }}>
+                                    {selectedCandidate.fullName || selectedCandidate.name}
+                                </h2>
+                                <div style={{ fontSize: '1.1rem', color: theme.primary, fontWeight: '600', marginBottom: '8px' }}>
+                                    Candidate for {elections.find(p => p.candidates.some(c => c._id === selectedCandidate._id))?.title || 'Position'}
+                                </div>
+                                <div style={{ fontSize: '0.95rem', color: theme.textSecondary }}>
+                                    {selectedCandidate.department} • {selectedCandidate.year}
+                                </div>
+                            </div>
+
+                            {/* Contact Information */}
+                            <div style={{ marginBottom: '24px' }}>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 16px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                    📞 Contact Information
+                                </h3>
+                                <div style={{ display: 'grid', gap: '12px' }}>
+                                    <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                        <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Phone Number</div>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.phone || 'Not provided'}</div>
+                                    </div>
+                                    <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                        <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Email Address</div>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.email || 'Not provided'}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Location Information */}
+                            <div style={{ marginBottom: '24px' }}>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 16px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                    📍 Location Information
+                                </h3>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                                    <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                        <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Region</div>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.region || 'Not provided'}</div>
+                                    </div>
+                                    <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                        <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Zone</div>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.zone || 'Not provided'}</div>
+                                    </div>
+                                    <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                        <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>Woreda</div>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.woreda || 'Not provided'}</div>
+                                    </div>
+                                    <div style={{ padding: '12px 16px', background: theme.bg, borderRadius: '8px', border: `1px solid ${theme.border}` }}>
+                                        <div style={{ fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '4px' }}>City</div>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: '600', color: theme.text }}>{selectedCandidate.city || 'Not provided'}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Background */}
+                            {selectedCandidate.background && (
+                                <div style={{ marginBottom: '24px' }}>
+                                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                        ✨ Background
+                                    </h3>
+                                    <div style={{
+                                        padding: '16px',
+                                        background: theme.bg,
+                                        borderRadius: '12px',
+                                        border: `1px solid ${theme.border}`,
+                                        fontSize: '0.95rem',
+                                        lineHeight: '1.6',
+                                        color: theme.text
+                                    }}>
+                                        {selectedCandidate.background}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Education */}
+                            {selectedCandidate.education && (
+                                <div style={{ marginBottom: '24px' }}>
+                                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                        🎓 Educational Background
+                                    </h3>
+                                    <div style={{ display: 'grid', gap: '8px' }}>
+                                        {selectedCandidate.education.map((edu, idx) => (
+                                            <div key={idx} style={{
+                                                padding: '12px 16px',
+                                                background: theme.bg,
+                                                borderRadius: '8px',
+                                                border: `1px solid ${theme.border}`,
+                                                display: 'flex',
+                                                alignItems: 'start',
+                                                gap: '12px'
+                                            }}>
+                                                <span style={{ fontSize: '1.2rem', color: theme.primary }}>•</span>
+                                                <span style={{ fontSize: '0.9rem', color: theme.text, lineHeight: '1.5' }}>{edu}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Experience */}
+                            {selectedCandidate.experience && (
+                                <div style={{ marginBottom: '24px' }}>
+                                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                        💼 Experience
+                                    </h3>
+                                    <div style={{ display: 'grid', gap: '8px' }}>
+                                        {selectedCandidate.experience.map((exp, idx) => (
+                                            <div key={idx} style={{
+                                                padding: '12px 16px',
+                                                background: theme.bg,
+                                                borderRadius: '8px',
+                                                border: `1px solid ${theme.border}`,
+                                                display: 'flex',
+                                                alignItems: 'start',
+                                                gap: '12px'
+                                            }}>
+                                                <span style={{ fontSize: '1.2rem', color: theme.primary }}>•</span>
+                                                <span style={{ fontSize: '0.9rem', color: theme.text, lineHeight: '1.5' }}>{exp}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Achievements */}
+                            {selectedCandidate.achievements && (
+                                <div style={{ marginBottom: '24px' }}>
+                                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 12px 0', color: theme.text, borderBottom: `2px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                                        🏆 Achievements
+                                    </h3>
+                                    <div style={{ display: 'grid', gap: '8px' }}>
+                                        {selectedCandidate.achievements.map((achievement, idx) => (
+                                            <div key={idx} style={{
+                                                padding: '12px 16px',
+                                                background: theme.bg,
+                                                borderRadius: '8px',
+                                                border: `1px solid ${theme.border}`,
+                                                display: 'flex',
+                                                alignItems: 'start',
+                                                gap: '12px'
+                                            }}>
+                                                <span style={{ fontSize: '1.2rem', color: theme.primary }}>🌟</span>
+                                                <span style={{ fontSize: '0.9rem', color: theme.text, lineHeight: '1.5' }}>{achievement}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setShowDetailModal(false)}
+                                style={{
+                                    width: '100%',
+                                    padding: '14px',
+                                    background: theme.primary,
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '12px',
+                                    fontSize: '1rem',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                Close
+                            </button>
+                        </motion.div>
+                    </div>
+                )
+            }
 
 
             {/* Responsive CSS */}
@@ -1577,7 +1640,7 @@ const PublicVote = () => {
                     }
                 }
             `}</style>
-        </div>
+        </div >
     );
 };
 
