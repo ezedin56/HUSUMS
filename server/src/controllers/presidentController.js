@@ -133,7 +133,13 @@ const addCandidate = async (req, res) => {
         background, education, experience, achievements, slogan
     } = req.body;
     const { id } = req.params;
-    const photo = req.file ? `/uploads/${req.file.filename}` : '';
+
+    let photo = '';
+    if (req.file) {
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        const mimeType = req.file.mimetype;
+        photo = `data:${mimeType};base64,${b64}`;
+    }
 
     try {
         const candidate = await Candidate.create({
@@ -189,7 +195,12 @@ const updateCandidate = async (req, res) => {
         region, zone, woreda, city,
         background, education, experience, achievements, slogan
     } = req.body;
-    const photo = req.file ? `/uploads/${req.file.filename}` : undefined;
+    let photo;
+    if (req.file) {
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        const mimeType = req.file.mimetype;
+        photo = `data:${mimeType};base64,${b64}`;
+    }
 
     try {
         const candidate = await Candidate.findById(id);

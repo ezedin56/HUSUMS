@@ -720,38 +720,24 @@ const CandidateManager = () => {
             )}
 
             {/* Add Candidate Modal */}
-            <AnimatePresence>
-                {showAddModal && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#1e293b] p-6 rounded-xl w-full max-w-3xl border border-white/10 max-h-[90vh] overflow-y-auto"
-                        >
-                            <h2 className="text-xl font-bold mb-4">Add Candidate to {selectedElection?.title}</h2>
-                            {renderForm(false)}
-                        </motion.div>
+            {showAddModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4">
+                    <div className="bg-[#1e293b] p-6 rounded-xl w-full max-w-3xl border border-white/10 max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-xl font-bold mb-4">Add Candidate to {selectedElection?.title}</h2>
+                        {renderForm(false)}
                     </div>
-                )}
-            </AnimatePresence>
+                </div>
+            )}
 
             {/* Edit Candidate Modal */}
-            <AnimatePresence>
-                {showEditModal && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-[#1e293b] p-6 rounded-xl w-full max-w-3xl border border-white/10 max-h-[90vh] overflow-y-auto"
-                        >
-                            <h2 className="text-xl font-bold mb-4">Edit Candidate</h2>
-                            {renderForm(true)}
-                        </motion.div>
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4">
+                    <div className="bg-[#1e293b] p-6 rounded-xl w-full max-w-3xl border border-white/10 max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-xl font-bold mb-4">Edit Candidate</h2>
+                        {renderForm(true)}
                     </div>
-                )}
-            </AnimatePresence>
+                </div>
+            )}
         </div>
     );
 };
