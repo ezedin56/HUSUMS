@@ -104,7 +104,7 @@ const AdminDashboard = () => {
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-2xl p-8"
+                className="relative overflow-hidden rounded-2xl p-4 sm:p-6 md:p-8"
                 style={{
                     background: 'linear-gradient(135deg, rgba(0, 255, 85, 0.1), rgba(0, 217, 255, 0.1))',
                     backdropFilter: 'blur(20px)',
@@ -113,10 +113,10 @@ const AdminDashboard = () => {
                 }}
             >
                 <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-2">
-                        <Sparkles size={32} style={{ color: '#00ff55' }} />
+                    <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                        <Sparkles className="w-6 h-6 sm:w-8 sm:h-8" style={{ color: '#00ff55' }} />
                         <h1 style={{
-                            fontSize: '2.5rem',
+                            fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
                             fontWeight: 'bold',
                             background: 'linear-gradient(135deg, #00ff55, #00d9ff)',
                             WebkitBackgroundClip: 'text',
@@ -125,12 +125,12 @@ const AdminDashboard = () => {
                             Welcome back, {user.firstName || 'Admin'}!
                         </h1>
                     </div>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '1.1rem' }}>
+                    <p className="text-sm sm:text-base md:text-lg" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                         Here's what's happening with your elections today
                     </p>
                 </div>
                 <div
-                    className="absolute -bottom-10 -right-10 w-60 h-60 rounded-full blur-3xl opacity-30"
+                    className="absolute -bottom-10 -right-10 w-40 h-40 sm:w-60 sm:h-60 rounded-full blur-3xl opacity-30"
                     style={{ background: '#00ff55' }}
                 />
             </motion.div>
@@ -180,7 +180,7 @@ const AdminDashboard = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="p-6 rounded-2xl"
+                            className="p-4 sm:p-6 rounded-2xl"
                             style={{
                                 background: 'rgba(255, 255, 255, 0.03)',
                                 backdropFilter: 'blur(20px)',
@@ -188,11 +188,11 @@ const AdminDashboard = () => {
                                 boxShadow: '0 0 20px rgba(0, 255, 85, 0.1)'
                             }}
                         >
-                            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                            <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2">
                                 <TrendingUp size={20} style={{ color: '#00ff55' }} />
                                 <span style={{ color: '#fff' }}>Election Status</span>
                             </h3>
-                            <div className="h-[300px] w-full">
+                            <div className="h-[200px] sm:h-[250px] md:h-[300px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
@@ -220,7 +220,7 @@ const AdminDashboard = () => {
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div className="flex justify-center gap-6 mt-4 flex-wrap">
+                            <div className="flex justify-center gap-3 sm:gap-6 mt-4 flex-wrap">
                                 {getStatusData().map((entry, index) => (
                                     <div key={entry.name} className="flex items-center gap-2">
                                         <div
@@ -230,7 +230,7 @@ const AdminDashboard = () => {
                                                 boxShadow: `0 0 10px ${COLORS[index % COLORS.length]}`
                                             }}
                                         />
-                                        <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                                        <span className="text-xs sm:text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                                             {entry.name} ({entry.value})
                                         </span>
                                     </div>
@@ -243,7 +243,7 @@ const AdminDashboard = () => {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="p-6 rounded-2xl"
+                            className="p-4 sm:p-6 rounded-2xl"
                             style={{
                                 background: 'rgba(255, 255, 255, 0.03)',
                                 backdropFilter: 'blur(20px)',
@@ -251,11 +251,11 @@ const AdminDashboard = () => {
                                 boxShadow: '0 0 20px rgba(0, 217, 255, 0.1)'
                             }}
                         >
-                            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                            <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 flex items-center gap-2">
                                 <BarChart3 size={20} style={{ color: '#00d9ff' }} />
                                 <span style={{ color: '#fff' }}>Votes per Election</span>
                             </h3>
-                            <div className="h-[300px] w-full">
+                            <div className="h-[200px] sm:h-[250px] md:h-[300px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={getVotesData()}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
@@ -300,7 +300,7 @@ const AdminDashboard = () => {
                         transition={{ delay: 0.4 }}
                         className="space-y-4"
                     >
-                        <h3 className="text-xl font-bold flex items-center gap-2">
+                        <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2">
                             <Calendar size={20} style={{ color: '#00ff55' }} />
                             <span style={{ color: '#fff' }}>Elections & Candidates</span>
                         </h3>
@@ -319,11 +319,11 @@ const AdminDashboard = () => {
                                     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
                                 }}
                             >
-                                <div className="p-6">
-                                    <div className="flex justify-between items-start flex-wrap gap-4">
+                                <div className="p-4 sm:p-6">
+                                    <div className="flex justify-between items-start flex-wrap gap-2 sm:gap-4">
                                         <div className="flex-1 min-w-[200px]">
-                                            <div className="flex items-center gap-3 mb-2 flex-wrap">
-                                                <h4 className="text-lg font-bold" style={{ color: '#fff' }}>
+                                            <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
+                                                <h4 className="text-base sm:text-lg font-bold" style={{ color: '#fff' }}>
                                                     {election.title}
                                                 </h4>
                                                 <NeonBadge
@@ -336,7 +336,7 @@ const AdminDashboard = () => {
                                                     {election.status.toUpperCase()}
                                                 </NeonBadge>
                                             </div>
-                                            <div className="flex gap-6 text-sm flex-wrap" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                                            <div className="flex gap-3 sm:gap-6 text-xs sm:text-sm flex-wrap" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                                                 <span>{new Date(election.startDate).toLocaleDateString()}</span>
                                                 <span>{election.Candidates?.length || 0} Candidates</span>
                                                 <span>{election.Candidates?.reduce((acc, c) => acc + (c.voteCount || 0), 0) || 0} Votes</span>
@@ -344,7 +344,7 @@ const AdminDashboard = () => {
                                         </div>
                                         <button
                                             onClick={() => toggleExpand(election._id)}
-                                            className="px-4 py-2 rounded-lg font-semibold text-sm transition-all"
+                                            className="px-3 py-2 sm:px-4 rounded-lg font-semibold text-xs sm:text-sm transition-all"
                                             style={{
                                                 background: 'rgba(0, 217, 255, 0.1)',
                                                 border: '1px solid rgba(0, 217, 255, 0.3)',
@@ -361,7 +361,8 @@ const AdminDashboard = () => {
                                         >
                                             <div className="flex items-center gap-2">
                                                 {expandedElections[election._id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                                                {expandedElections[election._id] ? 'Hide' : 'View'} Candidates
+                                                <span className="hidden sm:inline">{expandedElections[election._id] ? 'Hide' : 'View'} Candidates</span>
+                                                <span className="sm:hidden">{expandedElections[election._id] ? 'Hide' : 'View'}</span>
                                             </div>
                                         </button>
                                     </div>
@@ -379,12 +380,12 @@ const AdminDashboard = () => {
                                                 background: 'rgba(0, 0, 0, 0.2)'
                                             }}
                                         >
-                                            <div className="p-6">
-                                                <h5 className="text-md font-bold mb-4" style={{ color: '#fff' }}>
+                                            <div className="p-4 sm:p-6">
+                                                <h5 className="text-sm sm:text-md font-bold mb-4" style={{ color: '#fff' }}>
                                                     Candidates
                                                 </h5>
                                                 {election.Candidates && election.Candidates.length > 0 ? (
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                                         {election.Candidates.map(candidate => (
                                                             <motion.div
                                                                 key={candidate.id}
