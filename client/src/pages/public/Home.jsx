@@ -138,9 +138,9 @@ const Home = () => {
                     ))}
 
                     <Link to="/login" style={{
-                        padding: '0.5rem 1.5rem', borderRadius: '50px', background: theme.primary, color: '#000', fontWeight: '700', textDecoration: 'none', transition: 'transform 0.2s'
+                        padding: '0.5rem 1.5rem', borderRadius: '50px', background: theme.primary, fontWeight: '700', textDecoration: 'none', transition: 'transform 0.2s', display: 'inline-block'
                     }} onMouseOver={e => e.target.style.transform = 'scale(1.05)'} onMouseOut={e => e.target.style.transform = 'scale(1)'}>
-                        Login
+                        <span style={{ color: '#ffffff' }}>Login</span>
                     </Link>
                 </div>
 
@@ -251,13 +251,12 @@ const Home = () => {
                                     padding: '0.8rem 1.5rem',
                                     borderRadius: '50px',
                                     background: theme.primary,
-                                    color: '#000',
                                     fontWeight: '700',
                                     textDecoration: 'none',
                                     fontSize: '1rem'
                                 }}
                             >
-                                Login
+                                <span style={{ color: '#ffffff' }}>Login</span>
                             </Link>
                         </motion.div>
                     </>
@@ -281,14 +280,14 @@ const Home = () => {
                     </p>
                     <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                         <Link to="/public-vote" style={{
-                            padding: '1rem 2.5rem', borderRadius: '50px', background: 'linear-gradient(90deg, #00ff00, #00cc00)', color: '#FFFFFF', fontWeight: '900', textDecoration: 'none', fontSize: '1.3rem', transition: 'all 0.3s', boxShadow: '0 0 20px rgba(0, 255, 0, 0.4)', border: 'none', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.5)', letterSpacing: '0.5px'
-                        }} onMouseOver={e => { e.target.style.transform = 'translateY(-3px)'; e.target.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.6)' }} onMouseOut={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.4)' }}>
-                            Vote Now
+                            padding: '1rem 2.5rem', borderRadius: '50px', background: theme.primary, fontWeight: '700', textDecoration: 'none', fontSize: '1.1rem', transition: 'transform 0.2s', display: 'inline-block'
+                        }} onMouseOver={e => e.target.style.transform = 'scale(1.05)'} onMouseOut={e => e.target.style.transform = 'scale(1)'}>
+                            <span style={{ color: '#ffffff' }}>Vote Now</span>
                         </Link>
                         <a href="#about" style={{
-                            padding: '1rem 2.5rem', borderRadius: '50px', background: theme.primary, color: '#FFFFFF', fontWeight: '900', textDecoration: 'none', fontSize: '1.3rem', transition: 'all 0.3s', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.5)', letterSpacing: '0.5px'
-                        }} onMouseOver={e => { e.target.style.transform = 'translateY(-3px)' }} onMouseOut={e => { e.target.style.transform = 'translateY(0)' }}>
-                            Explore Our Union
+                            padding: '1rem 2.5rem', borderRadius: '50px', background: theme.primary, fontWeight: '700', textDecoration: 'none', fontSize: '1.1rem', transition: 'transform 0.2s', display: 'inline-block'
+                        }} onMouseOver={e => e.target.style.transform = 'scale(1.05)'} onMouseOut={e => e.target.style.transform = 'scale(1)'}>
+                            <span style={{ color: '#ffffff' }}>Explore Our Union</span>
                         </a>
                         <button onClick={() => setConstitutionModalOpen(true)} style={{
                             padding: '1rem 2.5rem', borderRadius: '50px', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(5px)', fontWeight: '700', fontSize: '1.1rem', transition: 'all 0.2s', cursor: 'pointer'
