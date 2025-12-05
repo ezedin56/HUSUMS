@@ -2,6 +2,7 @@ const Election = require('../models/Election');
 const Candidate = require('../models/Candidate');
 const Vote = require('../models/Vote');
 const User = require('../models/User');
+const AllowedVoter = require('../models/AllowedVoter');
 
 // @desc    Get active elections with candidates for public voting
 // @route   GET /api/public/elections/active
@@ -74,22 +75,31 @@ const verifyStudent = async (req, res) => {
             });
         }
 
-        // Check if user exists with this student ID
-        const user = await User.findOne({ studentId: studentId.trim() });
-        console.log('[VERIFY] User found:', user ? `Yes (${user.firstName} ${user.lastName})` : 'No');
+        // Check if user exists in the AllowedVoter list
+        // Try exact match first, then try adding UGPR prefix if not present
+        let searchId = studentId.trim();
+        let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
 
-        if (!user) {
+        if (!allowedVoter && !searchId.toUpperCase().startsWith('UGPR')) {
+            const prefixedId = `UGPR${searchId}`;
+            console.log(`[VERIFY] ID not found, trying with prefix: ${prefixedId}`);
+            allowedVoter = await AllowedVoter.findOne({ studentId: prefixedId });
+        }
+
+        console.log('[VERIFY] AllowedVoter found:', allowedVoter ? `Yes (${allowedVoter.fullName})` : 'No');
+
+        if (!allowedVoter) {
             return res.status(404).json({
-                message: 'Student ID not found. Please check your Student ID.'
+                message: 'Student ID not found in the allowed voters list.'
             });
         }
 
         // Verify the full name matches (case-insensitive)
-        const userFullName = `${user.firstName} ${user.lastName}`.toLowerCase().trim();
+        const allowedName = allowedVoter.fullName.toLowerCase().trim();
         const providedName = fullName.toLowerCase().trim();
-        console.log('[VERIFY] Comparing:', { userFullName, providedName, match: userFullName === providedName });
+        console.log('[VERIFY] Comparing:', { allowedName, providedName, match: allowedName === providedName });
 
-        if (userFullName !== providedName) {
+        if (allowedName !== providedName) {
             return res.status(400).json({
                 message: 'Full name does not match our records. Please check your name.'
             });
@@ -100,7 +110,7 @@ const verifyStudent = async (req, res) => {
         res.json({
             verified: true,
             message: 'Student verified successfully',
-            studentId: user.studentId
+            studentId: allowedVoter.studentId
         });
     } catch (error) {
         console.error('[VERIFY] Error:', error);
@@ -118,16 +128,23 @@ const submitPublicVote = async (req, res) => {
             return res.status(400).json({ message: 'No votes provided' });
         }
 
-        // 1. Verify student exists
-        const user = await User.findOne({ studentId });
-        if (!user) {
-            return res.status(404).json({ message: 'Student ID not found' });
+        // 1. Verify student exists in AllowedVoter list
+        let searchId = studentId.trim();
+        let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
+
+        if (!allowedVoter && !searchId.toUpperCase().startsWith('UGPR')) {
+            searchId = `UGPR${searchId}`; // Update searchId to use the prefixed version for vote storage
+            allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
+        }
+
+        if (!allowedVoter) {
+            return res.status(404).json({ message: 'Student ID not found in allowed voters list' });
         }
 
         // 2. Verify full name matches
-        const userFullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-        if (userFullName !== fullName.toLowerCase().trim()) {
-            return res.status(400).json({ message: 'Full name does not match' });
+        const allowedName = allowedVoter.fullName.toLowerCase().trim();
+        if (allowedName !== fullName.toLowerCase().trim()) {
+            return res.status(400).json({ message: 'Full name does not match our records' });
         }
 
         // 3. Validate vote structure and check for duplicates
@@ -176,7 +193,7 @@ const submitPublicVote = async (req, res) => {
             // Check if student already voted for this position in this election
             const existingVote = await Vote.findOne({
                 electionId,
-                studentId,
+                studentId: searchId, // Use the normalized ID
                 position: candidate.position
             });
 
@@ -191,7 +208,7 @@ const submitPublicVote = async (req, res) => {
                 electionId,
                 candidateId,
                 position: candidate.position,
-                studentId,
+                studentId: searchId, // Use the normalized ID
                 voterName: fullName,
                 ipAddress,
                 timestamp: new Date()
