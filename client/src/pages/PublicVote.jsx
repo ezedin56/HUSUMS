@@ -92,17 +92,20 @@ const PublicVote = () => {
             const data = await response.json();
 
             // Transform API data to match component structure
-            // Group candidates by position
+            // Group candidates by BOTH election ID and position to keep elections separate
             const positionsMap = {};
 
             data.forEach(election => {
                 election.candidates.forEach(candidate => {
                     const position = candidate.position;
+                    // Create unique key combining election ID and position
+                    const groupKey = `${election.id}_${position}`;
 
-                    if (!positionsMap[position]) {
-                        positionsMap[position] = {
-                            id: position.toLowerCase().replace(/\s+/g, ''),
+                    if (!positionsMap[groupKey]) {
+                        positionsMap[groupKey] = {
+                            id: groupKey,
                             title: position,
+                            electionTitle: election.title, // Add election title for display
                             icon: getPositionIcon(position),
                             electionId: election.id,
                             candidates: []
@@ -110,7 +113,7 @@ const PublicVote = () => {
                     }
 
                     // Transform candidate data
-                    positionsMap[position].candidates.push({
+                    positionsMap[groupKey].candidates.push({
                         _id: candidate.id,
                         name: candidate.name,
                         fullName: candidate.name,
@@ -175,8 +178,8 @@ const PublicVote = () => {
             // Mark positions as submitted based on vote history
             const votedPositionsMap = {};
             data.votedPositions.forEach(vote => {
-                // Create a position ID that matches the elections structure
-                const positionId = vote.position.toLowerCase().replace(/\s+/g, '');
+                // Create a position ID that matches the elections structure (electionId_position)
+                const positionId = `${vote.electionId}_${vote.position}`;
                 votedPositionsMap[positionId] = true;
             });
 
@@ -741,8 +744,13 @@ const PublicVote = () => {
                                             gap: '12px'
                                         }}>
                                             <div>
-                                                <h2 style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '800', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                    {position.icon} {position.title.toUpperCase()}
+                                                <h2 style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '800', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                                    <span>{position.icon} {position.title.toUpperCase()}</span>
+                                                    {position.electionTitle && (
+                                                        <span style={{ fontSize: '0.7rem', fontWeight: '600', opacity: 0.85, background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '8px' }}>
+                                                            {position.electionTitle}
+                                                        </span>
+                                                    )}
                                                 </h2>
                                                 <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>
                                                     {submittedPositions[position.id] ? '✓ Vote Submitted Successfully' : 'Click to select, double-click to unselect'}
@@ -821,7 +829,7 @@ const PublicVote = () => {
                                                                 marginBottom: '16px',
                                                                 border: `3px solid ${isSelected ? theme.primaryHover : theme.border}`,
                                                                 overflow: 'hidden',
-                                                                backgroundImage: candidate.photo ? `url(http://localhost:5000${candidate.photo})` : 'none',
+                                                                backgroundImage: candidate.photo ? `url(${candidate.photo})` : 'none',
                                                                 backgroundSize: 'cover',
                                                                 backgroundPosition: 'center'
                                                             }}>
