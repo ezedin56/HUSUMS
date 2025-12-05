@@ -6,10 +6,12 @@ import {
     FaShieldAlt, FaCalendarAlt, FaMapMarkerAlt, FaEnvelope, FaPhone,
     FaBook, FaGavel, FaBalanceScale, FaMoon, FaSun, FaHome, FaArrowLeft
 } from 'react-icons/fa';
+import { ToastContainer, useToast } from '../components/Toast';
 
 const API_URL = 'http://localhost:5000/api';
 
 const PublicVote = () => {
+    const { toasts, success: showSuccess, error: showError, warning: showWarning, removeToast } = useToast();
     const [step, setStep] = useState(1); // 1: Verify, 2: Vote, 3: Success
     const [studentId, setStudentId] = useState('');
     const [fullName, setFullName] = useState('');
@@ -153,6 +155,39 @@ const PublicVote = () => {
         return '👤';
     };
 
+    const fetchVoteStatus = async () => {
+        try {
+            const response = await fetch(`${API_URL}/public/vote-status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId, fullName })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to fetch vote status');
+                return;
+            }
+
+            const data = await response.json();
+
+            // Mark positions as submitted based on vote history
+            const votedPositionsMap = {};
+            data.votedPositions.forEach(vote => {
+                // Create a position ID that matches the elections structure
+                const positionId = vote.position.toLowerCase().replace(/\s+/g, '');
+                votedPositionsMap[positionId] = true;
+            });
+
+            setSubmittedPositions(votedPositionsMap);
+
+            if (data.votedPositions.length > 0) {
+                showSuccess(`Welcome back! You have already voted for ${data.votedPositions.length} position(s).`);
+            }
+        } catch (err) {
+            console.error('Error fetching vote status:', err);
+        }
+    };
+
     const handleVerify = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -178,6 +213,9 @@ const PublicVote = () => {
                 localStorage.removeItem('husums_student_id');
                 localStorage.removeItem('husums_full_name');
             }
+
+            // Fetch vote status to check if student has already voted
+            await fetchVoteStatus();
 
             setStep(2);
         } catch (err) {
@@ -269,7 +307,19 @@ const PublicVote = () => {
                 setStep(3);
             }
         } catch (err) {
-            setError(err.message);
+            if (err.message === 'You voted for this position') {
+                // If user already voted, mark as submitted and show success/info
+                setSubmittedPositions(prev => ({
+                    ...prev,
+                    [confirmingPosition]: true
+                }));
+                setShowConfirmModal(false);
+                setConfirmingPosition(null);
+                showSuccess('You have already voted for this position. Marked as complete.');
+            } else {
+                setError(err.message);
+                showError(err.message);
+            }
         } finally {
             setLoading(false);
         }
@@ -287,6 +337,7 @@ const PublicVote = () => {
 
     return (
         <div style={{ minHeight: '100vh', background: theme.bg, fontFamily: "'Inter', sans-serif", transition: 'background 0.3s' }}>
+            <ToastContainer toasts={toasts} removeToast={removeToast} />
             <AnimatePresence mode="wait">
                 {/* Step 1: Verification */}
                 {step === 1 && (
@@ -694,110 +745,117 @@ const PublicVote = () => {
                                                         )}
 
                                                         <div style={{
-                                                            width: '80px',
-                                                            height: '80px',
-                                                            borderRadius: '50%',
-                                                            backgroundColor: isSelected ? theme.primary : theme.border,
-                                                            color: isSelected ? 'white' : theme.textSecondary,
                                                             display: 'flex',
+                                                            flexDirection: 'column',
                                                             alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            fontSize: '2rem',
-                                                            fontWeight: '800',
-                                                            margin: '0 auto 14px',
-                                                            border: `3px solid ${isSelected ? theme.primaryHover : theme.border}`,
-                                                            overflow: 'hidden',
-                                                            backgroundImage: candidate.photo ? `url(http://localhost:5000${candidate.photo})` : 'none',
-                                                            backgroundSize: 'cover',
-                                                            backgroundPosition: 'center'
+                                                            width: '100%'
                                                         }}>
-                                                            {!candidate.photo && candidate.name.split(' ').map(n => n[0]).join('')}
-                                                        </div>
+                                                            <div style={{
+                                                                width: '100px',
+                                                                height: '100px',
+                                                                borderRadius: '50%',
+                                                                backgroundColor: isSelected ? theme.primary : theme.border,
+                                                                color: isSelected ? 'white' : theme.textSecondary,
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                fontSize: '2.5rem',
+                                                                fontWeight: '800',
+                                                                marginBottom: '16px',
+                                                                border: `3px solid ${isSelected ? theme.primaryHover : theme.border}`,
+                                                                overflow: 'hidden',
+                                                                backgroundImage: candidate.photo ? `url(http://localhost:5000${candidate.photo})` : 'none',
+                                                                backgroundSize: 'cover',
+                                                                backgroundPosition: 'center'
+                                                            }}>
+                                                                {!candidate.photo && candidate.name.split(' ').map(n => n[0]).join('')}
+                                                            </div>
 
-                                                        <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: theme.text, margin: '0 0 4px 0', textAlign: 'center' }}>
-                                                            {candidate.name}
-                                                        </h3>
-                                                        <p style={{ fontSize: '0.85rem', color: theme.textSecondary, margin: '0 0 10px 0', textAlign: 'center' }}>
-                                                            {candidate.department} • {candidate.year}
-                                                        </p>
+                                                            <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: theme.text, margin: '0 0 4px 0', textAlign: 'center' }}>
+                                                                {candidate.name}
+                                                            </h3>
+                                                            <p style={{ fontSize: '0.85rem', color: theme.textSecondary, margin: '0 0 10px 0', textAlign: 'center' }}>
+                                                                {candidate.department} • {candidate.year}
+                                                            </p>
 
-                                                        <p style={{ fontSize: '0.9rem', color: theme.text, fontStyle: 'italic', margin: '0 0 14px 0', textAlign: 'center', lineHeight: '1.4' }}>
-                                                            "{candidate.slogan}"
-                                                        </p>
+                                                            <p style={{ fontSize: '0.9rem', color: theme.text, fontStyle: 'italic', margin: '0 0 14px 0', textAlign: 'center', lineHeight: '1.4' }}>
+                                                                "{candidate.slogan}"
+                                                            </p>
 
-                                                        <div style={{ marginBottom: '14px' }}>
-                                                            {candidate.platform.map((item, i) => (
-                                                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', fontSize: '0.8rem', color: theme.text }}>
-                                                                    <FaCheckCircle style={{ color: theme.primary, flexShrink: 0, fontSize: '0.7rem' }} />
-                                                                    <span>{item}</span>
+                                                            <div style={{ marginBottom: '14px' }}>
+                                                                {candidate.platform.map((item, i) => (
+                                                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', fontSize: '0.8rem', color: theme.text }}>
+                                                                        <FaCheckCircle style={{ color: theme.primary, flexShrink: 0, fontSize: '0.7rem' }} />
+                                                                        <span>{item}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+
+                                                            <div style={{ marginBottom: '12px' }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', fontSize: '0.8rem' }}>
+                                                                    <span style={{ color: theme.textSecondary }}>Support:</span>
+                                                                    <span style={{ fontWeight: '700', color: theme.primary }}>{candidate.currentSupport}%</span>
                                                                 </div>
-                                                            ))}
-                                                        </div>
-
-                                                        <div style={{ marginBottom: '12px' }}>
-                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', fontSize: '0.8rem' }}>
-                                                                <span style={{ color: theme.textSecondary }}>Support:</span>
-                                                                <span style={{ fontWeight: '700', color: theme.primary }}>{candidate.currentSupport}%</span>
+                                                                <div style={{ width: '100%', height: '6px', background: theme.border, borderRadius: '3px', overflow: 'hidden' }}>
+                                                                    <div style={{
+                                                                        width: `${candidate.currentSupport}%`,
+                                                                        height: '100%',
+                                                                        background: 'linear-gradient(90deg, #059669, #047857)',
+                                                                        transition: 'width 0.5s'
+                                                                    }} />
+                                                                </div>
                                                             </div>
-                                                            <div style={{ width: '100%', height: '6px', background: theme.border, borderRadius: '3px', overflow: 'hidden' }}>
-                                                                <div style={{
-                                                                    width: `${candidate.currentSupport}%`,
-                                                                    height: '100%',
-                                                                    background: 'linear-gradient(90deg, #059669, #047857)',
-                                                                    transition: 'width 0.5s'
-                                                                }} />
-                                                            </div>
-                                                        </div>
 
-                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setSelectedCandidate(candidate);
-                                                                    setShowPlatformModal(true);
-                                                                }}
-                                                                style={{
-                                                                    padding: '8px 12px',
-                                                                    background: theme.primary,
-                                                                    border: 'none',
-                                                                    borderRadius: '8px',
-                                                                    fontSize: '0.75rem',
-                                                                    color: 'white',
-                                                                    cursor: 'pointer',
-                                                                    transition: 'all 0.2s',
-                                                                    fontWeight: '600'
-                                                                }}
-                                                                onMouseOver={(e) => e.target.style.background = theme.primaryHover}
-                                                                onMouseOut={(e) => e.target.style.background = theme.primary}
-                                                            >
-                                                                📋 Platform
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setSelectedCandidate(candidate);
-                                                                    setShowDetailModal(true);
-                                                                }}
-                                                                style={{
-                                                                    padding: '8px 12px',
-                                                                    background: 'transparent',
-                                                                    border: `2px solid ${theme.primary}`,
-                                                                    borderRadius: '8px',
-                                                                    fontSize: '0.75rem',
-                                                                    color: theme.primary,
-                                                                    cursor: 'pointer',
-                                                                    transition: 'all 0.2s',
-                                                                    fontWeight: '600'
-                                                                }}
-                                                                onMouseOver={(e) => {
-                                                                    e.target.style.background = theme.primary;
-                                                                    e.target.style.color = 'white';
-                                                                }}
-                                                                onMouseOut={(e) => {
-                                                                    e.target.style.background = 'transparent';
-                                                                    e.target.style.color = theme.primary;
-                                                                }}
-                                                            >
-                                                                👤 View Detail
-                                                            </button>
+                                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setSelectedCandidate(candidate);
+                                                                        setShowPlatformModal(true);
+                                                                    }}
+                                                                    style={{
+                                                                        padding: '8px 12px',
+                                                                        background: theme.primary,
+                                                                        border: 'none',
+                                                                        borderRadius: '8px',
+                                                                        fontSize: '0.75rem',
+                                                                        color: 'white',
+                                                                        cursor: 'pointer',
+                                                                        transition: 'all 0.2s',
+                                                                        fontWeight: '600'
+                                                                    }}
+                                                                    onMouseOver={(e) => e.target.style.background = theme.primaryHover}
+                                                                    onMouseOut={(e) => e.target.style.background = theme.primary}
+                                                                >
+                                                                    📋 Platform
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setSelectedCandidate(candidate);
+                                                                        setShowDetailModal(true);
+                                                                    }}
+                                                                    style={{
+                                                                        padding: '8px 12px',
+                                                                        background: 'transparent',
+                                                                        border: `2px solid ${theme.primary}`,
+                                                                        borderRadius: '8px',
+                                                                        fontSize: '0.75rem',
+                                                                        color: theme.primary,
+                                                                        cursor: 'pointer',
+                                                                        transition: 'all 0.2s',
+                                                                        fontWeight: '600'
+                                                                    }}
+                                                                    onMouseOver={(e) => {
+                                                                        e.target.style.background = theme.primary;
+                                                                        e.target.style.color = 'white';
+                                                                    }}
+                                                                    onMouseOut={(e) => {
+                                                                        e.target.style.background = 'transparent';
+                                                                        e.target.style.color = theme.primary;
+                                                                    }}
+                                                                >
+                                                                    👤 View Detail
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </motion.div>
                                                 );

@@ -118,6 +118,58 @@ const verifyStudent = async (req, res) => {
     }
 };
 
+// Get vote status for a student (which positions they've already voted for)
+const getVoteStatus = async (req, res) => {
+    try {
+        const { studentId, fullName } = req.body;
+
+        if (!studentId || !fullName) {
+            return res.status(400).json({ message: 'Student ID and Full Name are required' });
+        }
+
+        // Normalize student ID (handle with/without UGPR prefix)
+        let searchId = studentId.trim();
+        let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
+
+        if (!allowedVoter && !searchId.toUpperCase().startsWith('UGPR')) {
+            searchId = `UGPR${searchId}`;
+            allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
+        }
+
+        if (!allowedVoter) {
+            return res.status(404).json({ message: 'Student ID not found in allowed voters list' });
+        }
+
+        // Verify full name matches
+        const allowedName = allowedVoter.fullName.toLowerCase().trim();
+        if (allowedName !== fullName.toLowerCase().trim()) {
+            return res.status(400).json({ message: 'Full name does not match our records' });
+        }
+
+        // Get all votes for this student
+        const votes = await Vote.find({ studentId: searchId })
+            .populate('electionId', 'title')
+            .populate('candidateId', 'name');
+
+        // Group votes by position
+        const votedPositions = votes.map(vote => ({
+            position: vote.position,
+            electionId: vote.electionId._id,
+            electionTitle: vote.electionId.title,
+            candidateName: vote.candidateId.name,
+            timestamp: vote.timestamp
+        }));
+
+        res.json({
+            studentId: searchId,
+            votedPositions
+        });
+    } catch (error) {
+        console.error('Get vote status error:', error);
+        res.status(500).json({ message: 'An error occurred while fetching vote status' });
+    }
+};
+
 const submitPublicVote = async (req, res) => {
     const { studentId, fullName, votes } = req.body;
     const ipAddress = req.ip || req.connection.remoteAddress;
@@ -199,7 +251,7 @@ const submitPublicVote = async (req, res) => {
 
             if (existingVote) {
                 return res.status(400).json({
-                    message: `You have already voted for the ${candidate.position} position`
+                    message: `You voted for this position`
                 });
             }
 
@@ -239,7 +291,7 @@ const submitPublicVote = async (req, res) => {
     } catch (error) {
         if (error.code === 11000) {
             return res.status(400).json({
-                message: 'You have already voted for this position in this election'
+                message: 'You voted for this position'
             });
         }
         console.error('Vote submission error:', error);
@@ -250,5 +302,6 @@ const submitPublicVote = async (req, res) => {
 module.exports = {
     getActiveElections,
     verifyStudent,
+    getVoteStatus,
     submitPublicVote
 };
