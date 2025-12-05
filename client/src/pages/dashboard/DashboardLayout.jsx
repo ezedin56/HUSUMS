@@ -138,8 +138,7 @@ const DashboardLayout = () => {
                 overflowX: 'hidden'
             }}>
                 {/* Content Area */}
-                <div className="dashboard-content" style={{
-                    padding: '2rem',
+                <div className="dashboard-content px-4 sm:px-6 lg:px-8" style={{
                     maxWidth: '100%',
                     overflowX: 'hidden'
                 }}>
