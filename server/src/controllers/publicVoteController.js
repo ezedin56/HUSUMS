@@ -22,31 +22,73 @@ const getActiveElections = async (req, res) => {
                 const candidates = await Candidate.find({ electionId: election._id })
                     .populate('userId', 'firstName lastName');
 
+                // Calculate vote counts and percentages for each position
+                const positionVoteCounts = {};
+
+                // Get all votes for this election
+                const votes = await Vote.find({ electionId: election._id });
+
+                // Count votes per candidate
+                const candidateVoteMap = {};
+                votes.forEach(vote => {
+                    const candidateId = vote.candidateId.toString();
+                    candidateVoteMap[candidateId] = (candidateVoteMap[candidateId] || 0) + 1;
+                });
+
+                // Group candidates by position to calculate position-specific totals
+                const positionCandidates = {};
+                candidates.forEach(c => {
+                    if (!positionCandidates[c.position]) {
+                        positionCandidates[c.position] = [];
+                    }
+                    positionCandidates[c.position].push(c._id.toString());
+                });
+
+                // Calculate total votes per position
+                Object.keys(positionCandidates).forEach(position => {
+                    const candidateIds = positionCandidates[position];
+                    positionVoteCounts[position] = candidateIds.reduce((sum, cId) => {
+                        return sum + (candidateVoteMap[cId] || 0);
+                    }, 0);
+                });
+
                 return {
                     id: election._id,
                     title: election.title,
                     description: election.description,
                     endDate: election.endDate,
-                    candidates: candidates.map(c => ({
-                        id: c._id,
-                        name: c.userId ? `${c.userId.firstName} ${c.userId.lastName}` : 'Unknown',
-                        position: c.position,
-                        manifesto: c.manifesto,
-                        description: c.description,
-                        photo: c.photo,
-                        slogan: c.slogan || '',
-                        platform: c.platform || [],
-                        phone: c.phone || '',
-                        email: c.email || '',
-                        region: c.region || '',
-                        zone: c.zone || '',
-                        woreda: c.woreda || '',
-                        city: c.city || '',
-                        background: c.background || '',
-                        education: c.education || [],
-                        experience: c.experience || [],
-                        achievements: c.achievements || []
-                    }))
+                    candidates: candidates.map(c => {
+                        const candidateId = c._id.toString();
+                        const voteCount = candidateVoteMap[candidateId] || 0;
+                        const totalPositionVotes = positionVoteCounts[c.position] || 0;
+                        const votePercentage = totalPositionVotes > 0
+                            ? Math.round((voteCount / totalPositionVotes) * 100 * 10) / 10 // Round to 1 decimal
+                            : 0;
+
+                        return {
+                            id: c._id,
+                            name: c.userId ? `${c.userId.firstName} ${c.userId.lastName}` : 'Unknown',
+                            position: c.position,
+                            manifesto: c.manifesto,
+                            description: c.description,
+                            photo: c.photo,
+                            slogan: c.slogan || '',
+                            platform: c.platform || [],
+                            phone: c.phone || '',
+                            email: c.email || '',
+                            region: c.region || '',
+                            zone: c.zone || '',
+                            woreda: c.woreda || '',
+                            city: c.city || '',
+                            background: c.background || '',
+                            education: c.education || [],
+                            experience: c.experience || [],
+                            achievements: c.achievements || [],
+                            voteCount: voteCount,
+                            votePercentage: votePercentage,
+                            totalPositionVotes: totalPositionVotes
+                        };
+                    })
                 };
             })
         );

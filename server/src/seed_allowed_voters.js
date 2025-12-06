@@ -5,6 +5,14 @@ const connectDB = require('./config/database');
 const AllowedVoter = require('./models/AllowedVoter');
 const validVoters = require('./data/valid_voters');
 
+// Function to normalize student ID (same logic as in publicVoteController)
+const normalizeStudentId = (id) => {
+    let cleaned = id.trim().toUpperCase();
+    if (cleaned.startsWith('UGPR/')) return cleaned.replace('UGPR/', '');
+    if (cleaned.startsWith('UGPR')) return cleaned.replace('UGPR', '');
+    return cleaned;
+};
+
 const seedAllowedVoters = async () => {
     try {
         await connectDB();
@@ -14,7 +22,7 @@ const seedAllowedVoters = async () => {
 
         console.log(`Seeding ${validVoters.length} allowed voters...`);
         await AllowedVoter.insertMany(validVoters.map(v => ({
-            studentId: v.id,
+            studentId: normalizeStudentId(v.id),  // Normalize ID before inserting
             fullName: v.name
         })));
 

@@ -69,7 +69,9 @@ const PublicVote = () => {
     useEffect(() => {
         if (step === 2) {
             fetchElections();
-            const timer = setInterval(() => {
+
+            // Timer for countdown
+            const countdownTimer = setInterval(() => {
                 setTimeRemaining(prev => {
                     const [h, m, s] = prev.split(':').map(Number);
                     let totalSeconds = h * 3600 + m * 60 + s - 1;
@@ -80,7 +82,16 @@ const PublicVote = () => {
                     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                 });
             }, 1000);
-            return () => clearInterval(timer);
+
+            // Auto-refresh vote percentages every 10 seconds
+            const refreshTimer = setInterval(() => {
+                fetchElections();
+            }, 10000); // 10 seconds
+
+            return () => {
+                clearInterval(countdownTimer);
+                clearInterval(refreshTimer);
+            };
         }
     }, [step]);
 
@@ -303,6 +314,9 @@ const PublicVote = () => {
 
             setShowConfirmModal(false);
             setConfirmingPosition(null);
+
+            // Refresh elections to get updated vote percentages
+            await fetchElections();
 
             // Check if all positions are submitted
             const allSubmitted = elections.every(p => submittedPositions[p.id] || p.id === confirmingPosition);
