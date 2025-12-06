@@ -1,0 +1,8 @@
+Connected to Atlas.
+
+No election found with 'evening' in the title.
+
+Total Elections in DB: 0
+Total Candidates in DB: 0
+
+--- Detailed List of All Elections ---

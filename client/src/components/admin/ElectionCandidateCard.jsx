@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getPhotoUrl } from '../../utils/imageUrl';
 
 const ElectionCandidateCard = memo(({ candidate }) => {
     return (
@@ -12,9 +13,9 @@ const ElectionCandidateCard = memo(({ candidate }) => {
             <div className="flex items-start gap-4">
                 {/* Candidate Photo */}
                 <div className="w-16 h-16 rounded-full bg-gray-700 overflow-hidden border-2 border-white/10 flex-shrink-0">
-                    {candidate.photoUrl ? (
+                    {candidate.photoUrl || candidate.photo ? (
                         <img
-                            src={`${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${candidate.photoUrl}`}
+                            src={getPhotoUrl(candidate.photoUrl || candidate.photo)}
                             alt={`${candidate.User?.firstName} ${candidate.User?.lastName}`}
                             className="w-full h-full object-cover"
                         />

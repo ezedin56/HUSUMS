@@ -24,6 +24,7 @@ import PresidentVote from './pages/dashboard/president/Vote';
 import SecretaryMembers from './pages/dashboard/secretary/Members';
 import Records from './pages/dashboard/secretary/Records';
 import SecretaryVote from './pages/dashboard/secretary/Vote';
+import AttendanceSchedule from './pages/dashboard/secretary/AttendanceSchedule';
 import Inbox from './pages/dashboard/deptHead/Inbox';
 import ActionPlan from './pages/dashboard/deptHead/ActionPlan';
 import Vote from './pages/dashboard/member/Vote';
@@ -114,7 +115,8 @@ const Layout = () => {
             {/* Secretary Routes */}
             <Route path="secretary/members" element={<SecretaryMembers />} />
             <Route path="secretary/records" element={<Records />} />
-            <Route path="secretary/vote" element={<SecretaryVote />} />
+            <Route path="secretary/attendance" element={<AttendanceSchedule />} />
+            <Route path="secretary/elections" element={<SecretaryVote />} />
 
             {/* Dept Head Routes */}
             <Route path="dept-head/inbox" element={<Inbox />} />

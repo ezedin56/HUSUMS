@@ -1,0 +1,5 @@
+Connected to MongoDB Atlas
+Searching for elections created between 2025-12-05T00:00:00.000Z and 2025-12-05T23:59:59.999Z...
+
+No elections found created yesterday.
+Listing ALL elections instead:

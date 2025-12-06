@@ -1,12 +1,13 @@
 import React, { memo } from 'react';
 import { CheckCircle, XCircle, Trophy } from 'lucide-react';
+import { getPhotoUrl } from '../../utils/imageUrl';
 
 const ResultCandidateRow = memo(({ candidate, isWinner, isLoser }) => {
     return (
         <div className={`flex items-center gap-4 p-4 rounded-lg ${isWinner ? 'bg-green-500/10 border border-green-500/30' : isLoser ? 'bg-red-500/10 border border-red-500/30' : 'bg-white/5'}`}>
             <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden">
                 {candidate.photo ? (
-                    <img src={candidate.photo} alt={candidate.name} className="w-full h-full object-cover" />
+                    <img src={getPhotoUrl(candidate.photo)} alt={candidate.name} className="w-full h-full object-cover" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400 font-bold">
                         {candidate.name[0]}

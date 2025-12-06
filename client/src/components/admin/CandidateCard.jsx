@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { User, Edit, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getPhotoUrl } from '../../utils/imageUrl';
 
 const CandidateCard = memo(({ candidate, onEdit, onDelete }) => {
     return (
@@ -10,9 +11,9 @@ const CandidateCard = memo(({ candidate, onEdit, onDelete }) => {
             className="card bg-white/5 border border-white/10 p-6 rounded-xl flex flex-col items-center text-center"
         >
             <div className="w-24 h-24 rounded-full bg-gray-700 mb-4 overflow-hidden border-4 border-white/10">
-                {candidate.photoUrl ? (
+                {candidate.photoUrl || candidate.photo ? (
                     <img
-                        src={candidate.photoUrl.startsWith('data:') ? candidate.photoUrl : `${import.meta.env.VITE_API_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}`}${candidate.photoUrl}`}
+                        src={getPhotoUrl(candidate.photoUrl || candidate.photo)}
                         alt="Candidate"
                         className="w-full h-full object-cover"
                     />

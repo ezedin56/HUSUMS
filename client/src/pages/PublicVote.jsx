@@ -7,6 +7,7 @@ import {
     FaBook, FaGavel, FaBalanceScale, FaMoon, FaSun, FaHome, FaArrowLeft
 } from 'react-icons/fa';
 import { ToastContainer, useToast } from '../components/Toast';
+import { getPhotoUrl } from '../utils/imageUrl';
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`;
 
@@ -124,7 +125,7 @@ const PublicVote = () => {
                             ? candidate.platform
                             : (candidate.manifesto ? candidate.manifesto.split('\n').filter(line => line.trim().startsWith('-')).map(line => line.trim().substring(1).trim()).slice(0, 3) : ['Leadership', 'Innovation', 'Service']),
                         currentSupport: 0,
-                        photo: candidate.photo,
+                        photo: getPhotoUrl(candidate.photo),
                         manifesto: candidate.manifesto || '',
                         description: candidate.description || '',
                         // New detailed fields
