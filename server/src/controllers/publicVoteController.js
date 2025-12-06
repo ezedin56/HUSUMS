@@ -73,47 +73,19 @@ const verifyStudent = async (req, res) => {
         }
 
         // STRATEGY: Try all reasonable variations of the ID to find a match
-        const cleanId = (id) => id.trim().toUpperCase();
+        // STRATEGY: Normalize ID by removing UGPR prefix if present
+        const cleanId = (id) => {
+            let cleaned = id.trim().toUpperCase();
+            if (cleaned.startsWith('UGPR/')) return cleaned.replace('UGPR/', '');
+            if (cleaned.startsWith('UGPR')) return cleaned.replace('UGPR', '');
+            return cleaned;
+        };
+
         let searchId = cleanId(studentId);
-        let allowedVoter = null;
+        console.log(`[VERIFY] Normalized search ID: ${searchId}`);
 
-        // 1. Exact Match
-        allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
-        if (allowedVoter) console.log(`[VERIFY] Found by exact match: ${searchId}`);
-
-        // 2. Remove Prefix (if input starts with UGPR)
-        if (!allowedVoter && searchId.startsWith('UGPR')) {
-            // Try removing 'UGPR/' (e.g., UGPR/1234 -> 1234)
-            let noPrefixSlash = searchId.replace('UGPR/', '');
-            if (noPrefixSlash !== searchId) {
-                console.log(`[VERIFY] Trying without 'UGPR/': ${noPrefixSlash}`);
-                allowedVoter = await AllowedVoter.findOne({ studentId: noPrefixSlash });
-            }
-
-            // Try removing 'UGPR' (e.g., UGPR1234 -> 1234)
-            if (!allowedVoter) {
-                let noPrefix = searchId.replace('UGPR', '');
-                if (noPrefix !== searchId) {
-                    console.log(`[VERIFY] Trying without 'UGPR': ${noPrefix}`);
-                    allowedVoter = await AllowedVoter.findOne({ studentId: noPrefix });
-                }
-            }
-        }
-
-        // 3. Add Prefix (if input DOES NOT start with UGPR)
-        if (!allowedVoter && !searchId.startsWith('UGPR')) {
-            // Try adding 'UGPR'
-            let withPrefix = `UGPR${searchId}`;
-            console.log(`[VERIFY] Trying with 'UGPR' prefix: ${withPrefix}`);
-            allowedVoter = await AllowedVoter.findOne({ studentId: withPrefix });
-
-            // Try adding 'UGPR/'
-            if (!allowedVoter) {
-                withPrefix = `UGPR/${searchId}`;
-                console.log(`[VERIFY] Trying with 'UGPR/' prefix: ${withPrefix}`);
-                allowedVoter = await AllowedVoter.findOne({ studentId: withPrefix });
-            }
-        }
+        // Find allowed voter with the normalized ID
+        let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
 
         console.log('[VERIFY] AllowedVoter found:', allowedVoter ? `Yes (${allowedVoter.fullName})` : 'No');
 
@@ -159,20 +131,15 @@ const getVoteStatus = async (req, res) => {
         // For robustness, repeat basic check or rely on verifyStudent returning the normalized ID
         // Here we'll do a quick check assuming normalized ID or robust check again
 
-        const cleanId = (id) => id.trim().toUpperCase();
+        const cleanId = (id) => {
+            let cleaned = id.trim().toUpperCase();
+            if (cleaned.startsWith('UGPR/')) return cleaned.replace('UGPR/', '');
+            if (cleaned.startsWith('UGPR')) return cleaned.replace('UGPR', '');
+            return cleaned;
+        };
+
         let searchId = cleanId(studentId);
         let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
-
-        // Similar fallback logic as verify
-        if (!allowedVoter && searchId.startsWith('UGPR')) {
-            let temp = searchId.replace('UGPR/', '');
-            allowedVoter = await AllowedVoter.findOne({ studentId: temp });
-            if (!allowedVoter) {
-                temp = searchId.replace('UGPR', '');
-                allowedVoter = await AllowedVoter.findOne({ studentId: temp });
-            }
-            if (allowedVoter) searchId = allowedVoter.studentId;
-        }
 
         if (!allowedVoter) {
             return res.status(404).json({ message: 'Student ID not found in allowed voters list' });
@@ -210,19 +177,15 @@ const submitPublicVote = async (req, res) => {
         }
 
         // Verify student exists (Robust check)
-        const cleanId = (id) => id.trim().toUpperCase();
+        const cleanId = (id) => {
+            let cleaned = id.trim().toUpperCase();
+            if (cleaned.startsWith('UGPR/')) return cleaned.replace('UGPR/', '');
+            if (cleaned.startsWith('UGPR')) return cleaned.replace('UGPR', '');
+            return cleaned;
+        };
+
         let searchId = cleanId(studentId);
         let allowedVoter = await AllowedVoter.findOne({ studentId: searchId });
-
-        if (!allowedVoter && searchId.startsWith('UGPR')) {
-            let temp = searchId.replace('UGPR/', '');
-            allowedVoter = await AllowedVoter.findOne({ studentId: temp });
-            if (!allowedVoter) {
-                temp = searchId.replace('UGPR', '');
-                allowedVoter = await AllowedVoter.findOne({ studentId: temp });
-            }
-            if (allowedVoter) searchId = allowedVoter.studentId;
-        }
 
         if (!allowedVoter) {
             return res.status(404).json({ message: 'Student ID not found in allowed voters list' });

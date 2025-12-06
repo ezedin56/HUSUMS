@@ -1,6 +1,7 @@
 const User = require('./models/User');
 const Election = require('./models/Election');
 const Candidate = require('./models/Candidate');
+const AllowedVoter = require('./models/AllowedVoter');
 const bcrypt = require('bcryptjs');
 
 const seedDatabase = async () => {
@@ -211,6 +212,21 @@ const seedDatabase = async () => {
                 });
             }
             console.log('👥 Candidates created!');
+        }
+
+        // 4. Seed Allowed Voters (for public voting verification)
+        const voterCount = await AllowedVoter.countDocuments();
+        if (voterCount > 0) {
+            console.log('Allowed voters already exist, skipping voter seed.');
+        } else {
+            const voters = [
+                { studentId: '2494/16', fullName: 'Sultan Adinan Yusuf' },
+                { studentId: '1234/16', fullName: 'John Doe' },
+                { studentId: '5678/16', fullName: 'Jane Smith' }
+            ];
+
+            await AllowedVoter.insertMany(voters);
+            console.log('✅ Allowed voters seeded including Sultan!');
         }
 
 

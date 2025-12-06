@@ -15,6 +15,9 @@ const Booking = require('./Booking');
 const AuditLog = require('./AuditLog');
 const Archive = require('./Archive');
 const ProblemReport = require('./ProblemReport');
+const AttendanceSession = require('./AttendanceSession');
+const AttendanceSchedule = require('./AttendanceSchedule');
+const AllowedVoter = require('./AllowedVoter');
 
 module.exports = {
     User,
@@ -32,5 +35,9 @@ module.exports = {
     Booking,
     AuditLog,
     Archive,
-    ProblemReport
+    ProblemReport,
+    AttendanceSession,
+    AttendanceSchedule,
+    AllowedVoter
 };
+
