@@ -2,9 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/husums');
-
+// Connect to MongoDB inside the function
 const userSchema = new mongoose.Schema({
     studentId: { type: String, required: true, unique: true },
     email: { type: String, unique: true, sparse: true },
@@ -14,11 +12,11 @@ const userSchema = new mongoose.Schema({
     lastName: String,
     department: String
 });
-
 const User = mongoose.model('User', userSchema);
 
 async function createSecretary() {
     try {
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/husums');
         // Check if secretary exists
         let secretary = await User.findOne({ studentId: 'SEC001' });
 

@@ -26,6 +26,8 @@ connectDB().then(async (isInMemory) => {
     // Start Automation Jobs
     require('./jobs/autoCreateSession')();
     require('./jobs/autoCloseAttendance')();
+
+    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 });
 
 // Routes
@@ -46,5 +48,3 @@ app.use('/api/communication', require('./routes/communicationRoutes'));
 app.use('/api', require('./routes/voteRoutes'));
 
 app.get('/', (req, res) => res.send('HUSUMS API Running'));
-
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
