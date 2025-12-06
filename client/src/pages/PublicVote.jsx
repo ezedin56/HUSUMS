@@ -873,8 +873,10 @@ const PublicVote = () => {
 
                                                             <div style={{ marginBottom: '12px' }}>
                                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', fontSize: '0.8rem' }}>
-                                                                    <span style={{ color: theme.textSecondary }}>Support:</span>
-                                                                    <span style={{ fontWeight: '700', color: theme.primary }}>{candidate.currentSupport}%</span>
+                                                                    <span style={{ color: theme.textSecondary }}>Votes:</span>
+                                                                    <span style={{ fontWeight: '700', color: theme.primary }}>
+                                                                        {candidate.voteCount || 0} ({candidate.currentSupport}%)
+                                                                    </span>
                                                                 </div>
                                                                 <div style={{ width: '100%', height: '6px', background: theme.border, borderRadius: '3px', overflow: 'hidden' }}>
                                                                     <div style={{
