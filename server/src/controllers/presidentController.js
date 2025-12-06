@@ -980,14 +980,26 @@ const getLiveResults = async (req, res) => {
 
         const totalVotes = await Vote.countDocuments({ electionId });
 
-        const results = candidates.map(candidate => ({
-            _id: candidate._id,
-            name: `${candidate.userId.firstName} ${candidate.userId.lastName}`,
-            position: candidate.position,
-            photo: candidate.photo,
-            voteCount: candidate.voteCount,
-            percentage: totalVotes > 0 ? ((candidate.voteCount / totalVotes) * 100).toFixed(2) : 0
-        }));
+        // Calculate total votes per position
+        const votesByPosition = {};
+        candidates.forEach(candidate => {
+            if (!votesByPosition[candidate.position]) {
+                votesByPosition[candidate.position] = 0;
+            }
+            votesByPosition[candidate.position] += candidate.voteCount;
+        });
+
+        const results = candidates.map(candidate => {
+            const positionTotal = votesByPosition[candidate.position] || 0;
+            return {
+                _id: candidate._id,
+                name: `${candidate.userId.firstName} ${candidate.userId.lastName}`,
+                position: candidate.position,
+                photo: candidate.photo,
+                voteCount: candidate.voteCount,
+                percentage: positionTotal > 0 ? ((candidate.voteCount / positionTotal) * 100).toFixed(2) : 0
+            };
+        });
 
         res.json({
             totalVotes,
@@ -1018,24 +1030,34 @@ const getWinner = async (req, res) => {
             .sort({ position: 1, voteCount: -1 });
 
         // Group by position and find winner for each
+        // Group by position and find winner for each
         const positions = {};
+        const votesByPosition = {}; // Track total votes per position
+
         candidates.forEach(candidate => {
             if (!positions[candidate.position]) {
                 positions[candidate.position] = [];
+                votesByPosition[candidate.position] = 0;
             }
             positions[candidate.position].push(candidate);
+            votesByPosition[candidate.position] += candidate.voteCount;
         });
 
         const winners = {};
         Object.keys(positions).forEach(position => {
             const positionCandidates = positions[position];
             if (positionCandidates.length > 0) {
+                // Candidates are already sorted by voteCount desc
                 const winner = positionCandidates[0];
+                const positionTotal = votesByPosition[position];
+
                 winners[position] = {
                     _id: winner._id,
                     name: `${winner.userId.firstName} ${winner.userId.lastName}`,
                     photo: winner.photo,
-                    voteCount: winner.voteCount
+                    voteCount: winner.voteCount,
+                    percentage: positionTotal > 0 ? ((winner.voteCount / positionTotal) * 100).toFixed(2) : 0,
+                    totalVotes: positionTotal
                 };
             }
         });
