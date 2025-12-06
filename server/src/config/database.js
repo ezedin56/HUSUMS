@@ -9,21 +9,22 @@ const connectDB = async () => {
         // CASE 1: Production / Atlas / Explicit URI
         // If a URI is provided, we MUST connect to it. No fallbacks allowed.
         if (mongoURI) {
-            console.log('Connecting to configured MongoDB URI...');
-            try {
-                const conn = await mongoose.connect(mongoURI, {
-                    serverSelectionTimeoutMS: 15000 // 15s timeout
-                });
-                console.log(`MongoDB Connected: ${conn.connection.host}`);
+            while (true) {
+                try {
+                    console.log('Connecting to configured MongoDB URI...');
+                    const conn = await mongoose.connect(mongoURI, {
+                        serverSelectionTimeoutMS: 5000 // 5s timeout before retrying
+                    });
+                    console.log(`MongoDB Connected: ${conn.connection.host}`);
 
-                // Run automatic migration for vote indexes
-                await migrateVoteIndex();
-                return false; // Not in-memory
-            } catch (error) {
-                console.error('FATAL ERROR: Could not connect to the provided MONGO_URI.');
-                console.error('Error details:', error.message);
-                console.error('The server will NOT fall back to in-memory database to prevent data loss.');
-                process.exit(1); // Exit process so container restarts or user sees error
+                    // Run automatic migration for vote indexes
+                    await migrateVoteIndex();
+                    return false; // Not in-memory
+                } catch (error) {
+                    console.error('Connection failed:', error.message);
+                    console.log('Retrying in 5 seconds... (Press Ctrl+C to stop)');
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                }
             }
         }
 
