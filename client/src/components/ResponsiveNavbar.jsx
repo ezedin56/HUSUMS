@@ -47,7 +47,7 @@ const ResponsiveNavbar = ({ user, navItems, onLogout }) => {
             }}>
                 {/* Logo */}
                 <div className="navbar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', zIndex: 1001 }}>
-                    <span style={{ fontSize: '1.5rem' }}>⚡</span>
+                    <img src="/logo.jpg" alt="HUSUMS Logo" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
                     <span style={{
                         fontSize: '1.2rem',
                         fontWeight: '800',
