@@ -219,14 +219,28 @@ const seedDatabase = async () => {
         if (voterCount > 0) {
             console.log('Allowed voters already exist, skipping voter seed.');
         } else {
-            const voters = [
-                { studentId: '2494/16', fullName: 'Sultan Adinan Yusuf' },
-                { studentId: '1234/16', fullName: 'John Doe' },
-                { studentId: '5678/16', fullName: 'Jane Smith' }
-            ];
+            let voters = [];
+            try {
+                voters = require('./data/voters.json');
+            } catch (err) {
+                console.warn('⚠️ Could not load voters.json, falling back to basic seed.');
+                voters = [
+                    { studentId: '2494/16', fullName: 'Sultan Adinan Yusuf' },
+                    { studentId: '1234/16', fullName: 'John Doe' },
+                    { studentId: '5678/16', fullName: 'Jane Smith' }
+                ];
+            }
 
-            await AllowedVoter.insertMany(voters);
-            console.log('✅ Allowed voters seeded including Sultan!');
+            // Ensure IDs are normalized (just in case the JSON has prefixes)
+            const normalizedVoters = voters.map(v => {
+                let cleanId = v.studentId.trim().toUpperCase();
+                if (cleanId.startsWith('UGPR/')) cleanId = cleanId.replace('UGPR/', '');
+                else if (cleanId.startsWith('UGPR')) cleanId = cleanId.replace('UGPR', '');
+                return { ...v, studentId: cleanId };
+            });
+
+            await AllowedVoter.insertMany(normalizedVoters);
+            console.log(`✅ Seeded ${normalizedVoters.length} allowed voters!`);
         }
 
 
